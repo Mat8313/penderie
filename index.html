@@ -214,7 +214,7 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .stat b{font:700 30px/1 var(--display);color:var(--accent-soft);font-variant-numeric:tabular-nums}
 .stat small{font-size:16px}
 .stat span{font-size:12px;color:var(--muted);line-height:1.3}
-.fav .when{font-size:12px;color:var(--muted);width:58px;flex:none;line-height:1.2;padding-left:4px}
+.fav .when{font-size:12px;color:var(--muted);width:74px;flex:none;line-height:1.25;padding-left:4px;overflow-wrap:anywhere}
 .rank{display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}
 .rk{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px}
 .rk .ph{width:48px;height:48px;border-radius:10px;flex:none}
@@ -234,6 +234,33 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .toggle[aria-pressed="true"] i{background:rgba(var(--accent-rgb),.25);border-color:var(--accent)}
 .toggle[aria-pressed="true"] i::after{transform:translateX(18px);background:var(--accent);box-shadow:var(--glow)}
 @media (max-width:360px){.seg button{font-size:13px;padding:8px 2px}}
+.bk{display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--tile);border:1px solid rgba(var(--accent-rgb),.5);border-radius:14px;padding:10px 12px;margin-top:12px;box-shadow:var(--glow);flex-wrap:wrap}
+.bk>div:first-child{display:grid;gap:2px;min-width:0;flex:1 1 200px}
+.bk b{font-size:14px}
+.bk-a{display:flex;align-items:center;gap:12px}
+.batch-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.batch-grid .ph{aspect-ratio:1}
+.batch-grid .cap{font-size:11px}
+.gap-list{display:grid;gap:6px}
+.gap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--bad);border-radius:10px;padding:8px 10px}
+.gap span{color:var(--muted)}
+.valcard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
+.valcard>span:last-child{display:grid;gap:2px;min-width:0}
+.valcard b{font:600 20px/1.1 var(--display)}
+.vi{width:44px;height:44px;border-radius:12px;background:var(--tile);display:grid;place-items:center;color:var(--accent);flex:none;border:1px solid var(--line)}
+.vi svg{width:24px;height:24px;filter:drop-shadow(0 0 4px rgba(var(--accent-rgb),.7))}
+.steps{display:grid;gap:8px}
+.step{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--tile);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper b{min-width:24px;text-align:center;font-variant-numeric:tabular-nums;font-size:17px}
+.stepper .icon-btn{width:36px;height:36px;font-size:20px;line-height:1}
+.pack-g{display:grid;gap:6px;margin-top:10px}
+.pack{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.pk{border:1px solid var(--line);background:var(--tile);border-radius:12px;padding:5px;display:grid;gap:4px;font-size:11px;text-align:center;position:relative}
+.pk .ph{aspect-ratio:1;border-radius:9px}
+.pk span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk.on{opacity:.45}
+.pk.on::after{content:"✓";position:absolute;top:6px;right:8px;color:var(--accent);font-weight:700;font-size:16px;text-shadow:0 0 6px rgba(var(--accent-rgb),.8)}
 </style>
 </head>
 <body>
@@ -547,8 +574,8 @@ async function tx(store, mode, fn){
 }
 const getAll = st => tx(st,"readonly",s=>s.getAll());
 const getOne = (st,k) => tx(st,"readonly",s=>s.get(k));
-const put = (st,v) => tx(st,"readwrite",s=>s.put(v));
-const del = (st,id) => tx(st,"readwrite",s=>s.delete(id));
+const put = (st,v) => { if(st!=="meta" && !v?.sample) BK.bump(); return tx(st,"readwrite",s=>s.put(v)); };
+const del = (st,id) => { BK.bump(); return tx(st,"readwrite",s=>s.delete(id)); };
 const uid = ()=> Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 
 /* ================= État ================= */
@@ -648,6 +675,7 @@ const ICON = {
   x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   heart:f=>`<svg viewBox="0 0 24 24" fill="${f?"currentColor":"none"}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>`,
   down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 15v4.5a2.5 2.5 0 0 0 5 0V15h3.6a2 2 0 0 0 2-2.3l-1.2-7A2 2 0 0 0 17.4 4H7v11l3 0zM7 4H4v11h3"/></svg>',
+  bag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M8 20v1M16 20v1M4 12h16"/></svg>',
   pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7-6.3-7-11.5a7 7 0 0 1 14 0C19 14.7 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   rain:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 15a4 4 0 1 1 .9-7.9A5.5 5.5 0 0 1 18.5 9 3.5 3.5 0 0 1 18 16H7z"/><path d="M9 19l-1 2M13 19l-1 2M17 19l-1 2"/></svg>',
 };
@@ -721,17 +749,21 @@ function viewTenue(){
   const favHtml = favs.length ? `<div class="section-h"><h2>Mes tenues favorites</h2><span class="sub">${favs.length}</span></div>
     <div class="favs">${favs.map(({f,pieces})=>`<div class="fav"><button class="thumbs" data-act="showfav" data-id="${f.id}" aria-label="Afficher cette tenue">${pieces.map(ph).join("")}</button>
       <button class="icon-btn" data-act="unfav" data-id="${f.id}" aria-label="Retirer des favoris">${ICON.x}</button></div>`).join("")}</div>` : "";
-  return ctrl+pinBar+card+favHtml;
+  const val=loadValise();
+  const valHtml=`<button class="valcard" data-act="valise"><span class="vi">${ICON.bag}</span><span><b>${val?`Ma valise${val.place?` · ${esc(val.place)}`:""}`:"Mode valise"}</b><span class="sub">${val?`${val.nights} jours · touche pour voir la liste`:"Le minimum de pièces pour un voyage, selon la météo sur place"}</span></span></button>`;
+  return backupBanner()+ctrl+pinBar+card+favHtml+valHtml;
 }
 
 function viewDressing(){
   if(!state.items.length) return `<div style="margin-top:14px">${emptyBlock("Ton dressing est vide","Commence par 4 ou 5 pièces que tu portes souvent. Tu peux prendre la photo directement depuis l'app.")}</div>`;
   const counts = Object.fromEntries(TYPES.map(t=>[t.id,state.items.filter(i=>i.type===t.id).length]));
-  const chips = [["tout","Tout",state.items.length],...TYPES.filter(t=>counts[t.id]||t.id!=="accessoire").map(t=>[t.id,t.plural,counts[t.id]])];
-  const list = state.items.filter(i=>state.filter==="tout"||i.type===state.filter).sort((a,b)=>b.created-a.created);
-  return `<div class="filters" role="group" aria-label="Filtrer">${chips.map(([v,l,n])=>`<button class="chip" data-filter="${v}" aria-pressed="${state.filter===v}">${l}<span class="n">${n}</span></button>`).join("")}</div>
+  const nrev=state.items.filter(i=>i.review).length;
+  if(state.filter==="review"&&!nrev) state.filter="tout";
+  const chips = [...(nrev?[["review","À vérifier",nrev]]:[]),["tout","Tout",state.items.length],...TYPES.filter(t=>counts[t.id]||t.id!=="accessoire").map(t=>[t.id,t.plural,counts[t.id]])];
+  const list = state.items.filter(i=>state.filter==="tout"||(state.filter==="review"?i.review:i.type===state.filter)).sort((a,b)=>b.created-a.created);
+  return `${state.filter==="review"?`<p class="sub" style="margin:14px 0 0">Ouvre chaque pièce, corrige si besoin et enregistre : le badge disparaît.</p>`:""}<div class="filters" role="group" aria-label="Filtrer">${chips.map(([v,l,n])=>`<button class="chip" data-filter="${v}" aria-pressed="${state.filter===v}">${l}<span class="n">${n}</span></button>`).join("")}</div>
   ${list.length?`<div class="grid">${list.map(i=>`<button class="tag" data-act="edit" data-id="${i.id}">
-      <span class="hole"></span>${i.sample?`<span class="badge">Exemple</span>`:""}
+      <span class="hole"></span>${i.review?`<span class="badge">À vérifier</span>`:i.sample?`<span class="badge">Exemple</span>`:""}
       ${ph(i)}<div class="meta"><span class="nm">${esc(itemName(i))}</span><span class="ty">${dot(i.color,i.color2)}${esc(typeLabel(i))} · ${STYLES.find(s=>s.id===i.style).label}</span></div></button>`).join("")}</div>`
   : `<p class="sub">Aucune pièce dans cette catégorie.</p>`}`;
 }
@@ -765,6 +797,7 @@ function viewSuivi(){
     <div class="section-h"><h2>Dernières tenues</h2></div>${hist}
     <div class="section-h"><h2>Les plus portées</h2></div>${mostHtml}
     <div class="section-h"><h2>À ressortir</h2><span class="sub">pas portées depuis 2 mois</span></div>${sleepyHtml}
+    <div class="section-h"><h2>Ce qui manque</h2></div>${gapsHtml()}
     <div class="section-h"><h2>Couleurs du dressing</h2></div>${colorsHtml}`;
 }
 
@@ -803,6 +836,7 @@ function renderEditor(isNew){
         <li><b>Chaussures</b> : une seule, de profil. <b>Accessoires</b> : posés seuls, bien au centre.</li>
       </ul>
     </details>
+    ${isNew?`<label class="btn ghost" for="batchIn" style="text-align:center">Ajouter plusieurs photos d'un coup</label><input type="file" id="batchIn" accept="image/*" multiple hidden>`:""}
     <div class="photo-pick">${preview}<div style="display:grid;gap:6px">
       <label class="btn primary" for="photoIn">${(s.photo||s.previewURL)?"Changer la photo":"Prendre une photo"}</label>
       <input type="file" id="photoIn" accept="image/*" hidden>
@@ -823,6 +857,7 @@ function renderEditor(isNew){
     <div id="delZone"><button class="btn danger" data-act="askdel" style="width:100%">Supprimer cette pièce</button></div>`}`);
   sheetState.isNew=isNew;
   document.getElementById("photoIn").addEventListener("change",onPhoto);
+  document.getElementById("batchIn")?.addEventListener("change",e=>startBatch(e.target.files));
   document.getElementById("nameIn").addEventListener("input",e=>{ sheetState.name=e.target.value; });
 }
 
@@ -1106,6 +1141,7 @@ function applySkin(id){
 /* ================= Réglages et sauvegarde ================= */
 function openMenu(){
   const hasSamples=state.items.some(i=>i.sample);
+  prepareBackup().then(()=>{ const b=document.getElementById("bkBtn"); if(b){ b.disabled=false; b.textContent=b.textContent.includes("Préparation")?"Sauvegarder maintenant":b.textContent; } });
   openSheet(`<div class="grab"></div>
     <div class="sheet-h"><h2>Réglages</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
     <div class="field"><div class="ctl-label">Apparence</div>
@@ -1116,21 +1152,15 @@ function openMenu(){
       <p class="sub" style="margin:0">L'app retient tes « j'aime », « pas fan » et les tenues que tu portes pour affiner ses propositions.</p>
       <div id="prefZone"><button class="btn ghost" data-act="askreset" style="width:100%">Réinitialiser les goûts appris</button></div></div>
     <div class="field"><div class="ctl-label">Sauvegarde</div>
-    <p class="sub" style="margin:0">Ton dressing est enregistré dans ce navigateur, sur cet appareil. Exporte une sauvegarde pour le transférer sur un autre appareil ou ne rien perdre.</p></div>
+    <p class="sub" style="margin:0">Ton dressing vit dans l'app, sur ce téléphone. Sauvegarde-le dans iCloud Drive pour ne rien perdre (changement de téléphone, app supprimée) ou pour le retrouver sur un autre appareil.
+    ${BK.get().last?`<br><b>Dernière sauvegarde : ${dateFR(BK.get().last)}</b>${BK.get().changes?` · ${BK.get().changes} changement${BK.get().changes>1?"s":""} depuis`:" · à jour"}`:"<br><b>Aucune sauvegarde pour l'instant.</b>"}</p></div>
     <div class="menu">
-      <button class="btn" data-act="export">Exporter une sauvegarde (.json)</button>
-      <button class="btn" data-act="import">Importer une sauvegarde</button>
+      <button class="btn primary" id="bkBtn" data-act="backup" ${backupFile?"":"disabled"}>${backupFile?"Sauvegarder maintenant":"Préparation de la sauvegarde…"}</button>
+      <button class="btn" data-act="import">Restaurer une sauvegarde</button>
       ${hasSamples?`<button class="btn danger" data-act="clearsamples">Retirer les exemples</button>`:`<button class="btn" data-act="samples">Charger des pièces d'exemple</button>`}
     </div>`);
 }
 const blobToData = b => new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(b); });
-async function exportData(){
-  const items = await Promise.all(state.items.map(async i=>({...i, photo: i.photo? await blobToData(i.photo):null})));
-  const data = JSON.stringify({app:"penderie",version:2,exported:new Date().toISOString(),items,outfits:state.outfits,wears:state.wears,prefs});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));
-  a.download=`penderie-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),4000); toast("Sauvegarde exportée");
-}
 async function importData(file){
   try{
     const data=JSON.parse(await file.text());
@@ -1143,7 +1173,7 @@ async function importData(file){
     for(const f of (data.outfits||[])) await put("outfits",f);
     for(const w of (data.wears||[])) await put("wears",w);
     if(data.prefs){ prefs={pairs:{...prefs.pairs,...data.prefs.pairs},colors:{...prefs.colors,...data.prefs.colors}}; await put("meta",{key:"prefs",...prefs}); }
-    await load(); closeSheet(); state.current=null; render(); toast(`${data.items.length} pièces importées`);
+    await load(); backupDone(); closeSheet(); state.current=null; render(); toast(`${data.items.length} pièces restaurées`);
   }catch(e){ toast("Ce fichier n'est pas une sauvegarde Penderie valide."); }
 }
 async function loadSamples(){
@@ -1175,10 +1205,248 @@ async function clearSamples(){
 }
 function outfitAll(o){ return [...o.pieces, ...(o.acc||[]).map(a=>a.item)]; }
 
+/* ================= Sauvegarde sans réglage =================
+   Pas de compte ni de serveur : l'app prépare un fichier de sauvegarde et l'envoie dans la feuille de partage
+   d'iOS (« Enregistrer dans Fichiers » → iCloud Drive). Un rappel discret apparaît seulement quand
+   il y a des changements non sauvegardés. Le fichier garde toujours le même nom : iOS propose de remplacer l'ancien. */
+const BK = {
+  get(){ try{ return JSON.parse(localStorage.getItem("penderie.backup"))||{changes:0,last:0,snooze:0}; }catch(e){ return {changes:0,last:0,snooze:0}; } },
+  set(v){ try{ localStorage.setItem("penderie.backup",JSON.stringify(v)); }catch(e){} },
+  bump(){ const b=BK.get(); b.changes++; BK.set(b); backupFile=null; },
+};
+let backupFile=null, backupBusy=null;
+function needsBackup(){
+  const b=BK.get(), real=state.items.filter(i=>!i.sample).length;
+  if(real<3 || b.changes===0 || Date.now()<b.snooze) return false;
+  return b.changes>=5 || Date.now()-b.last>7*DAY;
+}
+async function prepareBackup(){
+  if(backupFile) return backupFile;
+  if(backupBusy) return backupBusy;
+  backupBusy=(async()=>{
+    const items = await Promise.all(state.items.map(async i=>({...i, photo: i.photo? await blobToData(i.photo):null})));
+    const data = JSON.stringify({app:"penderie",version:3,exported:new Date().toISOString(),items,outfits:state.outfits,wears:state.wears,prefs});
+    backupFile = new File([data],"Penderie-sauvegarde.json",{type:"application/json"});
+    backupBusy=null; return backupFile;
+  })();
+  return backupBusy;
+}
+function backupDone(){ BK.set({changes:0,last:Date.now(),snooze:0}); }
+async function shareBackup(){
+  // le fichier est préparé à l'avance : iOS exige que le partage parte directement du tap
+  const f = backupFile || await prepareBackup();
+  if(navigator.canShare && navigator.canShare({files:[f]})){
+    try{ await navigator.share({files:[f], title:"Sauvegarde Penderie"}); backupDone(); toast("Sauvegarde enregistrée"); render(); }
+    catch(e){ if(e.name!=="AbortError") toast("Le partage a échoué. Réessaie."); }
+  } else {
+    const a=document.createElement("a"); a.href=URL.createObjectURL(f); a.download=f.name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000); backupDone(); toast("Sauvegarde téléchargée"); render();
+  }
+}
+function backupBanner(){
+  if(!needsBackup()) return "";
+  prepareBackup().then(()=>{ const b=document.getElementById("bkBtn"); if(b){ b.disabled=false; b.textContent="Sauvegarder"; } });
+  const n=BK.get().changes;
+  return `<div class="bk"><div><b>${n} changement${n>1?"s":""} pas encore sauvegardé${n>1?"s":""}</b><span class="sub">Un tap, puis « Enregistrer dans Fichiers » → iCloud Drive.</span></div>
+    <div class="bk-a"><button class="btn primary sm" id="bkBtn" data-act="backup" ${backupFile?"":"disabled"}>${backupFile?"Sauvegarder":"Préparation…"}</button><button class="link" data-act="snooze">Plus tard</button></div></div>`;
+}
+
+/* ================= Ajout en série ================= */
+let batch=null;
+async function startBatch(files){
+  files=[...files].slice(0,40);
+  if(!files.length) return;
+  closeSheet();
+  batch={total:files.length, done:0, rows:[], cancel:false};
+  let lock=null; try{ lock=await navigator.wakeLock?.request("screen"); }catch(e){}
+  renderBatch();
+  for(const f of files){
+    if(batch.cancel) break;
+    batch.current=f.name; renderBatch();
+    try{
+      const res=await processImage(f);
+      const it={id:uid(), type:"haut", kind:"montre", color:res.color, color2:null, style:"casual", season:"toutes", name:"", created:Date.now(), lastWorn:null, sample:false, cut:false, review:true, photo:res.blob};
+      let label=null;
+      try{ const g=await recognize(res.canvas); if(g){ for(const k of ["type","style","season","kind"]) if(g[k]) it[k]=g[k]; label=g.label; } }catch(e){}
+      if(settings.cutout){ try{ const r=await cutout(res.blob,res.wb); it.photo=r.blob; it.cut=true; it.color=r.color; if(r.color2&&r.color2!==r.color) it.color2=r.color2; markSeen("cut"); }catch(e){} }
+      if(it.type!=="accessoire") delete it.kind;
+      await put("items",it); state.items.push(it);
+      batch.rows.push({it,label});
+    }catch(e){ batch.rows.push({error:f.name}); }
+    batch.done++; renderBatch();
+  }
+  try{ await lock?.release(); }catch(e){}
+  const ok=batch.rows.filter(r=>r.it).length;
+  batch=null; closeSheet(); state.current=null; state.tab="dressing"; state.filter="review"; render(); scrollTo(0,0);
+  toast(`${ok} pièce${ok>1?"s":""} ajoutée${ok>1?"s":""}. Vérifie-les d'un coup d'œil.`);
+}
+function renderBatch(){
+  if(!batch) return;
+  const pct=Math.round(100*batch.done/batch.total);
+  openSheet(`<div class="grab"></div>
+    <div class="sheet-h"><h2>Ajout en série</h2></div>
+    <div class="score-row"><div class="score">${batch.done}<small>/${batch.total}</small></div><div style="flex:1"><div class="ctl-label" style="margin:0 0 5px">${batch.done<batch.total?"Analyse et détourage…":"Terminé"}</div><div class="meter"><i style="width:${pct}%"></i></div></div></div>
+    <p class="sub" style="margin:0">Garde l'app ouverte pendant l'analyse. Chaque photo prend quelques secondes.</p>
+    <div class="batch-grid">${batch.rows.map(r=>r.it?`<div class="piece">${ph(r.it)}<div class="cap">${dot(r.it.color,r.it.color2)}<span>${esc(r.label||typeLabel(r.it))}</span></div></div>`:`<div class="piece"><div class="ph"><span class="sub">Illisible</span></div></div>`).join("")}</div>
+    <button class="btn ghost" data-act="stopbatch">Arrêter ici</button>`);
+}
+
+/* ================= Pièces manquantes ================= */
+const ARCHETYPES = [
+  ["haut","blanc","casual","toutes","T-shirt blanc"],["haut","blanc","chic","toutes","Chemise blanche"],["haut","marine","casual","toutes","T-shirt marine"],
+  ["haut","bleu","chic","toutes","Chemise bleu ciel"],["bas","denim","casual","toutes","Jean brut"],["bas","noir","chic","toutes","Pantalon noir"],
+  ["bas","beige","poly","mi","Chino beige"],["bas","gris","sport","toutes","Jogging gris"],["chaussures","blanc","casual","toutes","Baskets blanches"],
+  ["chaussures","marron","chic","toutes","Derbies marron"],["chaussures","noir","chic","toutes","Chaussures noires"],["chaussures","gris","sport","toutes","Baskets de sport"],
+  ["pull","gris","poly","mi","Pull gris"],["pull","marine","poly","hiver","Pull marine"],["pull","beige","casual","mi","Sweat beige"],
+  ["veste","marine","chic","mi","Veste marine"],["veste","noir","casual","hiver","Doudoune noire"],["veste","camel","chic","hiver","Manteau camel"],["veste","kaki","casual","mi","Surchemise kaki"],
+];
+const CONTEXTS = ["chaud","doux","froid"].flatMap(w=>["casual","chic","sport"].map(o=>({weather:w,occ:o})));
+const CTX_LABEL = c=>`${{chaud:"Chaud",doux:"Doux",froid:"Froid"}[c.weather]} · ${{casual:"décontracté",chic:"habillé",sport:"sport"}[c.occ]}`;
+function countGood(items, ctx, cap){
+  const H=eligible(items,"haut",ctx), B=eligible(items,"bas",ctx), S=eligible(items,"chaussures",ctx);
+  if(!H.length||!B.length||!S.length) return 0;
+  const V = ctx.weather==="chaud" ? [] : eligible(items,"veste",ctx);
+  const J = ctx.weather==="froid" && V.length ? V : [null,...V];
+  const P = ctx.weather==="chaud" ? [null] : [null,...eligible(items,"pull",ctx)];
+  const total=H.length*B.length*S.length*J.length*P.length;
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  const n=Math.min(total,cap); let good=0, tried=0;
+  const test=(p)=>{ tried++; const o=scoreOutfit(p,{...ctx,pin:null}); if(o.colorScore>=7 && !o.warn.length) good++; };
+  if(total<=cap){ for(const h of H)for(const b of B)for(const s of S)for(const v of J)for(const pu of P){ if(pu&&h.season==="hiver") continue; test([v,pu,h,b,s].filter(Boolean)); } }
+  else for(let k=0;k<n;k++){ const h=pick(H), pu=pick(P); test([pick(J),pu&&h.season!=="hiver"?pu:null,h,pick(B),pick(S)].filter(Boolean)); }
+  return tried? Math.round(good/tried*total) : 0;
+}
+async function analyzeGaps(){
+  const items=state.items.filter(i=>i.type!=="accessoire");
+  state.gaps={busy:true, progress:0}; render();
+  const base=CONTEXTS.map(c=>countGood(items,c,1500));
+  const holes=CONTEXTS.map((c,i)=>({c,n:base[i],miss:generate(items,{...c,pin:null},new Set()).missing})).filter(x=>x.miss||x.n===0);
+  const owned=a=>items.some(i=>i.type===a[0] && i.color===a[1] && (i.style===a[2]||i.style==="poly"||a[2]==="poly"));
+  const sug=[];
+  const arch=ARCHETYPES.filter(a=>!owned(a));
+  for(let k=0;k<arch.length;k++){
+    const a=arch[k], fake={id:"_x"+k,type:a[0],color:a[1],style:a[2],season:a[3],name:a[4]};
+    let gain=0, fixes=0;
+    for(let i=0;i<CONTEXTS.length;i++){ const n=countGood([...items,fake],CONTEXTS[i],1500); gain+=Math.max(0,n-base[i]); if(base[i]===0&&n>0) fixes++; }
+    if(gain>0) sug.push({a,gain,fixes});
+    state.gaps.progress=Math.round(100*(k+1)/arch.length);
+    if(k%2===1){ render(); await new Promise(r=>setTimeout(r,0)); }
+  }
+  sug.sort((x,y)=>(y.fixes*1000+y.gain)-(x.fixes*1000+x.gain));
+  // ceinture : utile seulement s'il n'y en a aucune du même cuir que tes chaussures habillées les plus courantes
+  const belts=state.items.filter(i=>i.type==="accessoire"&&i.kind==="ceinture").map(i=>LEATHER(i.color));
+  const leatherShoes=items.filter(i=>i.type==="chaussures"&&["brun","noir"].includes(LEATHER(i.color)));
+  const beltTips=[...new Set(leatherShoes.map(s=>LEATHER(s.color)))].filter(l=>!belts.includes(l)).map(l=>l==="brun"?"Une ceinture marron, pour aller avec tes chaussures marron":"Une ceinture noire, pour aller avec tes chaussures noires");
+  state.gaps={busy:false, holes, sug:sug.slice(0,4), beltTips, sig:state.items.length+":"+state.items.map(i=>i.id+i.color+i.type+i.style+i.season).join("").length, base:base.reduce((a,b)=>a+b,0)};
+  render();
+}
+function gapsHtml(){
+  const g=state.gaps;
+  const sig=state.items.length+":"+state.items.map(i=>i.id+i.color+i.type+i.style+i.season).join("").length;
+  if(!g || (!g.busy && g.sig!==sig)) return `<p class="sub" style="margin:0 0 10px">L'app teste toutes les combinaisons de ton dressing pour trouver les trous et les pièces qui débloqueraient le plus de tenues.</p><button class="btn primary" data-act="gaps" style="width:100%">Analyser mon dressing</button>`;
+  if(g.busy) return `<div class="score-row"><div style="flex:1"><div class="ctl-label" style="margin:0 0 5px">Analyse des combinaisons… ${g.progress}%</div><div class="meter"><i style="width:${g.progress}%"></i></div></div></div>`;
+  const holes = g.holes.length ? `<div class="gap-list">${g.holes.map(h=>`<div class="gap"><b>${CTX_LABEL(h.c)}</b><span>${h.miss?`il manque ${h.miss.join(", ")}`:"aucune tenue vraiment réussie"}</span></div>`).join("")}</div>` : `<p class="sub" style="margin:0">Tu as au moins une bonne tenue pour chaque météo et chaque occasion.</p>`;
+  const sug = g.sug.length||g.beltTips.length ? `<div class="rank">${g.sug.map(s=>{ const f={type:s.a[0],color:s.a[1],kind:null}; return `<div class="rk"><div class="ph">${silhouette(f)}</div><div class="rk-b"><div class="rk-n"><span>${esc(s.a[4])}</span><b>+${s.gain}</b></div><span class="sub">${s.fixes?`comble ${s.fixes} trou${s.fixes>1?"s":""} · `:""}+${s.gain} tenue${s.gain>1?"s":""} réussie${s.gain>1?"s":""}</span></div></div>`; }).join("")}${g.beltTips.map(t=>`<div class="rk"><div class="ph">${silhouette({type:"accessoire",kind:"ceinture",color:t.includes("marron")?"marron":"noir"})}</div><div class="rk-b"><span>${t}</span></div></div>`).join("")}</div>`
+    : `<p class="sub" style="margin:0">Rien d'évident à ajouter : ton dressing est bien équilibré.</p>`;
+  return `<div class="ctl-label">Les trous</div>${holes}<div class="ctl-label" style="margin-top:14px">Ce qui ferait le plus de différence</div>${sug}
+    <p class="sub" style="margin:10px 0 0">Aujourd'hui : environ ${g.base} combinaisons réussies, toutes météos et occasions confondues. <button class="link" data-act="gaps">Relancer</button></p>`;
+}
+
+/* ================= Mode valise ================= */
+const VAL_KEY="penderie.valise";
+const loadValise=()=>{ try{ return JSON.parse(localStorage.getItem(VAL_KEY)); }catch(e){ return null; } };
+const saveValise=v=>{ try{ v?localStorage.setItem(VAL_KEY,JSON.stringify(v)):localStorage.removeItem(VAL_KEY); }catch(e){} };
+let valForm={dest:"",days:5,chic:1,sport:0,weather:"auto"};
+function openValiseForm(){
+  openSheet(`<div class="grab"></div>
+    <div class="sheet-h"><h2>Mode valise</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
+    <p class="sub" style="margin:0">L'app choisit le minimum de pièces qui donne une tenue différente chaque jour, selon la météo sur place.</p>
+    <div class="field"><div class="ctl-label">Destination</div><input type="text" id="valDest" placeholder="ex. Lisbonne" value="${esc(valForm.dest)}" maxlength="60" autocomplete="off"></div>
+    <div class="field"><div class="ctl-label">Météo</div>${seg("vweather",[["auto","Prévisions"],["chaud","Chaud"],["doux","Doux"],["froid","Froid"]],valForm.weather)}
+      <span class="hint">« Prévisions » utilise la météo des prochains jours à destination (jusqu'à 16 jours).</span></div>
+    <div class="steps">
+      ${[["days","Nombre de jours",1,21],["chic","Soirées habillées",0,10],["sport","Séances de sport",0,10]].map(([k,l,mn,mx])=>`<div class="step"><span>${l}</span><div class="stepper"><button class="icon-btn" data-act="vstep" data-k="${k}" data-d="-1" aria-label="Moins">−</button><b id="v_${k}">${valForm[k]}</b><button class="icon-btn" data-act="vstep" data-k="${k}" data-d="1" aria-label="Plus">+</button></div></div>`).join("")}
+    </div>
+    <button class="btn primary" data-act="valgo">Préparer ma valise</button>`);
+  document.getElementById("valDest").addEventListener("input",e=>{ valForm.dest=e.target.value; });
+}
+async function forecastFor(dest, n){
+  const g=await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(dest)}&count=1&language=fr&format=json`)).json();
+  const r=g.results?.[0]; if(!r) throw new Error("ville");
+  const d=await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${r.latitude}&longitude=${r.longitude}&daily=apparent_temperature_max,apparent_temperature_min,precipitation_probability_max&timezone=auto&forecast_days=${Math.min(16,n)}`)).json();
+  const days=d.daily.apparent_temperature_max.map((mx,i)=>{ const mn=d.daily.apparent_temperature_min[i]; return {weather:feelToWeather((2*mx+mn)/3), rain:(d.daily.precipitation_probability_max?.[i]??0)>=50, min:mn, max:mx}; });
+  while(days.length<n) days.push({...days[days.length-1]}); // au-delà de 16 jours : on prolonge la dernière prévision
+  return {place:r.name+(r.country?`, ${r.country}`:""), days};
+}
+async function buildValise(){
+  const n=valForm.days;
+  let place=valForm.dest.trim()||null, wdays;
+  if(valForm.weather==="auto"){
+    if(!place){ toast("Indique une destination, ou choisis la météo à la main."); return; }
+    openSheet(`<div class="grab"></div><div class="sheet-h"><h2>Mode valise</h2></div><p class="sub">Récupération de la météo à ${esc(place)}…</p>`);
+    try{ const f=await forecastFor(place,n); place=f.place; wdays=f.days; }
+    catch(e){ toast(e.message==="ville"?"Destination introuvable. Vérifie l'orthographe.":"Météo indisponible. Choisis-la à la main."); openValiseForm(); return; }
+  } else wdays=Array.from({length:n},()=>({weather:valForm.weather, rain:false}));
+  // occasions : sport en début de séjour, soirées habillées en fin, le reste décontracté
+  const occ=Array.from({length:n},()=>"casual");
+  for(let i=0;i<Math.min(valForm.sport,n);i++) occ[i]="sport";
+  for(let i=0;i<Math.min(valForm.chic,n);i++) if(occ[n-1-i]==="casual") occ[n-1-i]="chic";
+  const items=state.items.filter(i=>i.type!=="accessoire");
+  const chosen=new Set(), useCount={}, seen=new Set(), plan=[];
+  for(let d=0; d<n; d++){
+    const ctx={weather:wdays[d].weather, occ:occ[d], rain:wdays[d].rain, pin:null};
+    const H=eligible(items,"haut",ctx), B=eligible(items,"bas",ctx), S=eligible(items,"chaussures",ctx);
+    if(!H.length||!B.length||!S.length){ plan.push({...wdays[d],occ:occ[d],ids:[],acc:[],missing:true}); continue; }
+    const V=ctx.weather==="chaud"?[]:eligible(items,"veste",ctx);
+    const J=(ctx.weather==="froid"||ctx.rain)&&V.length?V:[null,...V];
+    const P=ctx.weather==="chaud"?[null]:[null,...eligible(items,"pull",ctx)];
+    let best=null, bs=-1e9;
+    const consider=p=>{
+      const k=p.map(x=>x.id).sort().join(","); if(seen.has(k)) return;
+      const o=scoreOutfit(p,ctx); let s=o.s;
+      for(const x of p){
+        if(chosen.has(x.id)) s+=3; else s-=2.5;                       // réutiliser ce qui est déjà dans la valise
+        const u=useCount[x.id]||0;
+        if((x.type==="haut")&&u>=1) s-=4*u;                          // un haut ne se porte pas tous les jours
+        if(x.type==="pull"&&u>=2) s-=3*u;
+        if(x.type==="chaussures"&&!chosen.has(x.id)&&[...chosen].filter(id=>items.find(i=>i.id===id)?.type==="chaussures").length>=2) s-=5; // 3 paires max
+      }
+      if(s>bs){ bs=s; best={p,o,k}; }
+    };
+    const total=H.length*B.length*S.length*J.length*P.length, pick=a=>a[Math.floor(Math.random()*a.length)];
+    if(total<=15000){ for(const h of H)for(const b of B)for(const s of S)for(const v of J)for(const pu of P){ if(pu&&h.season==="hiver") continue; consider([v,pu,h,b,s].filter(Boolean)); } }
+    else for(let k=0;k<15000;k++){ const h=pick(H), pu=pick(P); consider([pick(J),pu&&h.season!=="hiver"?pu:null,h,pick(B),pick(S)].filter(Boolean)); }
+    if(!best){ plan.push({...wdays[d],occ:occ[d],ids:[],acc:[],missing:true}); continue; }
+    seen.add(best.k);
+    for(const x of best.p){ chosen.add(x.id); useCount[x.id]=(useCount[x.id]||0)+1; }
+    const acc=pickAccessories(state.items,best.p,ctx,null).map(a=>a.item.id);
+    for(const id of acc) chosen.add(id);
+    plan.push({...wdays[d],occ:occ[d],ids:best.p.map(x=>x.id),acc});
+  }
+  const v={created:Date.now(), place, nights:n, plan, packed:{}};
+  saveValise(v); openValise(v);
+}
+function openValise(v){
+  v=v||loadValise(); if(!v) return openValiseForm();
+  const byId=Object.fromEntries(state.items.map(i=>[i.id,i]));
+  const ids=[...new Set(v.plan.flatMap(d=>[...d.ids,...d.acc]))].filter(id=>byId[id]);
+  const groups=[...MAIN_ORDER,"accessoire"].map(t=>({t,list:ids.map(id=>byId[id]).filter(i=>i.type===t)})).filter(g=>g.list.length);
+  const packedN=ids.filter(id=>v.packed[id]).length;
+  const OCCL={casual:"décontracté",chic:"habillé",sport:"sport"}, WL={chaud:"chaud",doux:"doux",froid:"froid"};
+  openSheet(`<div class="grab"></div>
+    <div class="sheet-h"><h2>Ta valise${v.place?` · ${esc(v.place)}`:""}</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
+    <div class="stats"><div class="stat"><b>${ids.length}</b><span>pièces à emporter</span></div><div class="stat"><b>${v.plan.filter(d=>!d.missing).length}</b><span>tenues différentes</span></div><div class="stat"><b>${packedN}<small>/${ids.length}</small></b><span>déjà dans la valise</span></div></div>
+    <div><div class="ctl-label">À emporter · touche une pièce quand elle est rangée</div>
+      ${groups.map(g=>`<div class="pack-g"><span class="sub">${T[g.t].plural}</span><div class="pack">${g.list.map(i=>`<button class="pk ${v.packed[i.id]?"on":""}" data-act="pack" data-id="${i.id}" aria-pressed="${!!v.packed[i.id]}">${ph(i)}<span>${esc(itemName(i))}</span></button>`).join("")}</div></div>`).join("")}</div>
+    <div><div class="ctl-label">Jour par jour</div><div class="favs">${v.plan.map((d,i)=>`<div class="fav"><div class="when">Jour ${i+1}<br>${WL[d.weather]}${d.min!=null?` ${Math.round(d.min)}–${Math.round(d.max)}°`:""}${d.rain?" · pluie":""}<br>${OCCL[d.occ]}</div><div class="thumbs">${d.missing?`<span class="sub">Pas de tenue possible pour ce jour : il manque des pièces adaptées.</span>`:[...d.ids,...d.acc].map(id=>byId[id]).filter(Boolean).map(ph).join("")}</div></div>`).join("")}</div></div>
+    <div class="row2"><button class="btn ghost" data-act="valnew">Nouvelle valise</button><button class="btn danger" data-act="valdel">Vider</button></div>`);
+}
+
 /* ================= Événements ================= */
 document.addEventListener("click", async e=>{
   const b=e.target.closest("button"); if(!b) return;
   if(b.dataset.tab){ state.tab=b.dataset.tab; render(); scrollTo(0,0); return; }
+  if(b.dataset.seg==="vweather"){ valForm.weather=b.dataset.v; b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); return; }
   if(b.dataset.seg){
     if(b.dataset.seg==="weather"){
       if(b.dataset.v==="auto"){ state.ctx.wmode="auto"; saveCtx(); refreshWeather(); }
@@ -1243,9 +1511,18 @@ document.addEventListener("click", async e=>{
   else if(act==="togglecut"){ settings.cutout=!settings.cutout; saveSettings(); b.setAttribute("aria-pressed",settings.cutout); }
   else if(act==="askreset") document.getElementById("prefZone").innerHTML=`<div class="confirm"><span>Oublier tous les goûts appris ?</span><button class="btn danger" data-act="resetprefs">Oui, réinitialiser</button></div>`;
   else if(act==="resetprefs"){ prefs={pairs:{},colors:{}}; await put("meta",{key:"prefs",...prefs}); state.current=null; closeSheet(); render(); toast("Goûts appris réinitialisés"); }
+  else if(act==="backup") shareBackup();
+  else if(act==="snooze"){ const k=BK.get(); k.snooze=Date.now()+3*DAY; BK.set(k); render(); }
+  else if(act==="stopbatch"){ if(batch) batch.cancel=true; }
+  else if(act==="gaps") analyzeGaps();
+  else if(act==="valise") openValise();
+  else if(act==="valnew") openValiseForm();
+  else if(act==="valdel"){ saveValise(null); closeSheet(); render(); }
+  else if(act==="valgo") buildValise();
+  else if(act==="vstep"){ const k=b.dataset.k, lim={days:[1,21],chic:[0,10],sport:[0,10]}[k]; valForm[k]=Math.max(lim[0],Math.min(lim[1],valForm[k]+Number(b.dataset.d))); document.getElementById("v_"+k).textContent=valForm[k]; }
+  else if(act==="pack"){ const v=loadValise(); v.packed[b.dataset.id]=!v.packed[b.dataset.id]; saveValise(v); const sc=document.querySelector(".sheet").scrollTop; openValise(v); document.querySelector(".sheet").scrollTop=sc; }
   else if(act==="samples") loadSamples();
   else if(act==="clearsamples") clearSamples();
-  else if(act==="export") exportData();
   else if(act==="import") document.getElementById("importFile").click();
 });
 document.getElementById("addBtn").addEventListener("click",()=>openEditor(null));
