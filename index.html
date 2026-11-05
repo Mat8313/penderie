@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Penderie</title>
-<meta name="theme-color" content="#130709">
+<meta name="theme-color" content="#2b1016">
 <meta name="description" content="Numérise ton dressing et reçois des idées de tenues qui vont ensemble.">
 <meta property="og:title" content="Penderie">
 <meta property="og:description" content="Ton dressing, des tenues qui vont ensemble.">
@@ -19,23 +19,61 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
+<script>try{var k=localStorage.getItem("penderie.skin");if(k)document.documentElement.dataset.skin=k}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Figtree:wght@400;500;600&display=swap">
 <style>
-/* Layout : app mobile à une colonne, barre d'onglets en bas. Thème unique nuit bordeaux + rouge néon, assorti à l'écran d'accueil. */
+/* Layout : app mobile à une colonne, barre d'onglets en bas. Thèmes au choix via data-skin sur <html> (réglages). */
 :root{
-  --bg:#130709; --bg2:#2a0f15; --surface:rgba(32,12,16,.78); --surface-solid:#1d0b0f; --ink:#f4e7e6; --muted:#b9959a; --line:rgba(255,90,80,.16);
-  --accent:#ff3e32; --accent-soft:#d8453a; --accent-ink:#fff3f1; --good:#ff6a5e; --bad:#f4a259; --chip:rgba(255,255,255,.06);
-  --glow:0 0 6px rgba(255,62,50,.55),0 0 18px rgba(255,62,50,.25);
+  --bg:#2b1016; --g1:#9a2f3a; --g2:#6a1f38; --surface:rgba(70,22,30,.62); --surface-solid:#34141b; --tile:#1c080c;
+  --ink:#fbeeed; --muted:#d3aeb2; --accent:#ff4a3d; --accent-rgb:255,74,61; --accent-soft:#ff6b5f; --accent-ink:#fff3f1;
+  --good:#ff7a6e; --bad:#ffb26b; --chip:rgba(255,255,255,.08); --nav:rgba(43,16,22,.82); --scrim:rgba(10,2,4,.55);
+  --swatch-line:rgba(255,255,255,.3); --sil:rgba(255,255,255,.25);
+  --glow:0 0 6px rgba(var(--accent-rgb),.55),0 0 18px rgba(var(--accent-rgb),.25);
+  --line:rgba(var(--accent-rgb),.18);
   --display:"Cormorant Garamond", "Times New Roman", Georgia, serif;
   --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --tab-h:64px; color-scheme:dark;
 }
+:root[data-skin="minuit"]{ /* l'ambiance d'origine, plus sombre */
+  --bg:#130709; --g1:#5a1a21; --g2:#3a1220; --surface:rgba(32,12,16,.78); --surface-solid:#1d0b0f; --tile:#0c0405;
+  --ink:#f4e7e6; --muted:#b9959a; --accent:#ff3e32; --accent-rgb:255,62,50; --accent-soft:#d8453a; --nav:rgba(19,7,9,.82); --scrim:rgba(5,1,2,.6); --chip:rgba(255,255,255,.06)}
+:root[data-skin="rose"]{
+  --bg:#fbefee; --g1:#ffd3cc; --g2:#f7d6e4; --surface:rgba(255,255,255,.78); --surface-solid:#fff8f7; --tile:#ffffff;
+  --ink:#2b1316; --muted:#80595d; --accent:#e0352b; --accent-rgb:224,53,43; --accent-soft:#c42f26; --accent-ink:#fff;
+  --good:#d6453b; --bad:#c26a12; --chip:rgba(80,20,25,.06); --nav:rgba(255,248,247,.86); --scrim:rgba(60,20,25,.3);
+  --swatch-line:rgba(0,0,0,.18); --sil:rgba(0,0,0,.25); --glow:0 0 0 1px rgba(var(--accent-rgb),.08),0 4px 14px rgba(var(--accent-rgb),.18); color-scheme:light}
+:root[data-skin="ocean"]{
+  --bg:#13233a; --g1:#2a6aa0; --g2:#33307a; --surface:rgba(28,48,78,.62); --surface-solid:#182a44; --tile:#0b1626;
+  --ink:#eaf3fb; --muted:#a7bdd2; --accent:#45c9ff; --accent-rgb:69,201,255; --accent-soft:#7ed8ff;
+  --good:#6fd3ff; --bad:#ffb26b; --nav:rgba(19,35,58,.84)}
+:root[data-skin="foret"]{
+  --bg:#16261c; --g1:#3c7a4e; --g2:#4a4a24; --surface:rgba(34,60,42,.6); --surface-solid:#1c3124; --tile:#0c1710;
+  --ink:#eef6ef; --muted:#adc6b2; --accent:#7ee894; --accent-rgb:126,232,148; --accent-soft:#a3f0b3;
+  --good:#8ff0a4; --bad:#ffc06b; --nav:rgba(22,38,28,.84)}
+:root[data-skin="synthwave"]{
+  --bg:#221438; --g1:#8a35a8; --g2:#2f3a8a; --surface:rgba(52,30,84,.6); --surface-solid:#2a1a44; --tile:#120a20;
+  --ink:#f6eefc; --muted:#c5addb; --accent:#ff52da; --accent-rgb:255,82,218; --accent-soft:#ff86e6;
+  --good:#ff7ae3; --bad:#ffd166; --nav:rgba(34,20,56,.84)}
+:root[data-skin="epure"]{
+  --bg:#f4f5f7; --g1:#e3e7ee; --g2:#eceef3; --surface:rgba(255,255,255,.9); --surface-solid:#ffffff; --tile:#ffffff;
+  --ink:#161b22; --muted:#5d6675; --accent:#1c2430; --accent-rgb:28,36,48; --accent-soft:#1c2430; --accent-ink:#fff;
+  --good:#2c8a57; --bad:#c2410c; --chip:rgba(0,0,0,.05); --nav:rgba(255,255,255,.9); --scrim:rgba(10,14,20,.35);
+  --swatch-line:rgba(0,0,0,.18); --sil:rgba(0,0,0,.25); --glow:0 1px 3px rgba(0,0,0,.12); color-scheme:light}
+:root{--statusbar:transparent}
+:root[data-skin="rose"]{--statusbar:#4a1d22}
+:root[data-skin="epure"]{--statusbar:#161b22}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--statusbar)}
+.skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.skin{border:1px solid var(--line);background:var(--tile);border-radius:14px;padding:10px 8px;display:grid;justify-items:center;gap:6px;font-size:13px;font-weight:500}
+.skin[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent),var(--glow)}
+.skin .pv{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.15)}
+.skin .pv i{width:16px;height:16px;border-radius:50%}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);min-height:100vh;
-  background-image:radial-gradient(90% 55% at 85% 0%,#5a1a21 0%,transparent 60%),radial-gradient(80% 50% at 0% 100%,#3a1220 0%,transparent 60%);background-attachment:fixed;font:15px/1.45 var(--body);-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(90% 55% at 85% 0%,var(--g1) 0%,transparent 60%),radial-gradient(80% 50% at 0% 100%,var(--g2) 0%,transparent 60%);background-attachment:fixed;font:15px/1.45 var(--body);-webkit-tap-highlight-color:transparent;
   padding-top:env(safe-area-inset-top,0px)}
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer}
@@ -46,7 +84,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:12p
 h1{font:600 40px/1 var(--display);letter-spacing:.01em;margin:0;color:var(--accent-soft)}
 h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 .sub{color:var(--muted);font-size:13px}
-.icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:#0c0405;color:var(--accent);display:grid;place-items:center}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--tile);color:var(--accent);display:grid;place-items:center}
 .icon-btn svg{width:20px;height:20px}
 
 /* Segments */
@@ -54,7 +92,7 @@ h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 .ctl-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
 .seg{display:flex;background:var(--chip);border-radius:12px;padding:3px;gap:3px}
 .seg button{flex:1;border:0;background:transparent;border-radius:9px;padding:8px 6px;font-weight:500;font-size:14px;color:var(--muted)}
-.seg button[aria-pressed="true"]{background:#0c0405;color:var(--accent);box-shadow:inset 0 0 0 1px rgba(255,62,50,.55),var(--glow)}
+.seg button[aria-pressed="true"]{background:var(--tile);color:var(--accent);box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.55),var(--glow)}
 
 /* Tenue */
 .outfit{background:var(--surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:20px;padding:14px;display:grid;gap:12px}
@@ -68,7 +106,7 @@ h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 .ph svg{width:62%;height:62%}
 .piece .cap{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;min-width:0}
 .piece .cap span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dot{width:12px;height:12px;border-radius:50%;flex:none;border:1px solid rgba(255,255,255,.25)}
+.dot{width:12px;height:12px;border-radius:50%;flex:none;border:1px solid var(--swatch-line)}
 .dot.motif,.sw.motif{background:linear-gradient(135deg,#c63a2f 0 25%,#e9c449 25% 50%,#3e7d4f 50% 75%,#3b7fd4 75%)}
 .score-row{display:flex;align-items:center;gap:12px}
 .meter{flex:1;height:8px;border-radius:99px;background:var(--chip);overflow:hidden}
@@ -81,7 +119,7 @@ h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 .why li.warn::before{background:var(--bad)}
 .actions{display:grid;grid-template-columns:1fr auto auto;gap:8px}
 .btn{border:0;border-radius:12px;padding:12px 14px;font-weight:600;background:var(--chip)}
-.btn.primary{background:#0c0405;color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent),var(--glow);text-shadow:0 0 8px rgba(255,62,50,.6)}
+.btn.primary{background:var(--tile);color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent),var(--glow);text-shadow:0 0 8px rgba(var(--accent-rgb),.6)}
 .btn.ghost{background:transparent;border:1px solid var(--line)}
 .btn.danger{background:transparent;color:var(--bad);border:1px solid var(--line)}
 .btn svg{width:18px;height:18px;vertical-align:-3px}
@@ -99,7 +137,7 @@ h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 /* Dressing */
 .filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin:14px -2px 12px;scrollbar-width:none}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 13px;white-space:nowrap;font-size:14px;font-weight:500}
-.chip[aria-pressed="true"]{background:#0c0405;color:var(--accent);border-color:var(--accent);box-shadow:var(--glow)}
+.chip[aria-pressed="true"]{background:var(--tile);color:var(--accent);border-color:var(--accent);box-shadow:var(--glow)}
 .chip .n{font-variant-numeric:tabular-nums;opacity:.6;margin-left:4px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
 .tag{border:0;background:var(--surface);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:16px;padding:8px;text-align:left;border:1px solid var(--line);position:relative}
@@ -107,23 +145,23 @@ h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 .tag .meta{padding:8px 4px 2px;display:grid;gap:2px;min-width:0}
 .tag .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tag .ty{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px}
-.tag .hole{position:absolute;top:14px;left:14px;width:10px;height:10px;border-radius:50%;background:var(--bg);border:1.5px solid rgba(255,62,50,.45);z-index:1}
-.badge{position:absolute;top:12px;right:12px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;background:#0c0405;color:var(--accent);border:1px solid var(--accent);padding:2px 7px;border-radius:99px}
+.tag .hole{position:absolute;top:14px;left:14px;width:10px;height:10px;border-radius:50%;background:var(--bg);border:1.5px solid rgba(var(--accent-rgb),.45);z-index:1}
+.badge{position:absolute;top:12px;right:12px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;background:var(--tile);color:var(--accent);border:1px solid var(--accent);padding:2px 7px;border-radius:99px}
 
 /* Barre d'onglets */
-nav.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(19,7,9,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line);z-index:20;
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--nav);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line);z-index:20;
   padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 nav.tabs .in{max-width:640px;margin:0 auto;height:var(--tab-h);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
 nav.tabs button.t{border:0;background:none;display:grid;justify-items:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted);padding:6px}
 nav.tabs button.t svg{width:22px;height:22px}
 nav.tabs button.t[aria-current="page"]{color:var(--accent)}
-nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(255,62,50,.8))}
-.fab{width:58px;height:58px;border-radius:18px;border:1px solid rgba(255,62,50,.35);background:#0c0405;color:var(--accent);display:grid;place-items:center;margin-top:-22px;box-shadow:0 8px 22px rgba(0,0,0,.5),0 0 18px rgba(255,62,50,.25)}
-.fab svg{filter:drop-shadow(0 0 5px rgba(255,62,50,.9))}
+nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(--accent-rgb),.8))}
+.fab{width:58px;height:58px;border-radius:18px;border:1px solid rgba(var(--accent-rgb),.35);background:var(--tile);color:var(--accent);display:grid;place-items:center;margin-top:-22px;box-shadow:0 8px 22px rgba(0,0,0,.5),0 0 18px rgba(var(--accent-rgb),.25)}
+.fab svg{filter:drop-shadow(0 0 5px rgba(var(--accent-rgb),.9))}
 .fab svg{width:26px;height:26px}
 
 /* Feuille modale */
-.sheet-bg{position:fixed;inset:0;background:rgba(5,1,2,.6);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet-bg{position:fixed;inset:0;background:var(--scrim);z-index:40;display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--surface-solid);border-top:1px solid var(--line);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;
   padding-block:10px calc(20px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   display:grid;gap:16px;animation:up .22s ease-out}
@@ -135,17 +173,17 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(255,6
 .photo-pick .ph{width:110px;height:110px;border-radius:14px}
 .photo-pick label.btn{display:inline-block;text-align:center}
 .field{display:grid;gap:6px}
-.field input[type=text]{border:1px solid var(--line);background:#0c0405;border-radius:12px;padding:11px 12px;width:100%}
+.field input[type=text]{border:1px solid var(--line);background:var(--tile);border-radius:12px;padding:11px 12px;width:100%}
 .opts{display:flex;flex-wrap:wrap;gap:6px}
 .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
-.swb{border:1px solid var(--line);background:#0c0405;border-radius:12px;padding:8px 4px 6px;display:grid;justify-items:center;gap:4px;font-size:11px;line-height:1.15;text-align:center}
+.swb{border:1px solid var(--line);background:var(--tile);border-radius:12px;padding:8px 4px 6px;display:grid;justify-items:center;gap:4px;font-size:11px;line-height:1.15;text-align:center}
 .swb[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent),var(--glow)}
-.sw{width:26px;height:26px;border-radius:50%;border:1px solid rgba(255,255,255,.25)}
+.sw{width:26px;height:26px;border-radius:50%;border:1px solid var(--swatch-line)}
 .hint{font-size:12px;color:var(--muted)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .menu{display:grid;gap:8px}
 .menu .btn{text-align:left;display:flex;gap:10px;align-items:center}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tab-h) + 18px + env(safe-area-inset-bottom,0px));background:#0c0405;color:var(--ink);border:1px solid rgba(255,62,50,.5);box-shadow:var(--glow);
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tab-h) + 18px + env(safe-area-inset-bottom,0px));background:var(--tile);color:var(--ink);border:1px solid rgba(var(--accent-rgb),.5);box-shadow:var(--glow);
   padding:10px 16px;border-radius:12px;font-weight:500;z-index:60;max-width:calc(100% - 32px);text-align:center}
 .confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px}
 </style>
@@ -157,7 +195,7 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(255,6
       <h1>Penderie</h1>
       <div class="sub" id="count">Ton dressing, sur ton téléphone</div>
     </div>
-    <button class="icon-btn" id="menuBtn" aria-label="Sauvegarde et réglages">
+    <button class="icon-btn" id="menuBtn" aria-label="Réglages">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>
     </button>
   </header>
@@ -376,7 +414,7 @@ let gid=0;
 function silhouette(item){
   const c=C[item.color]; let fill=c.hex, defs="";
   if(!fill){ const id="m"+(++gid); defs=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c63a2f"/><stop offset=".35" stop-color="#e9c449"/><stop offset=".65" stop-color="#3e7d4f"/><stop offset="1" stop-color="#3b7fd4"/></linearGradient></defs>`; fill=`url(#${id})`; }
-  return `<svg viewBox="0 0 100 100" aria-hidden="true">${defs}<g fill="${fill}" stroke="rgba(255,255,255,.22)" stroke-width="1.5" stroke-linejoin="round">${SIL[item.type]}</g></svg>`;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">${defs}<g fill="${fill}" stroke="var(--sil)" stroke-width="1.5" stroke-linejoin="round">${SIL[item.type]}</g></svg>`;
 }
 function ph(item){
   const u=photoURL(item);
@@ -545,11 +583,31 @@ async function deleteItem(id){
   closeSheet(); state.current=null; render(); toast("Pièce supprimée");
 }
 
-/* ================= Menu : sauvegarde ================= */
+/* ================= Thèmes ================= */
+const SKINS=[
+  {id:"neon",label:"Néon",bg:"#2b1016",ac:"#ff4a3d"},
+  {id:"minuit",label:"Minuit",bg:"#130709",ac:"#ff3e32"},
+  {id:"rose",label:"Rosé",bg:"#fbefee",ac:"#e0352b"},
+  {id:"ocean",label:"Océan",bg:"#13233a",ac:"#45c9ff"},
+  {id:"foret",label:"Forêt",bg:"#16261c",ac:"#7ee894"},
+  {id:"synthwave",label:"Synthwave",bg:"#221438",ac:"#ff52da"},
+  {id:"epure",label:"Épuré",bg:"#f4f5f7",ac:"#1c2430"},
+];
+const currentSkin=()=>document.documentElement.dataset.skin||"neon";
+function applySkin(id){
+  if(id==="neon") delete document.documentElement.dataset.skin; else document.documentElement.dataset.skin=id;
+  const s=SKINS.find(x=>x.id===id); document.querySelector('meta[name="theme-color"]').setAttribute("content",s.bg);
+  try{ localStorage.setItem("penderie.skin",id); }catch(e){}
+}
+
+/* ================= Menu : réglages et sauvegarde ================= */
 function openMenu(){
   const hasSamples=state.items.some(i=>i.sample);
   openSheet(`<div class="grab"></div>
-    <div class="sheet-h"><h2>Sauvegarde</h2><button class="icon-btn" data-act="close" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="sheet-h"><h2>Réglages</h2><button class="icon-btn" data-act="close" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+        <div class="field"><div class="ctl-label">Apparence</div>
+      <div class="skins" role="group" aria-label="Thème">${SKINS.map(s=>`<button class="skin" data-skin="${s.id}" aria-pressed="${s.id===currentSkin()}"><span class="pv" style="background:${s.bg}"><i style="background:${s.ac};box-shadow:0 0 8px ${s.ac}"></i></span>${s.label}</button>`).join("")}</div></div>
+<div class="ctl-label" style="margin-bottom:-8px">Sauvegarde</div>
     <p class="sub" style="margin:0">Ton dressing est enregistré dans ce navigateur, sur cet appareil. Exporte une sauvegarde pour le transférer sur un autre appareil ou ne rien perdre.</p>
     <div class="menu">
       <button class="btn" data-act="export">Exporter une sauvegarde (.json)</button>
@@ -604,6 +662,7 @@ document.addEventListener("click", async e=>{
     try{ localStorage.setItem("penderie.ctx",JSON.stringify(state.ctx)); }catch(err){}
     render(); return;
   }
+  if(b.dataset.skin){ applySkin(b.dataset.skin); b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); return; }
   if(b.dataset.filter){ state.filter=b.dataset.filter; render(); return; }
   if(b.dataset.f && sheetState){
     sheetState[b.dataset.f]=b.dataset.v;
@@ -651,6 +710,7 @@ async function load(){
   state.outfits = (await getAll("outfits")).sort((a,b)=>b.created-a.created);
 }
 (async()=>{
+  { const s=SKINS.find(x=>x.id===currentSkin()); if(s) document.querySelector('meta[name="theme-color"]').setAttribute("content",s.bg); }
   try{ await load(); }catch(e){ toast("Le stockage du navigateur est bloqué (navigation privée ?)."); }
   render();
   if(navigator.storage?.persist) navigator.storage.persist().catch(()=>{});
