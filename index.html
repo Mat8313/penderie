@@ -235,6 +235,7 @@ const TYPES = [
   {id:"haut", label:"Haut", plural:"Hauts"},
   {id:"bas", label:"Bas", plural:"Bas"},
   {id:"chaussures", label:"Chaussures", plural:"Chaussures"},
+  {id:"pull", label:"Pull / gilet", plural:"Pulls"},
   {id:"veste", label:"Veste / manteau", plural:"Vestes"},
 ];
 const COLORS = [
@@ -335,6 +336,11 @@ function scoreOutfit(pieces, ctx){
     s+=OCC[ctx.occ][p.style]+SEA[ctx.weather][p.season];
     if(p.lastWorn && Date.now()-p.lastWorn < 2*DAY) s-=3;
   }
+  const pull=pieces.find(p=>p.type==="pull"), haut=pieces.find(p=>p.type==="haut");
+  if(pull){
+    if(ctx.weather==="froid"){ s+=1; ok.push("Superposition : "+itemName(pull).toLowerCase()+" par-dessus "+itemName(haut).toLowerCase()); }
+    if(haut && haut.season==="hiver"){ s-=6; warn.push("Deux couches épaisses l'une sur l'autre"); }
+  }
   const styles=new Set(pieces.map(p=>p.style).filter(x=>x!=="poly"));
   if(styles.size<=1 && !warn.length) ok.push("Pièces du même registre de style");
   const colorScore = Math.max(1, Math.min(10, Math.round(((cs/n)+3)/5.2*10)));
@@ -350,13 +356,14 @@ function generate(items, ctx, avoid){
   const missing=[]; if(!H.length)missing.push("un haut"); if(!B.length)missing.push("un bas"); if(!S.length)missing.push("une paire de chaussures");
   if(missing.length) return {missing};
   const jackets = ctx.weather==="froid" && V.length ? V : [null,...V];
-  const total = H.length*B.length*S.length*jackets.length;
+  const pulls = ctx.weather==="chaud" ? [null] : [null,...eligible(items,"pull",ctx)]; // couche intermédiaire facultative
+  const total = H.length*B.length*S.length*jackets.length*pulls.length;
   const pick = a=>a[Math.floor(Math.random()*a.length)];
   const combos=[];
   if(total<=20000){
-    for(const h of H)for(const b of B)for(const sh of S)for(const v of jackets) combos.push([v,h,b,sh].filter(Boolean));
+    for(const h of H)for(const b of B)for(const sh of S)for(const v of jackets)for(const pu of pulls){ if(pu&&h.season==="hiver") continue; combos.push([v,pu,h,b,sh].filter(Boolean)); }
   } else {
-    for(let k=0;k<20000;k++) combos.push([pick(jackets),pick(H),pick(B),pick(S)].filter(Boolean));
+    for(let k=0;k<20000;k++) { const hh=pick(H); combos.push([pick(jackets),hh.season==="hiver"?null:pick(pulls),hh,pick(B),pick(S)].filter(Boolean)); }
   }
   const scored = combos.map(p=>({pieces:p, ...scoreOutfit(p,ctx), k:p.map(x=>x.id).sort().join(",")}));
   scored.sort((a,b)=>b.s-a.s);
@@ -413,6 +420,7 @@ function dropURL(id){ if(urls.has(id)){ URL.revokeObjectURL(urls.get(id)); urls.
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const SIL = {
   haut:'<path d="M30 18 42 12Q50 21 58 12L70 18 87 33 77 45 69 39V88H31V39L23 45 13 33Z"/>',
+  pull:'<path d="M32 16 43 12Q50 18 57 12L68 16 84 30 88 80H76L69 40V84H31V40L24 80H12L16 30Z"/><path d="M31 78H69M12 74H24M76 74H88" fill="none" stroke-width="2"/>',
   bas:'<path d="M29 10H71L75 90H56L50 42 44 90H25Z"/>',
   chaussures:'<path d="M10 64V46Q12 39 21 41L38 47Q51 52 62 54L82 58Q91 60 91 69V73H10Z"/>',
   veste:'<path d="M29 13 43 9 50 24 57 9 71 13 88 30 85 82H74L72 48V90H28V48L26 82H15L12 30Z"/><path d="M50 24V90" fill="none" stroke-width="2"/>',
@@ -466,7 +474,7 @@ function viewTenue(){
     card = `<div class="empty"><h2>Il manque des pièces</h2><p>Pour cette météo et cette occasion, ajoute au moins ${g.missing.join(", ")}.</p><button class="btn primary" data-act="add">Ajouter une pièce</button></div>`;
   } else {
     const o=g.outfit, isFav = state.outfits.some(f=>f.k===o.k);
-    const ordered = ["veste","haut","bas","chaussures"].map(t=>o.pieces.find(p=>p.type===t)).filter(Boolean);
+    const ordered = ["veste","pull","haut","bas","chaussures"].map(t=>o.pieces.find(p=>p.type===t)).filter(Boolean);
     const odd = ordered.length%2===1;
     card = `<article class="outfit" aria-label="Tenue proposée">
       <div class="flatlay">${ordered.map((p,i)=>`<div class="piece ${odd&&i===ordered.length-1?"wide":""}">${ph(p)}<div class="cap">${dot(p.color)}<span>${esc(itemName(p))}</span></div></div>`).join("")}</div>
@@ -581,8 +589,8 @@ async function onPhoto(e){
    MobileNet (ImageNet, 1000 classes) tourne dans le navigateur : gratuit, rien n'est envoyé sur un serveur.
    On ne garde que les classes de vêtements, chacune associée à un type, un style et une saison. */
 const CLOTHES = {
-  610:["haut","casual","toutes","T-shirt"], 841:["haut","casual","mi","sweat"], 474:["haut","poly","mi","gilet / cardigan"],
-  911:["haut","casual","hiver","pull en laine"], 617:["haut","poly","toutes","chemise"], 457:["haut","chic","toutes","chemise habillée"],
+  610:["haut","casual","toutes","T-shirt"], 841:["haut","casual","mi","sweat"], 474:["pull","poly","mi","gilet / cardigan"],
+  911:["pull","casual","hiver","pull en laine"], 617:["haut","poly","toutes","chemise"], 457:["haut","chic","toutes","chemise habillée"],
   906:["haut","chic","toutes","chemise et cravate"], 697:["haut","casual","toutes","haut"],
   834:["veste","chic","mi","veste de costume"], 869:["veste","chic","mi","trench"], 568:["veste","chic","hiver","manteau"],
   501:["veste","casual","hiver","manteau"], 735:["veste","casual","mi","poncho"], 399:["veste","chic","hiver","manteau long"],
@@ -718,7 +726,7 @@ async function importData(file){
   }catch(e){ toast("Ce fichier n'est pas une sauvegarde Penderie valide."); }
 }
 async function loadSamples(){
-  const S=[["haut","blanc","casual","toutes","T-shirt blanc"],["haut","marine","poly","mi","Pull col rond"],["haut","bordeaux","casual","hiver","Sweat bordeaux"],["haut","bleu","chic","toutes","Chemise bleue"],
+  const S=[["haut","blanc","casual","toutes","T-shirt blanc"],["pull","marine","poly","mi","Pull col rond"],["pull","gris","casual","hiver","Gilet zippé"],["haut","bordeaux","casual","hiver","Sweat bordeaux"],["haut","bleu","chic","toutes","Chemise bleue"],
     ["bas","denim","casual","toutes","Jean brut"],["bas","beige","poly","mi","Chino beige"],["bas","noir","sport","toutes","Jogging noir"],
     ["chaussures","blanc","casual","toutes","Baskets blanches"],["chaussures","marron","chic","toutes","Derbies marron"],["chaussures","gris","sport","toutes","Running grises"],
     ["veste","camel","chic","hiver","Manteau camel"],["veste","kaki","casual","mi","Surchemise kaki"]];
