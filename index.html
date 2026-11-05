@@ -1150,7 +1150,7 @@ function applySkin(id){
 /* ================= Réglages et sauvegarde ================= */
 function openMenu(){
   const hasSamples=state.items.some(i=>i.sample);
-  prepareBackup().then(()=>{ const b=document.getElementById("bkBtn"); if(b){ b.disabled=false; b.textContent=b.textContent.includes("Préparation")?"Sauvegarder maintenant":b.textContent; } });
+  armBackupButton("Sauvegarder maintenant");
   openSheet(`<div class="grab"></div>
     <div class="sheet-h"><h2>Réglages</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
     <div class="field"><div class="ctl-label">Apparence</div>
@@ -1169,7 +1169,17 @@ function openMenu(){
       ${hasSamples?`<button class="btn danger" data-act="clearsamples">Retirer les exemples</button>`:`<button class="btn" data-act="samples">Charger des pièces d'exemple</button>`}
     </div>`);
 }
-const blobToData = b => new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(b); });
+// Conversion photo → texte pour la sauvegarde. Lecture via arrayBuffer (plus fiable que FileReader sur Safari),
+// avec un délai maximum : une photo illisible ne doit jamais bloquer toute la sauvegarde.
+async function blobToData(b){
+  const read = (async()=>{
+    const buf=new Uint8Array(await b.arrayBuffer()); let bin="";
+    for(let i=0;i<buf.length;i+=0x8000) bin+=String.fromCharCode.apply(null, buf.subarray(i,i+0x8000));
+    return `data:${b.type||"image/jpeg"};base64,${btoa(bin)}`;
+  })();
+  const timeout = new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),15000));
+  return Promise.race([read,timeout]);
+}
 async function importData(file){
   try{
     const data=JSON.parse(await file.text());
@@ -1223,7 +1233,7 @@ const BK = {
   set(v){ try{ localStorage.setItem("penderie.backup",JSON.stringify(v)); }catch(e){} },
   bump(){ const b=BK.get(); b.changes++; BK.set(b); backupFile=null; },
 };
-let backupFile=null, backupBusy=null;
+let backupFile=null, backupBusy=null, backupLost=0;
 function needsBackup(){
   const b=BK.get(), real=state.items.filter(i=>!i.sample).length;
   if(real<3 || b.changes===0 || Date.now()<b.snooze) return false;
@@ -1233,19 +1243,36 @@ async function prepareBackup(){
   if(backupFile) return backupFile;
   if(backupBusy) return backupBusy;
   backupBusy=(async()=>{
-    const items = await Promise.all(state.items.map(async i=>({...i, photo: i.photo? await blobToData(i.photo):null})));
-    const data = JSON.stringify({app:"penderie",version:3,exported:new Date().toISOString(),items,outfits:state.outfits,wears:state.wears,prefs});
-    backupFile = new File([data],"Penderie-sauvegarde.json",{type:"application/json"});
-    backupBusy=null; return backupFile;
+    try{
+      backupLost=0; const items=[];
+      for(const i of state.items){ // une par une : moins de mémoire, et une photo illisible est simplement sautée
+        let photo=null;
+        if(i.photo){ try{ photo=await blobToData(i.photo); }catch(e){ backupLost++; } }
+        items.push({...i, photo});
+      }
+      const data = JSON.stringify({app:"penderie",version:3,exported:new Date().toISOString(),items,outfits:state.outfits,wears:state.wears,prefs});
+      backupFile = new File([data],"Penderie-sauvegarde.json",{type:"application/json"});
+      return backupFile;
+    } finally { backupBusy=null; }
   })();
   return backupBusy;
+}
+function armBackupButton(label){
+  prepareBackup().then(()=>{
+    const b=document.getElementById("bkBtn"); if(!b) return;
+    b.disabled=false; b.textContent=label; b.dataset.act="backup";
+  }).catch(()=>{
+    const b=document.getElementById("bkBtn"); if(!b) return;
+    b.disabled=false; b.textContent="Réessayer"; b.dataset.act="backupretry";
+    toast("La sauvegarde n'a pas pu être préparée. Réessaie.");
+  });
 }
 function backupDone(){ BK.set({changes:0,last:Date.now(),snooze:0}); }
 async function shareBackup(){
   // le fichier est préparé à l'avance : iOS exige que le partage parte directement du tap
   const f = backupFile || await prepareBackup();
   if(navigator.canShare && navigator.canShare({files:[f]})){
-    try{ await navigator.share({files:[f], title:"Sauvegarde Penderie"}); backupDone(); toast("Sauvegarde enregistrée"); render(); }
+    try{ await navigator.share({files:[f], title:"Sauvegarde Penderie"}); backupDone(); toast(backupLost?`Sauvegarde enregistrée (${backupLost} photo${backupLost>1?"s":""} illisible${backupLost>1?"s":""} non incluse${backupLost>1?"s":""})`:"Sauvegarde enregistrée"); render(); }
     catch(e){ if(e.name!=="AbortError") toast("Le partage a échoué. Réessaie."); }
   } else {
     const a=document.createElement("a"); a.href=URL.createObjectURL(f); a.download=f.name; document.body.appendChild(a); a.click(); a.remove();
@@ -1254,7 +1281,7 @@ async function shareBackup(){
 }
 function backupBanner(){
   if(!needsBackup()) return "";
-  prepareBackup().then(()=>{ const b=document.getElementById("bkBtn"); if(b){ b.disabled=false; b.textContent="Sauvegarder"; } });
+  armBackupButton("Sauvegarder");
   const n=BK.get().changes;
   return `<div class="bk"><div><b>${n} changement${n>1?"s":""} pas encore sauvegardé${n>1?"s":""}</b><span class="sub">Un tap, puis « Enregistrer dans Fichiers » → iCloud Drive.</span></div>
     <div class="bk-a"><button class="btn primary sm" id="bkBtn" data-act="backup" ${backupFile?"":"disabled"}>${backupFile?"Sauvegarder":"Préparation…"}</button><button class="link" data-act="snooze">Plus tard</button></div></div>`;
@@ -1549,6 +1576,7 @@ document.addEventListener("click", async e=>{
   else if(act==="askreset") document.getElementById("prefZone").innerHTML=`<div class="confirm"><span>Oublier tous les goûts appris ?</span><button class="btn danger" data-act="resetprefs">Oui, réinitialiser</button></div>`;
   else if(act==="resetprefs"){ prefs={pairs:{},colors:{}}; await put("meta",{key:"prefs",...prefs}); state.current=null; closeSheet(); render(); toast("Goûts appris réinitialisés"); }
   else if(act==="backup") shareBackup();
+  else if(act==="backupretry"){ backupFile=null; b.disabled=true; b.textContent="Préparation…"; armBackupButton(b.closest(".bk")?"Sauvegarder":"Sauvegarder maintenant"); }
   else if(act==="snooze"){ const k=BK.get(); k.snooze=Date.now()+3*DAY; BK.set(k); render(); }
   else if(act==="stopbatch") finishBatch();
   else if(act==="skipbatch") nextBatchItem(false);
