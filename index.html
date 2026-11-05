@@ -265,6 +265,33 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .pk span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pk.on{opacity:.45}
 .pk.on::after{content:"✓";position:absolute;top:6px;right:8px;color:var(--accent);font-weight:700;font-size:16px;text-shadow:0 0 6px rgba(var(--accent-rgb),.8)}
+.dtools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:4px}
+.dtools input,.dtools select{border:1px solid var(--line);background:var(--tile);border-radius:12px;padding:10px 12px;min-width:0;width:100%}
+.dtools select{width:auto}
+.tag.dirty .ph{opacity:.45;filter:grayscale(.6)}
+.ess{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:10px}
+.ess-h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.ess-h>div{display:grid;gap:2px}
+.ess-h b{font:600 20px/1.1 var(--display)}
+.ess-h .icon-btn{width:32px;height:32px;flex:none}
+.ess-list{display:flex;flex-wrap:wrap;gap:6px}
+.chip.done{opacity:.55;border-style:dashed}
+.ob-dots{display:flex;gap:6px;justify-content:center}
+.ob-dots i{width:8px;height:8px;border-radius:99px;background:var(--line);transition:width .2s}
+.ob-dots i.on{width:22px;background:var(--accent);box-shadow:var(--glow)}
+.ob-dots i.done{background:rgba(var(--accent-rgb),.5)}
+.ob-hero{width:72px;height:72px;border-radius:20px;background:var(--tile);border:1px solid var(--line);display:grid;place-items:center;margin:4px auto 0;color:var(--accent);box-shadow:var(--glow)}
+.ob-hero svg{width:38px;height:38px;filter:drop-shadow(0 0 6px rgba(var(--accent-rgb),.8))}
+.ob-t{font-size:30px;text-align:center}
+.ob-l{font-size:15px}
+.ob-steps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ob-steps li{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:10px;align-items:center;background:var(--tile);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.ob-steps .n{width:22px;height:22px;border-radius:50%;background:rgba(var(--accent-rgb),.18);color:var(--accent);display:grid;place-items:center;font-size:12px;font-weight:700}
+.ob-steps .ico{width:36px;height:36px;border-radius:10px;background:var(--chip);display:grid;place-items:center;color:var(--accent)}
+.ob-steps .ico svg,.ob-steps .ic{width:22px;height:22px;font-size:20px;line-height:1}
+.ob-steps li>span:last-child{display:grid;gap:2px}
+.ob-steps .t{font-weight:500}
+.note{margin:0;font-size:13px;background:rgba(var(--accent-rgb),.1);border:1px solid rgba(var(--accent-rgb),.35);border-radius:12px;padding:10px 12px}
 </style>
 </head>
 <body>
@@ -466,6 +493,7 @@ function scoreOutfit(pieces, ctx){
     s+=(OCC[ctx.occ][p.style]??-3)+(SEA[ctx.weather][p.season]??-2);
     if(p.lastWorn && Date.now()-p.lastWorn < 2*DAY && p.id!==ctx.pin) s-=3;
   }
+  if(settings.jacket==="rarely" && pieces.some(p=>p.type==="veste" && p.id!==ctx.pin)) s -= ctx.weather==="froid" ? 1 : 3;
   const pull=pieces.find(p=>p.type==="pull"), haut=pieces.find(p=>p.type==="haut");
   if(pull && haut){
     if(ctx.weather==="froid"){ s+=1; ok.push("Superposition : "+itemName(pull).toLowerCase()+" par-dessus "+itemName(haut).toLowerCase()); }
@@ -480,8 +508,13 @@ function scoreOutfit(pieces, ctx){
   return {s, colorScore, ok:ok.slice(0,3), warn:warn.slice(0,2)};
 }
 
+/* Lavage : chaque pièce compte ses ports depuis la dernière lessive. Au-delà du seuil, elle passe « au lavage »
+   et sort des propositions jusqu'à « Lessive faite ». Seuils par défaut selon le type, modifiables par pièce. */
+const WASH = {haut:1, pull:3, bas:4, veste:10, chaussures:0, accessoire:0};
+const washEvery = i => i.washEvery!=null ? i.washEvery : (WASH[i.type]??0);
+const isDirty = i => settings.laundry && !!i.dirty;
 function eligible(items, type, ctx){
-  return items.filter(i=>i.type===type && OCC[ctx.occ][i.style]!==null && SEA[ctx.weather][i.season]!==null);
+  return items.filter(i=>i.type===type && !isDirty(i) && OCC[ctx.occ][i.style]!==null && SEA[ctx.weather][i.season]!==null);
 }
 function generate(items, ctx, avoid){
   const pin = ctx.pin ? items.find(i=>i.id===ctx.pin) : null;
@@ -489,10 +522,13 @@ function generate(items, ctx, avoid){
   const H=pool("haut"), B=pool("bas"), S=pool("chaussures");
   const V = pin?.type==="veste" ? [pin] : (ctx.weather==="chaud" ? [] : eligible(items,"veste",ctx));
   const missing=[]; if(!H.length)missing.push("un haut"); if(!B.length)missing.push("un bas"); if(!S.length)missing.push("une paire de chaussures");
-  if(missing.length) return {missing};
-  const needJacket = (ctx.weather==="froid" || (ctx.rain && ctx.weather!=="chaud")) && V.length;
+  if(missing.length) return {missing, dirty:items.filter(isDirty).length};
+  // réglage « veste » : toujours dès qu'il fait frais, si besoin (froid ou pluie), ou rarement (jamais imposée)
+  const needJacket = V.length && (settings.jacket==="always" ? (ctx.weather!=="chaud" || ctx.rain)
+                    : settings.jacket==="rarely" ? false
+                    : (ctx.weather==="froid" || (ctx.rain && ctx.weather!=="chaud")));
   const jackets = pin?.type==="veste" || needJacket ? V : [null,...V];
-  const pulls = pin?.type==="pull" ? [pin] : ctx.weather==="chaud" ? [null] : [null,...eligible(items,"pull",ctx)]; // couche intermédiaire facultative
+  const pulls = pin?.type==="pull" ? [pin] : (ctx.weather==="chaud" || !settings.layering) ? [null] : [null,...eligible(items,"pull",ctx)]; // couche intermédiaire facultative
   const total = H.length*B.length*S.length*jackets.length*pulls.length;
   const pick = a=>a[Math.floor(Math.random()*a.length)];
   const combos=[];
@@ -511,7 +547,8 @@ function generate(items, ctx, avoid){
   const w = top.map((o,i)=>5-i), tot=w.reduce((a,b)=>a+b,0);
   let r=Math.random()*tot, chosen=top[0];
   for(let i=0;i<top.length;i++){ r-=w[i]; if(r<=0){ chosen=top[i]; break; } }
-  chosen.acc = pickAccessories(items, chosen.pieces, ctx, pin?.type==="accessoire"?pin:null);
+  chosen.acc = settings.accessories ? pickAccessories(items, chosen.pieces, ctx, pin?.type==="accessoire"?pin:null)
+             : (pin?.type==="accessoire" ? [{item:pin,s:9,note:null}] : []);
   return {outfit:chosen, noJacket: ctx.weather==="froid" && !V.length};
 }
 
@@ -526,7 +563,7 @@ const KIND_RULES = {
 const LEATHER = c=> c==="marron"||c==="camel" ? "brun" : c==="noir" ? "noir" : c;
 function pickAccessories(items, pieces, ctx, pinAcc){
   const shoes=pieces.find(p=>p.type==="chaussures"), bas=pieces.find(p=>p.type==="bas");
-  const cands = items.filter(i=>i.type==="accessoire" && i!==pinAcc && OCC[ctx.occ][i.style]!==null && SEA[ctx.weather][i.season]!==null).filter(i=>{
+  const cands = items.filter(i=>i.type==="accessoire" && i!==pinAcc && !isDirty(i) && OCC[ctx.occ][i.style]!==null && SEA[ctx.weather][i.season]!==null).filter(i=>{
     const r=KIND_RULES[i.kind]||{};
     if(r.weather && !r.weather.includes(ctx.weather)) return false;
     if(r.occ && !r.occ.includes(ctx.occ)) return false;
@@ -591,7 +628,7 @@ const state = {
 function defaultWeather(){ const m=new Date().getMonth()+1; return [12,1,2,11].includes(m)?"froid":[6,7,8,9].includes(m)?"chaud":"doux"; }
 try{ const s=JSON.parse(localStorage.getItem("penderie.ctx")); if(s&&SEA[s.weather]&&OCC[s.occ]) Object.assign(state.ctx,{weather:s.weather,occ:s.occ,wmode:s.wmode==="manual"?"manual":"auto"}); }catch(e){}
 const saveCtx = ()=>{ try{ localStorage.setItem("penderie.ctx",JSON.stringify({weather:state.ctx.weather,occ:state.ctx.occ,wmode:state.ctx.wmode})); }catch(e){} };
-const settings = {cutout:true};
+const settings = {cutout:true, jacket:"auto", layering:true, accessories:true, laundry:true};
 try{ Object.assign(settings, JSON.parse(localStorage.getItem("penderie.settings"))||{}); }catch(e){}
 const saveSettings = ()=>{ try{ localStorage.setItem("penderie.settings",JSON.stringify(settings)); }catch(e){} };
 const urls = new Map();
@@ -693,6 +730,11 @@ function render(){
   document.querySelectorAll("nav .t[data-tab]").forEach(b=>b.setAttribute("aria-current", b.dataset.tab===state.tab?"page":"false"));
   const v=document.getElementById("view");
   v.innerHTML = state.tab==="tenue" ? viewTenue() : state.tab==="suivi" ? viewSuivi() : viewDressing();
+  if(state.tab==="dressing"){
+    // la recherche ne redessine que la grille : le champ garde le focus et le clavier reste ouvert
+    document.getElementById("dq")?.addEventListener("input",e=>{ state.q=e.target.value; document.getElementById("dgrid").innerHTML=dressingList(); });
+    document.getElementById("dsort")?.addEventListener("change",e=>{ state.sort=e.target.value; document.getElementById("dgrid").innerHTML=dressingList(); });
+  }
 }
 
 function emptyBlock(title, text){
@@ -729,7 +771,8 @@ function viewTenue(){
   const g=state.current;
   let card;
   if(g.missing){
-    card = `<div class="empty"><h2>Il manque des pièces</h2><p>Pour cette météo et cette occasion, ajoute au moins ${g.missing.join(", ")}.</p><button class="btn primary" data-act="add">Ajouter une pièce</button></div>`;
+    card = `<div class="empty"><h2>Il manque des pièces</h2><p>Pour cette météo et cette occasion, ajoute au moins ${g.missing.join(", ")}.${g.dirty?` ${g.dirty} pièce${g.dirty>1?"s sont":" est"} au lavage en ce moment.`:""}</p>
+      <div class="row2" style="width:100%;max-width:340px"><button class="btn primary" data-act="add">Ajouter une pièce</button>${g.dirty?`<button class="btn ghost" data-act="washall">Lessive faite</button>`:`<span></span>`}</div></div>`;
   } else {
     const o=g.outfit, isFav = state.outfits.some(f=>f.k===o.k);
     const ordered = MAIN_ORDER.map(t=>o.pieces.find(p=>p.type===t)).filter(Boolean);
@@ -758,18 +801,56 @@ function viewTenue(){
   return backupBanner()+ctrl+pinBar+card+favHtml+valHtml;
 }
 
+const ESSENTIALS = [
+  {label:"T-shirt blanc", test:i=>i.type==="haut"&&i.color==="blanc", preset:{type:"haut",color:"blanc",style:"casual"}},
+  {label:"T-shirt foncé", test:i=>i.type==="haut"&&["noir","marine","gris"].includes(i.color), preset:{type:"haut",color:"noir",style:"casual"}},
+  {label:"Chemise", test:i=>i.type==="haut"&&(i.style==="chic"||i.style==="poly"), preset:{type:"haut",color:"bleu",style:"chic"}},
+  {label:"Pull ou sweat", test:i=>i.type==="pull", preset:{type:"pull",color:"gris",style:"poly",season:"mi"}},
+  {label:"Jean", test:i=>i.type==="bas"&&i.color==="denim", preset:{type:"bas",color:"denim",style:"casual"}},
+  {label:"Chino ou pantalon", test:i=>i.type==="bas"&&i.color!=="denim"&&i.style!=="sport", preset:{type:"bas",color:"beige",style:"poly"}},
+  {label:"Baskets", test:i=>i.type==="chaussures"&&(i.style==="casual"||i.style==="sport"), preset:{type:"chaussures",color:"blanc",style:"casual"}},
+  {label:"Chaussures habillées", test:i=>i.type==="chaussures"&&(i.style==="chic"||i.style==="poly"), preset:{type:"chaussures",color:"marron",style:"chic"}},
+  {label:"Veste mi-saison", test:i=>i.type==="veste"&&i.season!=="hiver", preset:{type:"veste",color:"marine",style:"casual",season:"mi"}},
+  {label:"Manteau", test:i=>i.type==="veste"&&i.season==="hiver", preset:{type:"veste",color:"noir",style:"poly",season:"hiver"}},
+];
+function essentialsCard(){
+  let hidden=false; try{ hidden=localStorage.getItem("penderie.essHidden")==="1"; }catch(e){}
+  const real=state.items.filter(i=>!i.sample);
+  if(hidden || real.length>=25 || state.items.some(i=>i.sample)) return "";
+  const done=ESSENTIALS.map(e=>real.some(e.test)); const n=done.filter(Boolean).length;
+  if(n===ESSENTIALS.length) return "";
+  return `<div class="ess"><div class="ess-h"><div><b>Les 10 essentiels</b><span class="sub">De quoi composer des tenues dès le départ · ${n}/10</span></div><button class="icon-btn" data-act="esshide" aria-label="Masquer">${ICON.x}</button></div>
+    <div class="meter"><i style="width:${n*10}%"></i></div>
+    <div class="ess-list">${ESSENTIALS.map((e,k)=>`<button class="chip ${done[k]?"done":""}" data-act="ess" data-k="${k}" ${done[k]?"disabled":""}>${done[k]?"✓ ":"+ "}${e.label}</button>`).join("")}</div></div>`;
+}
+function dressingList(){
+  const wc={}; for(const w of state.wears) for(const id of w.ids) wc[id]=(wc[id]||0)+1;
+  const q=(state.q||"").trim().toLowerCase();
+  let list = state.items.filter(i=>state.filter==="tout" || (state.filter==="review"?i.review : state.filter==="lavage"? isDirty(i) : i.type===state.filter));
+  if(q) list=list.filter(i=>[itemName(i),typeLabel(i),C[i.color].label,i.color2?C[i.color2].label:"",i.brand||""].join(" ").toLowerCase().includes(q));
+  const order=Object.fromEntries(COLORS.map((c,k)=>[c.id,k]));
+  const sorts={recent:(a,b)=>b.created-a.created, couleur:(a,b)=>order[a.color]-order[b.color]||b.created-a.created,
+    portees:(a,b)=>(wc[b.id]||0)-(wc[a.id]||0)||b.created-a.created, nom:(a,b)=>itemName(a).localeCompare(itemName(b),"fr")};
+  list.sort(sorts[state.sort||"recent"]);
+  if(!list.length) return `<p class="sub">${q?"Aucune pièce ne correspond à ta recherche.":"Aucune pièce dans cette catégorie."}</p>`;
+  return `<div class="grid">${list.map(i=>`<button class="tag ${isDirty(i)?"dirty":""}" data-act="edit" data-id="${i.id}">
+      <span class="hole"></span>${isDirty(i)?`<span class="badge">Au lavage</span>`:i.review?`<span class="badge">À vérifier</span>`:i.sample?`<span class="badge">Exemple</span>`:""}
+      ${ph(i)}<div class="meta"><span class="nm">${esc(itemName(i))}</span><span class="ty">${dot(i.color,i.color2)}${esc(typeLabel(i))} · ${STYLES.find(s=>s.id===i.style).label}</span></div></button>`).join("")}</div>`;
+}
 function viewDressing(){
-  if(!state.items.length) return `<div style="margin-top:14px">${emptyBlock("Ton dressing est vide","Commence par 4 ou 5 pièces que tu portes souvent. Tu peux prendre la photo directement depuis l'app.")}</div>`;
+  if(!state.items.length) return `<div style="margin-top:14px">${essentialsCard()}${emptyBlock("Ton dressing est vide","Commence par tes 10 essentiels ci-dessus, ou ajoute plusieurs photos d'un coup.")}</div>`;
   const counts = Object.fromEntries(TYPES.map(t=>[t.id,state.items.filter(i=>i.type===t.id).length]));
-  const nrev=state.items.filter(i=>i.review).length;
+  const nrev=state.items.filter(i=>i.review).length, ndirty=state.items.filter(isDirty).length;
   if(state.filter==="review"&&!nrev) state.filter="tout";
-  const chips = [...(nrev?[["review","À vérifier",nrev]]:[]),["tout","Tout",state.items.length],...TYPES.filter(t=>counts[t.id]||t.id!=="accessoire").map(t=>[t.id,t.plural,counts[t.id]])];
-  const list = state.items.filter(i=>state.filter==="tout"||(state.filter==="review"?i.review:i.type===state.filter)).sort((a,b)=>b.created-a.created);
-  return `${state.filter==="review"?`<p class="sub" style="margin:14px 0 0">Ouvre chaque pièce, corrige si besoin et enregistre : le badge disparaît.</p>`:""}<div class="filters" role="group" aria-label="Filtrer">${chips.map(([v,l,n])=>`<button class="chip" data-filter="${v}" aria-pressed="${state.filter===v}">${l}<span class="n">${n}</span></button>`).join("")}</div>
-  ${list.length?`<div class="grid">${list.map(i=>`<button class="tag" data-act="edit" data-id="${i.id}">
-      <span class="hole"></span>${i.review?`<span class="badge">À vérifier</span>`:i.sample?`<span class="badge">Exemple</span>`:""}
-      ${ph(i)}<div class="meta"><span class="nm">${esc(itemName(i))}</span><span class="ty">${dot(i.color,i.color2)}${esc(typeLabel(i))} · ${STYLES.find(s=>s.id===i.style).label}</span></div></button>`).join("")}</div>`
-  : `<p class="sub">Aucune pièce dans cette catégorie.</p>`}`;
+  if(state.filter==="lavage"&&!ndirty) state.filter="tout";
+  const chips = [...(ndirty?[["lavage","Au lavage",ndirty]]:[]),...(nrev?[["review","À vérifier",nrev]]:[]),["tout","Tout",state.items.length],...TYPES.filter(t=>counts[t.id]||t.id!=="accessoire").map(t=>[t.id,t.plural,counts[t.id]])];
+  const washBar = state.filter==="lavage" ? `<div class="bk" style="margin:0 0 12px"><div><b>${ndirty} pièce${ndirty>1?"s":""} au lavage</b><span class="sub">Elles ne sont pas proposées dans les tenues. Touche une pièce pour la remettre seule.</span></div><div class="bk-a"><button class="btn primary sm" data-act="washall">Lessive faite</button></div></div>` : "";
+  return `<div style="margin-top:14px">${essentialsCard()}</div>
+  <div class="dtools"><input type="search" id="dq" placeholder="Rechercher…" value="${esc(state.q||"")}" autocomplete="off" aria-label="Rechercher une pièce">
+    <select id="dsort" aria-label="Trier">${[["recent","Récentes"],["couleur","Couleur"],["portees","Plus portées"],["nom","Nom"]].map(([v,l])=>`<option value="${v}" ${(state.sort||"recent")===v?"selected":""}>${l}</option>`).join("")}</select></div>
+  ${state.filter==="review"?`<p class="sub" style="margin:10px 0 0">Ouvre chaque pièce, corrige si besoin et enregistre : le badge disparaît.</p>`:""}
+  <div class="filters" role="group" aria-label="Filtrer">${chips.map(([v,l,n])=>`<button class="chip" data-filter="${v}" aria-pressed="${state.filter===v}">${l}<span class="n">${n}</span></button>`).join("")}</div>
+  ${washBar}<div id="dgrid">${dressingList()}</div>`;
 }
 
 /* ================= Suivi : historique et stats ================= */
@@ -789,7 +870,8 @@ function viewSuivi(){
   const most = Object.entries(count).filter(([id])=>byId[id]).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const maxC = most[0]?.[1]||1;
   const mostHtml = most.length ? `<div class="rank">${most.map(([id,n])=>`<div class="rk">${ph(byId[id])}<div class="rk-b"><div class="rk-n"><span>${esc(itemName(byId[id]))}</span><b>${n}×</b></div><div class="meter"><i style="width:${n/maxC*100}%"></i></div></div></div>`).join("")}</div>` : `<p class="sub">Pas encore de données.</p>`;
-  const sleepy = state.items.filter(i=>!worn30.has(i.id) && !(i.lastWorn && now-i.lastWorn<60*DAY) && now-i.created>3*DAY)
+  // seulement les pièces de saison : un maillot de bain « jamais porté » en hiver n'est pas une pièce oubliée
+  const sleepy = state.items.filter(i=>!worn30.has(i.id) && !(i.lastWorn && now-i.lastWorn<60*DAY) && now-i.created>3*DAY && SEA[state.ctx.weather][i.season]!==null && !isDirty(i))
     .sort((a,b)=>(a.lastWorn||0)-(b.lastWorn||0)).slice(0,8);
   const sleepyHtml = sleepy.length ? `<div class="rank">${sleepy.map(i=>`<div class="rk">${ph(i)}<div class="rk-b"><div class="rk-n"><span>${esc(itemName(i))}</span></div><span class="sub">${i.lastWorn?`Dernière fois : ${dateFR(i.lastWorn)}`:"Jamais portée"}</span></div><button class="btn ghost sm" data-act="pin" data-id="${i.id}">Tenue avec</button></div>`).join("")}</div>`
     : `<p class="sub">Toutes tes pièces ont été portées récemment.</p>`;
@@ -800,9 +882,23 @@ function viewSuivi(){
   return `<div style="margin-top:14px">${tiles}</div>
     <div class="section-h"><h2>Dernières tenues</h2></div>${hist}
     <div class="section-h"><h2>Les plus portées</h2></div>${mostHtml}
-    <div class="section-h"><h2>À ressortir</h2><span class="sub">pas portées depuis 2 mois</span></div>${sleepyHtml}
+    <div class="section-h"><h2>À ressortir</h2><span class="sub">de saison, pas portées depuis 2 mois</span></div>${sleepyHtml}
+    <div class="section-h"><h2>Coût par port</h2></div>${costHtml(count)}
     <div class="section-h"><h2>Ce qui manque</h2></div>${gapsHtml()}
     <div class="section-h"><h2>Couleurs du dressing</h2></div>${colorsHtml}`;
+}
+
+function costHtml(count){
+  const priced=state.items.filter(i=>i.price>0);
+  if(!priced.length) return `<p class="sub" style="margin:0">Indique le prix de tes pièces (facultatif, dans leur fiche) : l'app calcule combien chacune te coûte à chaque fois que tu la portes. Plus tu la portes, plus elle devient rentable.</p>`;
+  const euro=v=>v.toLocaleString("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:(v<10||v%1)?2:0});
+  const rows=priced.map(i=>{ const n=count[i.id]||0; return {i,n,cpw:i.price/Math.max(1,n)}; }).sort((a,b)=>b.cpw-a.cpw);
+  const total=priced.reduce((a,i)=>a+i.price,0), wornTotal=rows.reduce((a,r)=>a+r.n,0);
+  return `<div class="stats"><div class="stat"><b>${euro(total)}</b><span>valeur des ${priced.length} pièce${priced.length>1?"s":""} chiffrée${priced.length>1?"s":""}</span></div>
+    <div class="stat"><b>${euro(total/Math.max(1,wornTotal))}</b><span>coût moyen par port</span></div>
+    <div class="stat"><b>${euro(rows[rows.length-1].cpw)}</b><span>la plus rentable : ${esc(itemName(rows[rows.length-1].i))}</span></div></div>
+    <div class="ctl-label" style="margin-top:12px">À rentabiliser</div>
+    <div class="rank">${rows.slice(0,6).map(r=>`<div class="rk">${ph(r.i)}<div class="rk-b"><div class="rk-n"><span>${esc(itemName(r.i))}</span><b>${euro(r.cpw)}</b></div><span class="sub">${euro(r.i.price)} · ${r.n} port${r.n>1?"s":""}${r.n?"":" pour l'instant"}</span></div></div>`).join("")}</div>`;
 }
 
 /* ================= Feuille d'ajout / édition ================= */
@@ -812,14 +908,14 @@ function openSheet(html){
   const cur=document.querySelector(".sheet-bg .sheet");
   if(cur){ cur.innerHTML=html; return; }
   const bg=document.createElement("div"); bg.className="sheet-bg"; bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
-  bg.addEventListener("click",e=>{ if(e.target===bg){ if(batch) return; closeSheet(); } });
+  bg.addEventListener("click",e=>{ if(e.target===bg){ if(batch||ob) return; closeSheet(); } });
   document.body.appendChild(bg); document.body.style.overflow="hidden";
 }
 function closeSheet(){ document.querySelector(".sheet-bg")?.remove(); document.body.style.overflow=""; if(sheetState?.previewURL) URL.revokeObjectURL(sheetState.previewURL); sheetState=null; }
 
-function openEditor(item){
+function openEditor(item, preset){
   const isNew=!item;
-  sheetState = item ? {...item, newPhoto:undefined} : {id:uid(), type:"haut", kind:"montre", color:"noir", style:"casual", season:"toutes", name:"", photo:null, created:Date.now()};
+  sheetState = item ? {...item, newPhoto:undefined} : {id:uid(), type:"haut", kind:"montre", color:"noir", style:"casual", season:"toutes", name:"", photo:null, created:Date.now(), ...(preset||{})};
   if(!sheetState.kind) sheetState.kind="montre";
   renderEditor(isNew);
   if(isNew) loadModel().catch(()=>{});
@@ -848,6 +944,7 @@ function renderEditor(isNew){
       <label class="btn primary" for="photoIn">${(s.photo||s.previewURL)?"Changer la photo":"Prendre une photo"}</label>
       <input type="file" id="photoIn" accept="image/*" hidden>
       ${canCut?`<button class="btn ghost sm" data-act="cutnow">Détourer la photo</button>`:""}
+      ${!s.busy && (s.previewURL?s.newCut:s.cut) && (s.orig||s.newOrig) ? `<button class="btn ghost sm" data-act="uncut">Revenir à la photo d'origine</button>`:""}
       <span class="hint" id="colorHint" aria-live="polite">${s.hint||"Prends la pièce seule, à plat ou sur un cintre : type, style, saison et couleur sont reconnus automatiquement."}</span></div></div>
     <div class="field"><div class="ctl-label">Nom (facultatif)</div><input type="text" id="nameIn" placeholder="ex. Chemise Oxford" value="${esc(s.name)}" maxlength="40"></div>
     <div class="field"><div class="ctl-label">Type</div>${opt("type",TYPES,s.type)}</div>
@@ -859,6 +956,11 @@ function renderEditor(isNew){
       <span class="hint">Pour les pièces bicolores : logo, semelle, empiècement… Elle compte moins que la principale, mais l'app saura l'accorder.</span></div>`:""}
     <div class="field"><div class="ctl-label">Style</div>${opt("style",STYLES,s.style)}</div>
     <div class="field"><div class="ctl-label">Saison</div>${opt("season",SEASONS,s.season)}</div>
+    <div class="row2"><div class="field"><div class="ctl-label">Marque (facultatif)</div><input type="text" id="brandIn" placeholder="ex. Nike" value="${esc(s.brand||"")}" maxlength="30"></div>
+      <div class="field"><div class="ctl-label">Prix (facultatif)</div><input type="text" id="priceIn" inputmode="decimal" placeholder="€" value="${s.price?String(s.price).replace(".",","):""}" maxlength="8"></div></div>
+    ${settings.laundry?`<div class="field"><div class="ctl-label">Lavage</div>
+      <div class="opts" role="group">${[[1,"Après 1 port"],[2,"2 ports"],[3,"3 ports"],[5,"5 ports"],[10,"10 ports"],[0,"Jamais"]].map(([v,l])=>`<button class="chip" data-f="washEvery" data-v="${v}" aria-pressed="${washEvery(s)===v}">${l}</button>`).join("")}</div>
+      ${isNew?"":`<button class="toggle" data-act="toggledirty" aria-pressed="${!!s.dirty}"><span><b>Au lavage en ce moment</b><br><span class="sub">${s.dirty?"Pas proposée dans les tenues.":`Portée ${s.since||0} fois depuis la dernière lessive.`}</span></span><i></i></button>`}</div>`:""}
     <button class="btn primary" data-act="save" ${s.busy?"disabled":""}>${s.busy?"Patiente, analyse en cours…":s.batch?(batch.idx+1<batch.files.length?"Enregistrer et suivante":"Enregistrer et terminer"):isNew?"Ajouter au dressing":"Enregistrer"}</button>
     ${s.batch?`<button class="btn ghost" data-act="skipbatch">Ignorer cette photo</button>`:""}
     ${isNew?"":`<button class="btn ghost" data-act="pin" data-id="${s.id}">Créer une tenue avec cette pièce</button>
@@ -867,6 +969,8 @@ function renderEditor(isNew){
   document.getElementById("photoIn").addEventListener("change",onPhoto);
   document.getElementById("batchIn")?.addEventListener("change",e=>startBatch(e.target.files));
   document.getElementById("nameIn").addEventListener("input",e=>{ sheetState.name=e.target.value; });
+  document.getElementById("brandIn").addEventListener("input",e=>{ sheetState.brand=e.target.value; });
+  document.getElementById("priceIn").addEventListener("input",e=>{ sheetState.priceTxt=e.target.value; });
 }
 
 async function onPhoto(e){
@@ -875,7 +979,7 @@ async function onPhoto(e){
   try{ res = await processImage(f); }catch(err){ toast("Impossible de lire cette photo. Essaie en JPEG ou PNG."); return; }
   const s=sheetState; if(!s) return;
   if(s.previewURL) URL.revokeObjectURL(s.previewURL);
-  s.newPhoto=res.blob; s.newCut=false; s.previewURL=URL.createObjectURL(res.blob);
+  s.newPhoto=res.blob; s.newOrig=res.blob; s.newCut=false; s.previewURL=URL.createObjectURL(res.blob);
   s.touched=new Set(); s.wb=res.wb; s.detected=res.color; s.colorAlt=res.colorAlt; s.color=res.color; s.busy=true;
   s.hint = modelReady||seen("reco") ? "Analyse de la pièce…" : "Premier lancement : téléchargement de la reconnaissance (~16 Mo, une seule fois)…";
   renderEditor(s.isNew);
@@ -1113,7 +1217,13 @@ async function saveItem(){
   const s=sheetState; if(s.busy) return;
   const item={id:s.id,type:s.type,kind:s.type==="accessoire"?s.kind:undefined,color:s.color,color2:(s.color2&&s.color2!==s.color&&s.color!=="motif")?s.color2:null,style:s.style,season:s.season,name:(s.name||"").trim(),created:s.created,lastWorn:s.lastWorn||null,sample:s.isNew?false:!!s.sample,cut:!!s.cut};
   item.photo = s.newPhoto!==undefined ? s.newPhoto : (s.photo||null);
+  item.orig = s.newPhoto!==undefined ? (s.newCut ? (s.newOrig||null) : null) : (s.orig||null); // photo avant détourage, pour pouvoir revenir en arrière
   if(s.newPhoto!==undefined) { dropURL(item.id); item.sample=false; item.cut=!!s.newCut; }
+  item.brand=(s.brand||"").trim()||undefined;
+  const pt = s.priceTxt!==undefined ? s.priceTxt : (s.price!=null?String(s.price):"");
+  const pv = parseFloat(String(pt).replace(",",".").replace(/[^0-9.]/g,"")); item.price = pv>0 ? Math.round(pv*100)/100 : undefined;
+  if(s.washEvery!==undefined) item.washEvery=Number(s.washEvery);
+  item.since=s.since||0; item.dirty=!!s.dirty;
   try{ await put("items",item); }catch(err){ toast("Enregistrement impossible : stockage du navigateur indisponible."); return; }
   const idx=state.items.findIndex(i=>i.id===item.id);
   if(idx>=0) state.items[idx]=item; else state.items.push(item);
@@ -1155,6 +1265,11 @@ function openMenu(){
     <div class="sheet-h"><h2>Réglages</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
     <div class="field"><div class="ctl-label">Apparence</div>
       <div class="skins" role="group" aria-label="Thème">${SKINS.map(s=>`<button class="skin" data-skin="${s.id}" aria-pressed="${s.id===currentSkin()}"><span class="pv" style="background:${s.bg}"><i style="background:${s.ac};box-shadow:0 0 8px ${s.ac}"></i></span>${s.label}</button>`).join("")}</div></div>
+    <div class="field"><div class="ctl-label">Style des tenues</div>
+      <div><span class="sub">Veste</span>${seg("setjacket",[["always","Dès qu'il fait frais"],["auto","Si froid ou pluie"],["rarely","Rarement"]],settings.jacket)}</div>
+      <button class="toggle" data-act="toggleset" data-k="layering" aria-pressed="${settings.layering}"><span><b>Superposition</b><br><span class="sub">Pull ou sweat par-dessus le haut quand il fait frais.</span></span><i></i></button>
+      <button class="toggle" data-act="toggleset" data-k="accessories" aria-pressed="${settings.accessories}"><span><b>Accessoires</b><br><span class="sub">Ajoute jusqu'à 3 accessoires à chaque tenue.</span></span><i></i></button>
+      <button class="toggle" data-act="toggleset" data-k="laundry" aria-pressed="${settings.laundry}"><span><b>Suivi du lavage</b><br><span class="sub">Après quelques ports, une pièce passe au lavage et n'est plus proposée.</span></span><i></i></button></div>
     <div class="field"><div class="ctl-label">Photos</div>
       <button class="toggle" data-act="togglecut" aria-pressed="${settings.cutout}"><span><b>Détourer automatiquement</b><br><span class="sub">Retire le fond de chaque nouvelle photo. Télécharge ~40 Mo la première fois.</span></span><i></i></button></div>
     <div class="field"><div class="ctl-label">Goûts appris</div>
@@ -1167,6 +1282,7 @@ function openMenu(){
       <button class="btn primary" id="bkBtn" data-act="backup" ${backupFile?"":"disabled"}>${backupFile?"Sauvegarder maintenant":"Préparation de la sauvegarde…"}</button>
       <button class="btn" data-act="import">Restaurer une sauvegarde</button>
       ${hasSamples?`<button class="btn danger" data-act="clearsamples">Retirer les exemples</button>`:`<button class="btn" data-act="samples">Charger des pièces d'exemple</button>`}
+      <button class="btn ghost" data-act="onboarding">Revoir la configuration de départ</button>
     </div>`);
 }
 // Conversion photo → texte pour la sauvegarde. Lecture via arrayBuffer (plus fiable que FileReader sur Safari),
@@ -1248,7 +1364,7 @@ async function prepareBackup(){
       for(const i of state.items){ // une par une : moins de mémoire, et une photo illisible est simplement sautée
         let photo=null;
         if(i.photo){ try{ photo=await blobToData(i.photo); }catch(e){ backupLost++; } }
-        items.push({...i, photo});
+        items.push({...i, photo, orig:undefined});
       }
       const data = JSON.stringify({app:"penderie",version:3,exported:new Date().toISOString(),items,outfits:state.outfits,wears:state.wears,prefs});
       backupFile = new File([data],"Penderie-sauvegarde.json",{type:"application/json"});
@@ -1310,7 +1426,7 @@ async function startBatch(files){
 async function analyzeFile(f){
   try{
     const res=await processImage(f);
-    const it={type:"haut", kind:"montre", color:res.color, colorAlt:res.colorAlt, color2:null, style:"casual", season:"toutes", photo:res.blob, cut:false, label:null};
+    const it={type:"haut", kind:"montre", color:res.color, colorAlt:res.colorAlt, color2:null, style:"casual", season:"toutes", photo:res.blob, orig:res.blob, cut:false, label:null};
     try{ const g=await recognize(res.canvas); if(g){ for(const k of ["type","style","season","kind"]) if(g[k]) it[k]=g[k]; it.label=g.label; } }catch(e){}
     if(settings.cutout){ try{ const r=await cutout(res.blob,res.wb); it.photo=r.blob; it.cut=true; it.color=r.color; it.colorAlt=r.colorAlt; if(r.color2&&r.color2!==r.color) it.color2=r.color2; markSeen("cut"); }catch(e){} }
     return it;
@@ -1333,7 +1449,7 @@ function showBatchItem(){
   }
   if(r.error){ batch.skipped++; batch.idx++; toast(`Photo ${batch.idx} illisible, ignorée`); return showBatchItem(); }
   sheetState={id:uid(), type:r.type, kind:r.kind, color:r.color, colorAlt:r.colorAlt, color2:r.color2, style:r.style, season:r.season, name:"", photo:null,
-    created:Date.now(), newPhoto:r.photo, newCut:r.cut, previewURL:URL.createObjectURL(r.photo), touched:new Set(), batch:true,
+    created:Date.now(), newPhoto:r.photo, newCut:r.cut, newOrig:r.orig, previewURL:URL.createObjectURL(r.photo), touched:new Set(), batch:true,
     hint: r.label ? `Reconnu : ${r.label}, couleur ${C[r.color].label.toLowerCase()}${r.color2?` et ${C[r.color2].label.toLowerCase()}`:""}. Corrige si besoin.` : `Type pas reconnu avec certitude, choisis-le. Couleur détectée : ${C[r.color].label.toLowerCase()}.`};
   renderEditor(true);
 }
@@ -1506,10 +1622,107 @@ function openValise(v){
     <div class="row2"><button class="btn ghost" data-act="valnew">Nouvelle valise</button><button class="btn danger" data-act="valdel">Vider</button></div>`);
 }
 
+/* ================= Premier démarrage =================
+   Quelques écrans pour régler l'app à son goût, puis la démarche pour l'installer sur l'écran d'accueil.
+   Sur iPhone, l'app de l'écran d'accueil a son propre stockage, séparé de Safari : les réglages choisis ici
+   sont donc aussi glissés dans l'adresse (#cfg=…), que l'icône reprend à la première ouverture. */
+let ob=null, installEvt=null;
+window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e; });
+const isStandalone=()=> navigator.standalone===true || matchMedia("(display-mode: standalone)").matches;
+function platform(){
+  const ua=navigator.userAgent;
+  const ios=/iPhone|iPad|iPod/.test(ua) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+  if(ios) return /CriOS|FxiOS|EdgiOS|OPiOS/.test(ua) ? "ios-other" : "ios";
+  if(/Android/.test(ua)) return "android";
+  return "desktop";
+}
+function cfgString(){ return btoa(unescape(encodeURIComponent(JSON.stringify({k:currentSkin(),o:state.ctx.occ,s:settings})))); }
+function applyCfgFromHash(){
+  const m=location.hash.match(/^#cfg=([A-Za-z0-9+/=]+)/); if(!m) return false;
+  try{
+    const c=JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+    let done=false; try{ done=localStorage.getItem("penderie.onboarded")==="1"; }catch(e){}
+    if(!done){
+      if(c.k) applySkin(c.k);
+      if(c.o && OCC[c.o]){ state.ctx.occ=c.o; saveCtx(); }
+      if(c.s) { Object.assign(settings,c.s); saveSettings(); }
+      try{ localStorage.setItem("penderie.onboarded","1"); }catch(e){}
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+function startOnboarding(again){ ob={step:0, again:!!again}; renderOnboarding(); }
+function renderOnboarding(){
+  const install = !isStandalone();
+  const steps = install ? 5 : 4;
+  const dots = `<div class="ob-dots">${Array.from({length:steps},(_,i)=>`<i class="${i===ob.step?"on":i<ob.step?"done":""}"></i>`).join("")}</div>`;
+  const nav = (next="Continuer")=>`<div class="row2">${ob.step>0?`<button class="btn ghost" data-act="obprev">Retour</button>`:`<button class="btn ghost" data-act="obskip">Passer</button>`}<button class="btn primary" data-act="obnext">${next}</button></div>`;
+  let body="";
+  if(ob.step===0) body=`<div class="ob-hero">${ICON.bag}</div>
+    <h2 class="ob-t">Bienvenue dans Penderie</h2>
+    <ul class="why ob-l"><li>Prends tes vêtements en photo : type, couleur et saison sont reconnus tout seuls.</li>
+      <li>Chaque jour, une tenue qui va ensemble, selon la météo et l'occasion.</li>
+      <li>Gratuit, sans compte : ton dressing reste sur ton téléphone.</li></ul>
+    <p class="sub" style="margin:0">Une minute pour régler l'app à ton goût.</p>${nav("C'est parti")}`;
+  else if(ob.step===1) body=`<h2 class="ob-t">Choisis ton ambiance</h2><p class="sub" style="margin:0">Tu pourras la changer à tout moment dans Réglages.</p>
+    <div class="skins" role="group" aria-label="Thème">${SKINS.map(s=>`<button class="skin" data-skin="${s.id}" aria-pressed="${s.id===currentSkin()}"><span class="pv" style="background:${s.bg}"><i style="background:${s.ac};box-shadow:0 0 8px ${s.ac}"></i></span>${s.label}</button>`).join("")}</div>${nav()}`;
+  else if(ob.step===2) body=`<h2 class="ob-t">Ton style</h2>
+    <div class="field"><div class="ctl-label">Le plus souvent, tu t'habilles…</div>${seg("obocc",[["casual","Décontracté"],["chic","Habillé"],["sport","Sport"]],state.ctx.occ)}</div>
+    <div class="field"><div class="ctl-label">Une veste dans tes tenues</div>${seg("setjacket",[["always","Dès qu'il fait frais"],["auto","Si froid ou pluie"],["rarely","Rarement"]],settings.jacket)}</div>
+    <button class="toggle" data-act="toggleset" data-k="layering" aria-pressed="${settings.layering}"><span><b>Superposition</b><br><span class="sub">Un pull ou un sweat par-dessus le haut quand il fait frais.</span></span><i></i></button>
+    <button class="toggle" data-act="toggleset" data-k="accessories" aria-pressed="${settings.accessories}"><span><b>Accessoires</b><br><span class="sub">Casquette, ceinture, montre… ajoutés aux tenues.</span></span><i></i></button>${nav()}`;
+  else if(ob.step===3) body=`<h2 class="ob-t">Au quotidien</h2>
+    <button class="toggle" data-act="toggleset" data-k="laundry" aria-pressed="${settings.laundry}"><span><b>Suivi du lavage</b><br><span class="sub">Un T-shirt porté passe au lavage, un jean après quelques ports : l'app ne te le repropose pas tant qu'il n'est pas propre.</span></span><i></i></button>
+    <button class="toggle" data-act="togglecut" aria-pressed="${settings.cutout}"><span><b>Détourer les photos</b><br><span class="sub">Retire le fond pour un rendu catalogue. Télécharge ~40 Mo une seule fois.</span></span><i></i></button>
+    <div class="field"><div class="ctl-label">Météo du jour</div>
+      <p class="sub" style="margin:0">Pour choisir entre chaud, doux et froid, l'app a besoin de ta position approximative. Elle n'est envoyée qu'au service météo.</p>
+      <button class="btn ghost" data-act="obwx" id="obwx">${state.wxStatus==="ok"?"✓ Météo activée":"Activer la météo locale"}</button></div>${nav(install?"Continuer":"Terminer")}`;
+  else body=installStep();
+  openSheet(`<div class="grab"></div>${dots}${body}`);
+}
+function installStep(){
+  const pf=platform();
+  const share=`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>`;
+  const plus=`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>`;
+  let steps, extra="";
+  if(pf==="ios") steps=[[share,"Touche le bouton <b>Partager</b>","En bas de l'écran sur iPhone (en haut à droite sur iPad)."],[plus,"Choisis <b>Sur l'écran d'accueil</b>","Fais défiler la liste si besoin. Absent ? Touche « Modifier les actions » tout en bas."],[ICON.bag,"Touche <b>Ajouter</b>","En haut à droite. L'icône Penderie apparaît sur ton écran d'accueil."],[ICON.pin,"Ouvre Penderie <b>depuis l'icône</b>","Elle s'ouvre en plein écran, comme une vraie app, et garde tes réglages."]];
+  else if(pf==="ios-other") steps=[[share,"Touche le bouton <b>Partager</b>","Dans le menu de ton navigateur. S'il n'y est pas, ouvre ce site dans Safari."],[plus,"Choisis <b>Sur l'écran d'accueil</b>",""],[ICON.bag,"Touche <b>Ajouter</b>",""],[ICON.pin,"Ouvre Penderie <b>depuis l'icône</b>",""]];
+  else if(pf==="android") steps=[[`<b class="ic">⋮</b>`,"Ouvre le <b>menu</b> du navigateur","Les trois points en haut à droite dans Chrome."],[plus,"Choisis <b>Installer l'application</b>","Ou « Ajouter à l'écran d'accueil »."],[ICON.pin,"Ouvre Penderie <b>depuis l'icône</b>",""]];
+  else steps=[[plus,"Clique sur l'icône <b>Installer</b>","À droite de la barre d'adresse dans Chrome ou Edge. Sur Safari Mac : Fichier › Ajouter au Dock."],[ICON.pin,"Ouvre Penderie <b>comme une app</b>",""]];
+  if(pf==="ios"||pf==="ios-other") extra=`<p class="note">Important : l'app de l'écran d'accueil a son propre espace. <b>Ajoute tes vêtements depuis l'icône</b>, pas depuis Safari.</p>`;
+  return `<h2 class="ob-t">Mets Penderie sur ton écran d'accueil</h2>
+    <p class="sub" style="margin:0">Elle s'ouvrira en un tap, en plein écran, et marchera même sans connexion.</p>
+    ${installEvt?`<button class="btn primary" data-act="obinstall">Installer l'app</button><p class="sub" style="margin:0;text-align:center">ou à la main :</p>`:""}
+    <ol class="ob-steps">${steps.map(([ic,t,d],k)=>`<li><span class="n">${k+1}</span><span class="ico">${ic}</span><span><b class="t">${t}</b>${d?`<span class="sub">${d}</span>`:""}</span></li>`).join("")}</ol>
+    ${extra}
+    <div class="row2"><button class="btn ghost" data-act="obprev">Retour</button><button class="btn primary" data-act="obdone">J'ai compris</button></div>`;
+}
+function finishOnboarding(){
+  try{ localStorage.setItem("penderie.onboarded","1"); }catch(e){}
+  ob=null; closeSheet(); state.current=null; render();
+}
+async function onboardingAction(act,b){
+  if(!ob) return;
+  const last = isStandalone()?3:4;
+  if(act==="obnext"){
+    if(ob.step===last-1 && !isStandalone()) history.replaceState(null,"",location.pathname+location.search+"#cfg="+cfgString()); // l'icône reprendra ces réglages
+    if(ob.step>=last){ finishOnboarding(); return; }
+    if(ob.step===3 && isStandalone()){ finishOnboarding(); return; }
+    ob.step++; renderOnboarding(); document.querySelector(".sheet").scrollTop=0;
+  }
+  else if(act==="obprev"){ ob.step=Math.max(0,ob.step-1); renderOnboarding(); }
+  else if(act==="obskip"||act==="obdone"){ if(!isStandalone()) history.replaceState(null,"",location.pathname+location.search+"#cfg="+cfgString()); finishOnboarding(); }
+  else if(act==="obwx"){ state.ctx.wmode="auto"; saveCtx(); b.textContent="Recherche de ta position…"; await refreshWeather(true); if(ob) renderOnboarding(); }
+  else if(act==="obinstall"){ try{ installEvt.prompt(); const r=await installEvt.userChoice; installEvt=null; if(r.outcome==="accepted") finishOnboarding(); else renderOnboarding(); }catch(e){} }
+}
+
 /* ================= Événements ================= */
 document.addEventListener("click", async e=>{
   const b=e.target.closest("button"); if(!b) return;
   if(b.dataset.tab){ state.tab=b.dataset.tab; render(); scrollTo(0,0); return; }
+  if(b.dataset.seg==="setjacket"){ settings.jacket=b.dataset.v; saveSettings(); state.current=null; b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); return; }
+  if(b.dataset.seg==="obocc"){ state.ctx.occ=b.dataset.v; saveCtx(); state.current=null; b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); return; }
   if(b.dataset.seg==="vweather"){ valForm.weather=b.dataset.v; b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); return; }
   if(b.dataset.seg){
     if(b.dataset.seg==="weather"){
@@ -1539,7 +1752,7 @@ document.addEventListener("click", async e=>{
   else if(act==="nodel") document.getElementById("delZone").innerHTML=`<button class="btn danger" data-act="askdel" style="width:100%">Supprimer cette pièce</button>`;
   else if(act==="del") deleteItem(sheetState.id);
   else if(act==="cutnow"){
-    const s=sheetState; s.busy=true; s.hint=seen("cut")?"Détourage en cours…":"Détourage en cours… Premier détourage : téléchargement du modèle (~40 Mo, une seule fois)."; renderEditor(s.isNew);
+    const s=sheetState; s.newOrig = s.newPhoto!==undefined ? (s.newOrig||s.newPhoto) : (s.orig||s.photo); s.busy=true; s.hint=seen("cut")?"Détourage en cours…":"Détourage en cours… Premier détourage : téléchargement du modèle (~40 Mo, une seule fois)."; renderEditor(s.isNew);
     await doCutout(s, s.newPhoto!==undefined ? s.newPhoto : s.photo);
     if(sheetState!==s) return;
     s.busy=false; s.hint = s.cutFailed ? "Le détourage n'a pas pu se faire. Vérifie ta connexion et réessaie." : "Fond retiré. Enregistre pour garder cette version.";
@@ -1557,10 +1770,17 @@ document.addEventListener("click", async e=>{
   }
   else if(act==="wear"){
     const now=Date.now(), all=outfitAll(cur);
-    for(const p of all){ const it=state.items.find(i=>i.id===p.id); it.lastWorn=now; p.lastWorn=now; await put("items",it); }
+    const toWash=[];
+    for(const p of all){
+      const it=state.items.find(i=>i.id===p.id); it.lastWorn=now; p.lastWorn=now;
+      it.since=(it.since||0)+1;
+      if(settings.laundry && washEvery(it)>0 && it.since>=washEvery(it)){ it.dirty=true; toWash.push(it); }
+      await put("items",it);
+    }
     const w={id:uid(),date:now,ids:all.map(p=>p.id)}; await put("wears",w); state.wears.unshift(w);
     await learn(cur.pieces,0.5);
-    toast("Ajoutée à ton historique. Ces pièces passeront après les autres pendant 2 jours.");
+    toast(`Ajoutée à ton historique.${toWash.length?` ${toWash.length===1?esc(itemName(toWash[0]))+" passe":toWash.length+" pièces passent"} au lavage.`:" Ces pièces passeront après les autres pendant 2 jours."}`);
+    state.current=null; render();
   }
   else if(act==="delwear"){ await del("wears",b.dataset.id); state.wears=state.wears.filter(w=>w.id!==b.dataset.id); render(); }
   else if(act==="showfav"){
@@ -1576,6 +1796,14 @@ document.addEventListener("click", async e=>{
   else if(act==="askreset") document.getElementById("prefZone").innerHTML=`<div class="confirm"><span>Oublier tous les goûts appris ?</span><button class="btn danger" data-act="resetprefs">Oui, réinitialiser</button></div>`;
   else if(act==="resetprefs"){ prefs={pairs:{},colors:{}}; await put("meta",{key:"prefs",...prefs}); state.current=null; closeSheet(); render(); toast("Goûts appris réinitialisés"); }
   else if(act==="backup") shareBackup();
+  else if(act==="washall"){ for(const it of state.items.filter(i=>i.dirty||i.since)){ it.dirty=false; it.since=0; await put("items",it); } state.current=null; state.filter="tout"; render(); toast("Tout est propre, les pièces reviennent dans les tenues."); }
+  else if(act==="toggledirty"){ sheetState.dirty=!sheetState.dirty; if(!sheetState.dirty) sheetState.since=0; renderEditor(sheetState.isNew); }
+  else if(act==="toggleset"){ const k=b.dataset.k; settings[k]=!settings[k]; saveSettings(); b.setAttribute("aria-pressed",settings[k]); state.current=null; }
+  else if(act==="uncut"){ const s=sheetState; const o=s.newOrig||s.orig; if(s.previewURL) URL.revokeObjectURL(s.previewURL); s.newPhoto=o; s.newOrig=o; s.newCut=false; s.previewURL=URL.createObjectURL(o); s.hint="Photo d'origine restaurée. Enregistre pour garder cette version."; renderEditor(s.isNew); }
+  else if(act==="esshide"){ try{ localStorage.setItem("penderie.essHidden","1"); }catch(e){} render(); }
+  else if(act==="ess"){ openEditor(null, ESSENTIALS[Number(b.dataset.k)].preset); }
+  else if(act==="onboarding"){ closeSheet(); startOnboarding(true); }
+  else if(act?.startsWith("ob")) onboardingAction(act,b);
   else if(act==="backupretry"){ backupFile=null; b.disabled=true; b.textContent="Préparation…"; armBackupButton(b.closest(".bk")?"Sauvegarder":"Sauvegarder maintenant"); }
   else if(act==="snooze"){ const k=BK.get(); k.snooze=Date.now()+3*DAY; BK.set(k); render(); }
   else if(act==="stopbatch") finishBatch();
@@ -1593,7 +1821,7 @@ document.addEventListener("click", async e=>{
 });
 document.getElementById("addBtn").addEventListener("click",()=>openEditor(null));
 document.getElementById("importFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(f) importData(f); e.target.value=""; });
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(batch) finishBatch(); else closeSheet(); } });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(batch) finishBatch(); else if(!ob) closeSheet(); } });
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") refreshWeather(); });
 
 async function load(){
@@ -1605,8 +1833,13 @@ async function load(){
 (async()=>{
   { const s=SKINS.find(x=>x.id===currentSkin()); if(s) document.querySelector('meta[name="theme-color"]').setAttribute("content",s.bg); }
   try{ await load(); }catch(e){ toast("Le stockage du navigateur est bloqué (navigation privée ?)."); }
+  const fromIcon = applyCfgFromHash();
   render();
-  refreshWeather();
+  let onboarded=false; try{ onboarded=localStorage.getItem("penderie.onboarded")==="1"; }catch(e){}
+  if(!onboarded && !state.items.some(i=>!i.sample)) startOnboarding(false);
+  else if(!onboarded){ try{ localStorage.setItem("penderie.onboarded","1"); }catch(e){} } // utilisateurs déjà installés : pas d'accueil
+  if(fromIcon) toast("Tes réglages sont là. Tu peux ajouter tes vêtements !");
+  if(!ob) refreshWeather(); // pendant l'accueil, la localisation n'est demandée qu'à l'étape météo
   if(navigator.storage?.persist) navigator.storage.persist().catch(()=>{});
   if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
 })();
