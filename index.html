@@ -186,6 +186,7 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
 .swb{border:1px solid var(--line);background:var(--tile);border-radius:12px;padding:8px 4px 6px;display:grid;justify-items:center;gap:4px;font-size:11px;line-height:1.15;text-align:center}
 .swb[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent),var(--glow)}
+.sw.none{background:linear-gradient(135deg,transparent 46%,var(--muted) 46% 54%,transparent 54%)}
 .swb.alt{border-style:dashed;border-color:rgba(var(--accent-rgb),.7)}
 .sw{width:26px;height:26px;border-radius:50%;border:1px solid var(--swatch-line)}
 .hint{font-size:12px;color:var(--muted)}
@@ -406,11 +407,30 @@ function scoreOutfit(pieces, ctx){
     if(st<0 && !warn.some(w=>w.startsWith("Mélange"))) warn.push("Mélange sport et habillé");
   }
   s+=cs;
-  const vifs = [...new Set(pieces.map(p=>p.color).filter(c=>C[c].fam==="vif"))];
+  // Couleur secondaire : compte moins que la principale, mais un « rappel » (le bleu des baskets
+  // qui répond au bleu du pull) est un vrai plus ; un choc de couleurs reste signalé.
+  const echoed=new Set();
+  for(const a of pieces){
+    if(!a.color2) continue;
+    for(const b of pieces){
+      if(a===b) continue;
+      const pc=pairColor(a.color2,b.color);
+      s+=pc.s*0.35;
+      if(pc.s<=-2.5 && !warn.includes(pc.warn)) warn.push(pc.warn);
+      const fam=C[a.color2].fam;
+      if(fam!=="neutre" && (b.color===a.color2 || b.color2===a.color2) && !echoed.has(a.color2)){
+        echoed.add(a.color2); s+=2; cs+=n*0.6;
+        const OF={haut:"du haut",pull:"du pull",bas:"du bas",chaussures:"des chaussures",veste:"de la veste",accessoire:"de l'accessoire"};
+        const THE={haut:"le haut",pull:"le pull",bas:"le bas",chaussures:"les chaussures",veste:"la veste",accessoire:"l'accessoire"};
+        ok.unshift(`Le ${C[a.color2].label.toLowerCase()} ${a.name?"de "+a.name:OF[a.type]} rappelle ${b.name?b.name:THE[b.type]}`);
+      }
+    }
+  }
+  const vifs = [...new Set([...pieces.map(p=>p.color), ...pieces.map(p=>p.color2).filter(c=>c&&!echoed.has(c))].filter(c=>c&&C[c].fam==="vif"))];
   if(vifs.length>2){ s-=3; warn.push("Trop de couleurs vives à la fois"); }
   const fams = pieces.map(p=>C[p.color].fam);
   if(fams.every(f=>f==="neutre")) ok.unshift("Palette 100 % neutre, impossible de se tromper");
-  else if(vifs.length===1 && fams.filter(f=>f==="vif").length===1) ok.unshift("Une seule couleur forte ("+C[vifs[0]].label.toLowerCase()+"), le reste neutre : équilibré");
+  else if(vifs.length===1 && fams.filter(f=>f==="vif").length===1 && !echoed.size) ok.unshift("Une seule couleur forte ("+C[vifs[0]].label.toLowerCase()+"), le reste neutre : équilibré");
   for(const p of pieces){
     s+=(OCC[ctx.occ][p.style]??-3)+(SEA[ctx.weather][p.season]??-2);
     if(p.lastWorn && Date.now()-p.lastWorn < 2*DAY && p.id!==ctx.pin) s-=3;
@@ -613,7 +633,7 @@ function ph(item){
   const u=photoURL(item);
   return `<div class="ph ${item.cut?"cut":""}">${u?`<img src="${u}" alt="${esc(itemName(item))}">`:silhouette(item)}</div>`;
 }
-const dot = c => `<span class="dot ${c==="motif"?"motif":""}" style="${C[c].hex?`background:${C[c].hex}`:""}"></span>`;
+const dot = (c,c2) => { const a=C[c].hex, b=c2&&C[c2]?.hex; return `<span class="dot ${c==="motif"?"motif":""}" style="${a?`background:${b?`linear-gradient(90deg,${a} 0 55%,${b} 55%)`:a}`:""}"></span>`; };
 const typeLabel = i => i.type==="accessoire" ? (K[i.kind]?.label||"Accessoire") : T[i.type].label;
 const itemName = i => i.name || ((i.type==="accessoire" ? (K[i.kind]?.short||"Accessoire") : T[i.type].label.split(" ")[0])+" "+C[i.color].label.toLowerCase());
 function toast(msg){
@@ -659,7 +679,7 @@ function weatherLine(){
 }
 
 function piecesTile(p, wide){
-  return `<div class="piece ${wide?"wide":""}">${ph(p)}<div class="cap">${dot(p.color)}<span>${esc(itemName(p))}</span></div></div>`;
+  return `<div class="piece ${wide?"wide":""}">${ph(p)}<div class="cap">${dot(p.color,p.color2)}<span>${esc(itemName(p))}</span></div></div>`;
 }
 
 function viewTenue(){
@@ -712,7 +732,7 @@ function viewDressing(){
   return `<div class="filters" role="group" aria-label="Filtrer">${chips.map(([v,l,n])=>`<button class="chip" data-filter="${v}" aria-pressed="${state.filter===v}">${l}<span class="n">${n}</span></button>`).join("")}</div>
   ${list.length?`<div class="grid">${list.map(i=>`<button class="tag" data-act="edit" data-id="${i.id}">
       <span class="hole"></span>${i.sample?`<span class="badge">Exemple</span>`:""}
-      ${ph(i)}<div class="meta"><span class="nm">${esc(itemName(i))}</span><span class="ty">${dot(i.color)}${esc(typeLabel(i))} · ${STYLES.find(s=>s.id===i.style).label}</span></div></button>`).join("")}</div>`
+      ${ph(i)}<div class="meta"><span class="nm">${esc(itemName(i))}</span><span class="ty">${dot(i.color,i.color2)}${esc(typeLabel(i))} · ${STYLES.find(s=>s.id===i.style).label}</span></div></button>`).join("")}</div>`
   : `<p class="sub">Aucune pièce dans cette catégorie.</p>`}`;
 }
 
@@ -793,6 +813,9 @@ function renderEditor(isNew){
     ${s.type==="accessoire"?`<div class="field"><div class="ctl-label">Genre d'accessoire</div>${opt("kind",KINDS,s.kind)}</div>`:""}
     <div class="field"><div class="ctl-label">Couleur principale</div>
       <div class="swatches" role="group">${COLORS.map(c=>`<button class="swb ${s.colorAlt===c.id&&c.id!==s.color&&!s.touched?.has("color")?"alt":""}" data-f="color" data-v="${c.id}" aria-pressed="${c.id===s.color}"><span class="sw ${c.id==="motif"?"motif":""}" style="${c.hex?`background:${c.hex}`:""}"></span>${c.label}</button>`).join("")}</div></div>
+    ${s.color!=="motif"?`<div class="field"><div class="ctl-label">Couleur secondaire (facultatif)</div>
+      <div class="swatches" role="group"><button class="swb" data-f="color2" data-v="" aria-pressed="${!s.color2}"><span class="sw none"></span>Aucune</button>${COLORS.filter(c=>c.id!=="motif"&&c.id!==s.color).map(c=>`<button class="swb" data-f="color2" data-v="${c.id}" aria-pressed="${c.id===s.color2}"><span class="sw" style="background:${c.hex}"></span>${c.label}</button>`).join("")}</div>
+      <span class="hint">Pour les pièces bicolores : logo, semelle, empiècement… Elle compte moins que la principale, mais l'app saura l'accorder.</span></div>`:""}
     <div class="field"><div class="ctl-label">Style</div>${opt("style",STYLES,s.style)}</div>
     <div class="field"><div class="ctl-label">Saison</div>${opt("season",SEASONS,s.season)}</div>
     <button class="btn primary" data-act="save" ${s.busy?"disabled":""}>${s.busy?"Patiente, analyse en cours…":isNew?"Ajouter au dressing":"Enregistrer"}</button>
@@ -820,7 +843,7 @@ async function onPhoto(e){
     if(!g) s.showTips=true;
     if(g){ for(const f of ["type","style","season","kind"]) if(g[f] && !s.touched.has(f)) s[f]=g[f]; label=g.label; }
   }catch(err){ if(sheetState!==s) return; label=false; }
-  const col = ()=> `${C[s.color].label.toLowerCase()}${s.colorAlt&&s.colorAlt!==s.color&&!s.touched?.has("color")?` (ou peut-être ${C[s.colorAlt].label.toLowerCase()})`:""}`;
+  const col = ()=> `${C[s.color].label.toLowerCase()}${s.color2&&C[s.color2]?` et ${C[s.color2].label.toLowerCase()}`:""}${s.colorAlt&&s.colorAlt!==s.color&&!s.touched?.has("color")?` (ou peut-être ${C[s.colorAlt].label.toLowerCase()})`:""}`;
   const recoMsg = ()=> label ? `Reconnu : ${label}, couleur ${col()}. Corrige si besoin.`
     : label===false ? `Reconnaissance indisponible (connexion ?). Couleur détectée : ${col()}.`
     : `Type pas reconnu avec certitude, choisis-le (ou reprends la photo en suivant les conseils). Couleur détectée : ${col()}.`;
@@ -858,7 +881,7 @@ async function cutout(blob, wb){
   const c2=document.createElement("canvas"); c2.width=Math.round((x1-x0)*r); c2.height=Math.round((y1-y0)*r);
   c2.getContext("2d").drawImage(cv,x0,y0,x1-x0,y1-y0,0,0,c2.width,c2.height);
   const png = await new Promise(res=>c2.toBlob(res,"image/png"));
-  const dc=detectColor(c2,true,wb); return {blob:png, color:dc.id, colorAlt:dc.alt};
+  const dc=detectColor(c2,true,wb); return {blob:png, color:dc.id, colorAlt:dc.alt, color2:dc.second};
 }
 async function doCutout(s, blob){
   try{
@@ -867,6 +890,7 @@ async function doCutout(s, blob){
     if(s.previewURL) URL.revokeObjectURL(s.previewURL);
     markSeen("cut"); s.newPhoto=r.blob; s.newCut=true; s.previewURL=URL.createObjectURL(r.blob); s.cutFailed=false;
     if(!s.touched?.has("color")){ s.color=r.color; s.detected=r.color; s.colorAlt=r.colorAlt; }
+    if(!s.touched?.has("color2") && r.color2!==s.color) s.color2=r.color2||null;
   }catch(e){ s.cutFailed=true; }
 }
 
@@ -1028,13 +1052,23 @@ function detectColor(cv, whole, wb){
     if(distinct && strong.filter(g=>Math.hypot(g.lab[1],g.lab[2])>20).length>=2) return {id:"motif", alt:nearestColors(groups[0].lab)[0][0], hex:null};
   }
   const near=nearestColors(groups[0].lab);
+  let second=null;
+  if(whole){
+    // une couleur franche (même en petite surface) parle plus qu'un neutre : la semelle blanche d'une basket
+    // ou une doublure grise ne doivent pas masquer l'empiècement bleu
+    const cands=groups.slice(1).filter(g=>g.w/total>=0.07).map(g=>({g,id:nearestColors(g.lab)[0][0],chroma:Math.hypot(g.lab[1],g.lab[2])}))
+      .filter(x=>x.id!==near[0][0] && labDist(x.g.lab,groups[0].lab,1)>22);
+    const colored=cands.find(x=>x.chroma>18 && C[x.id].fam!=="neutre");
+    const neutral=cands.find(x=>x.g.w/total>=0.2);
+    second=(colored||neutral)?.id||null;
+  }
   const alt = near[1] && near[1][1] < near[0][1]*1.35 ? near[1][0] : null;
-  return {id:near[0][0], alt, lab:groups[0].lab};
+  return {id:near[0][0], alt, second, lab:groups[0].lab};
 }
 
 async function saveItem(){
   const s=sheetState; if(s.busy) return;
-  const item={id:s.id,type:s.type,kind:s.type==="accessoire"?s.kind:undefined,color:s.color,style:s.style,season:s.season,name:(s.name||"").trim(),created:s.created,lastWorn:s.lastWorn||null,sample:s.isNew?false:!!s.sample,cut:!!s.cut};
+  const item={id:s.id,type:s.type,kind:s.type==="accessoire"?s.kind:undefined,color:s.color,color2:(s.color2&&s.color2!==s.color&&s.color!=="motif")?s.color2:null,style:s.style,season:s.season,name:(s.name||"").trim(),created:s.created,lastWorn:s.lastWorn||null,sample:s.isNew?false:!!s.sample,cut:!!s.cut};
   item.photo = s.newPhoto!==undefined ? s.newPhoto : (s.photo||null);
   if(s.newPhoto!==undefined) { dropURL(item.id); item.sample=false; item.cut=!!s.newCut; }
   try{ await put("items",item); }catch(err){ toast("Enregistrement impossible : stockage du navigateur indisponible."); return; }
@@ -1156,7 +1190,9 @@ document.addEventListener("click", async e=>{
   if(b.dataset.filter){ state.filter=b.dataset.filter; render(); return; }
   if(b.dataset.f && sheetState){
     sheetState[b.dataset.f]=b.dataset.v; sheetState.touched?.add(b.dataset.f);
-    if(b.dataset.f==="type"||b.dataset.f==="kind"){ renderEditor(sheetState.isNew); return; }
+    if(b.dataset.f==="color2"){ sheetState.color2=b.dataset.v||null; }
+    if(b.dataset.f==="color" && sheetState.color2===b.dataset.v) sheetState.color2=null;
+    if(["type","kind","color"].includes(b.dataset.f)){ const sc=document.querySelector(".sheet")?.scrollTop||0; renderEditor(sheetState.isNew); const sh=document.querySelector(".sheet"); if(sh) sh.scrollTop=sc; return; }
     b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));
     if(b.dataset.f==="color"){ const p=document.querySelector(".photo-pick .ph"); if(p&&!sheetState.previewURL&&!sheetState.photo) p.outerHTML=ph(sheetState); }
     return;
