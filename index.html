@@ -238,6 +238,10 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .bk>div:first-child{display:grid;gap:2px;min-width:0;flex:1 1 200px}
 .bk b{font-size:14px}
 .bk-a{display:flex;align-items:center;gap:12px}
+.scan{display:flex;align-items:center;gap:12px;padding:26px 16px;border:1.5px dashed var(--line);border-radius:16px;color:var(--muted)}
+.scan svg{width:30px;height:30px;color:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.scan svg{animation:none}}
 .batch-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .batch-grid .ph{aspect-ratio:1}
 .batch-grid .cap{font-size:11px}
@@ -804,9 +808,11 @@ function viewSuivi(){
 /* ================= Feuille d'ajout / édition ================= */
 let sheetState=null;
 function openSheet(html){
-  document.querySelector(".sheet-bg")?.remove(); // on garde sheetState : l'éditeur se re-rend dans la même feuille
+  // feuille déjà ouverte : on remplace son contenu sans rejouer l'animation d'ouverture (pas de clignotement)
+  const cur=document.querySelector(".sheet-bg .sheet");
+  if(cur){ cur.innerHTML=html; return; }
   const bg=document.createElement("div"); bg.className="sheet-bg"; bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
-  bg.addEventListener("click",e=>{ if(e.target===bg) closeSheet(); });
+  bg.addEventListener("click",e=>{ if(e.target===bg){ if(batch) return; closeSheet(); } });
   document.body.appendChild(bg); document.body.style.overflow="hidden";
 }
 function closeSheet(){ document.querySelector(".sheet-bg")?.remove(); document.body.style.overflow=""; if(sheetState?.previewURL) URL.revokeObjectURL(sheetState.previewURL); sheetState=null; }
@@ -824,8 +830,9 @@ function renderEditor(isNew){
   const opt = (name, list, val)=>`<div class="opts" role="group">${list.map(o=>`<button class="chip" data-f="${name}" data-v="${o.id}" aria-pressed="${o.id===val}">${o.label}</button>`).join("")}</div>`;
   const canCut = !s.busy && ((s.previewURL && !s.newCut) || (!s.previewURL && s.photo && !s.cut));
   openSheet(`<div class="grab"></div>
-    <div class="sheet-h"><h2>${isNew?"Nouvelle pièce":"Modifier la pièce"}</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
-    <details class="tips" ${(isNew&&state.items.filter(i=>!i.sample).length<3)||s.showTips?"open":""}>
+    <div class="sheet-h"><h2>${s.batch?`Pièce ${batch.idx+1} sur ${batch.files.length}`:isNew?"Nouvelle pièce":"Modifier la pièce"}</h2><button class="icon-btn" data-act="${s.batch?"stopbatch":"close"}" aria-label="${s.batch?"Arrêter l'ajout en série":"Fermer"}">${ICON.x}</button></div>
+    ${s.batch?`<div class="meter"><i style="width:${Math.round(100*batch.idx/batch.files.length)}%"></i></div>`:""}
+    <details class="tips" ${s.batch?"hidden":""} ${(isNew&&state.items.filter(i=>!i.sample).length<3)||s.showTips?"open":""}>
       <summary>Conseils pour une bonne photo</summary>
       <ul>
         <li><b>Une seule pièce</b> par photo, rien d'autre dans le cadre.</li>
@@ -836,7 +843,7 @@ function renderEditor(isNew){
         <li><b>Chaussures</b> : une seule, de profil. <b>Accessoires</b> : posés seuls, bien au centre.</li>
       </ul>
     </details>
-    ${isNew?`<label class="btn ghost" for="batchIn" style="text-align:center">Ajouter plusieurs photos d'un coup</label><input type="file" id="batchIn" accept="image/*" multiple hidden>`:""}
+    ${isNew&&!s.batch?`<label class="btn ghost" for="batchIn" style="text-align:center">Ajouter plusieurs photos d'un coup</label><input type="file" id="batchIn" accept="image/*" multiple hidden>`:""}
     <div class="photo-pick">${preview}<div style="display:grid;gap:6px">
       <label class="btn primary" for="photoIn">${(s.photo||s.previewURL)?"Changer la photo":"Prendre une photo"}</label>
       <input type="file" id="photoIn" accept="image/*" hidden>
@@ -852,7 +859,8 @@ function renderEditor(isNew){
       <span class="hint">Pour les pièces bicolores : logo, semelle, empiècement… Elle compte moins que la principale, mais l'app saura l'accorder.</span></div>`:""}
     <div class="field"><div class="ctl-label">Style</div>${opt("style",STYLES,s.style)}</div>
     <div class="field"><div class="ctl-label">Saison</div>${opt("season",SEASONS,s.season)}</div>
-    <button class="btn primary" data-act="save" ${s.busy?"disabled":""}>${s.busy?"Patiente, analyse en cours…":isNew?"Ajouter au dressing":"Enregistrer"}</button>
+    <button class="btn primary" data-act="save" ${s.busy?"disabled":""}>${s.busy?"Patiente, analyse en cours…":s.batch?(batch.idx+1<batch.files.length?"Enregistrer et suivante":"Enregistrer et terminer"):isNew?"Ajouter au dressing":"Enregistrer"}</button>
+    ${s.batch?`<button class="btn ghost" data-act="skipbatch">Ignorer cette photo</button>`:""}
     ${isNew?"":`<button class="btn ghost" data-act="pin" data-id="${s.id}">Créer une tenue avec cette pièce</button>
     <div id="delZone"><button class="btn danger" data-act="askdel" style="width:100%">Supprimer cette pièce</button></div>`}`);
   sheetState.isNew=isNew;
@@ -1109,6 +1117,7 @@ async function saveItem(){
   try{ await put("items",item); }catch(err){ toast("Enregistrement impossible : stockage du navigateur indisponible."); return; }
   const idx=state.items.findIndex(i=>i.id===item.id);
   if(idx>=0) state.items[idx]=item; else state.items.push(item);
+  if(s.batch){ state.current=null; render(); nextBatchItem(true); return; }
   const wasNew=s.isNew; closeSheet(); state.current=null; render();
   toast(wasNew?"Ajouté au dressing":"Modifications enregistrées");
 }
@@ -1251,44 +1260,72 @@ function backupBanner(){
     <div class="bk-a"><button class="btn primary sm" id="bkBtn" data-act="backup" ${backupFile?"":"disabled"}>${backupFile?"Sauvegarder":"Préparation…"}</button><button class="link" data-act="snooze">Plus tard</button></div></div>`;
 }
 
-/* ================= Ajout en série ================= */
+/* ================= Ajout en série =================
+   Les photos sont analysées à la chaîne en arrière-plan. Dès que la première est prête, sa fiche s'affiche :
+   tu corriges si besoin, « Enregistrer et suivante » passe à la pièce suivante (déjà analysée la plupart du temps). */
 let batch=null;
 async function startBatch(files){
   files=[...files].slice(0,40);
   if(!files.length) return;
   closeSheet();
-  batch={total:files.length, done:0, rows:[], cancel:false};
-  let lock=null; try{ lock=await navigator.wakeLock?.request("screen"); }catch(e){}
-  renderBatch();
-  for(const f of files){
-    if(batch.cancel) break;
-    batch.current=f.name; renderBatch();
-    try{
-      const res=await processImage(f);
-      const it={id:uid(), type:"haut", kind:"montre", color:res.color, color2:null, style:"casual", season:"toutes", name:"", created:Date.now(), lastWorn:null, sample:false, cut:false, review:true, photo:res.blob};
-      let label=null;
-      try{ const g=await recognize(res.canvas); if(g){ for(const k of ["type","style","season","kind"]) if(g[k]) it[k]=g[k]; label=g.label; } }catch(e){}
-      if(settings.cutout){ try{ const r=await cutout(res.blob,res.wb); it.photo=r.blob; it.cut=true; it.color=r.color; if(r.color2&&r.color2!==r.color) it.color2=r.color2; markSeen("cut"); }catch(e){} }
-      if(it.type!=="accessoire") delete it.kind;
-      await put("items",it); state.items.push(it);
-      batch.rows.push({it,label});
-    }catch(e){ batch.rows.push({error:f.name}); }
-    batch.done++; renderBatch();
+  batch={files, ready:[], idx:0, saved:0, skipped:0, cancel:false, lock:null};
+  try{ batch.lock=await navigator.wakeLock?.request("screen"); }catch(e){}
+  showBatchItem();
+  const me=batch;
+  for(let i=0;i<files.length;i++){
+    if(me.cancel) break;
+    me.ready[i]=await analyzeFile(files[i]);
+    if(me.cancel) break;
+    if(batch===me && me.idx===i && !sheetState) showBatchItem(); // l'écran d'attente attendait celle-ci
+    else if(batch===me && !sheetState) showBatchItem();         // met à jour la progression
   }
-  try{ await lock?.release(); }catch(e){}
-  const ok=batch.rows.filter(r=>r.it).length;
-  batch=null; closeSheet(); state.current=null; state.tab="dressing"; state.filter="review"; render(); scrollTo(0,0);
-  toast(`${ok} pièce${ok>1?"s":""} ajoutée${ok>1?"s":""}. Vérifie-les d'un coup d'œil.`);
 }
-function renderBatch(){
+async function analyzeFile(f){
+  try{
+    const res=await processImage(f);
+    const it={type:"haut", kind:"montre", color:res.color, colorAlt:res.colorAlt, color2:null, style:"casual", season:"toutes", photo:res.blob, cut:false, label:null};
+    try{ const g=await recognize(res.canvas); if(g){ for(const k of ["type","style","season","kind"]) if(g[k]) it[k]=g[k]; it.label=g.label; } }catch(e){}
+    if(settings.cutout){ try{ const r=await cutout(res.blob,res.wb); it.photo=r.blob; it.cut=true; it.color=r.color; it.colorAlt=r.colorAlt; if(r.color2&&r.color2!==r.color) it.color2=r.color2; markSeen("cut"); }catch(e){} }
+    return it;
+  }catch(e){ return {error:true}; }
+}
+function showBatchItem(){
   if(!batch) return;
-  const pct=Math.round(100*batch.done/batch.total);
-  openSheet(`<div class="grab"></div>
-    <div class="sheet-h"><h2>Ajout en série</h2></div>
-    <div class="score-row"><div class="score">${batch.done}<small>/${batch.total}</small></div><div style="flex:1"><div class="ctl-label" style="margin:0 0 5px">${batch.done<batch.total?"Analyse et détourage…":"Terminé"}</div><div class="meter"><i style="width:${pct}%"></i></div></div></div>
-    <p class="sub" style="margin:0">Garde l'app ouverte pendant l'analyse. Chaque photo prend quelques secondes.</p>
-    <div class="batch-grid">${batch.rows.map(r=>r.it?`<div class="piece">${ph(r.it)}<div class="cap">${dot(r.it.color,r.it.color2)}<span>${esc(r.label||typeLabel(r.it))}</span></div></div>`:`<div class="piece"><div class="ph"><span class="sub">Illisible</span></div></div>`).join("")}</div>
-    <button class="btn ghost" data-act="stopbatch">Arrêter ici</button>`);
+  const n=batch.files.length;
+  if(batch.idx>=n) return finishBatch();
+  const r=batch.ready[batch.idx];
+  if(!r){
+    sheetState=null;
+    const doneN=batch.ready.filter(Boolean).length;
+    openSheet(`<div class="grab"></div>
+      <div class="sheet-h"><h2>Pièce ${batch.idx+1} sur ${n}</h2><button class="icon-btn" data-act="stopbatch" aria-label="Arrêter">${ICON.x}</button></div>
+      <div class="scan">${ICON.bag}<span>Analyse de la photo ${batch.idx+1}…</span></div>
+      <div class="score-row"><div style="flex:1"><div class="ctl-label" style="margin:0 0 5px">${doneN} sur ${n} analysée${doneN>1?"s":""}</div><div class="meter"><i style="width:${Math.round(100*doneN/n)}%"></i></div></div></div>
+      <p class="sub" style="margin:0">Garde l'app ouverte. La fiche s'affiche dès que l'analyse est finie.</p>`);
+    return;
+  }
+  if(r.error){ batch.skipped++; batch.idx++; toast(`Photo ${batch.idx} illisible, ignorée`); return showBatchItem(); }
+  sheetState={id:uid(), type:r.type, kind:r.kind, color:r.color, colorAlt:r.colorAlt, color2:r.color2, style:r.style, season:r.season, name:"", photo:null,
+    created:Date.now(), newPhoto:r.photo, newCut:r.cut, previewURL:URL.createObjectURL(r.photo), touched:new Set(), batch:true,
+    hint: r.label ? `Reconnu : ${r.label}, couleur ${C[r.color].label.toLowerCase()}${r.color2?` et ${C[r.color2].label.toLowerCase()}`:""}. Corrige si besoin.` : `Type pas reconnu avec certitude, choisis-le. Couleur détectée : ${C[r.color].label.toLowerCase()}.`};
+  renderEditor(true);
+}
+function nextBatchItem(saved){
+  if(!batch) return;
+  if(sheetState?.previewURL) URL.revokeObjectURL(sheetState.previewURL);
+  batch.ready[batch.idx]=null; // libère la mémoire de la photo traitée
+  if(saved) batch.saved++; else batch.skipped++;
+  batch.idx++; sheetState=null;
+  showBatchItem();
+  const sh=document.querySelector(".sheet"); if(sh) sh.scrollTop=0;
+}
+function finishBatch(){
+  if(!batch) return;
+  const b=batch; b.cancel=true; batch=null;
+  try{ b.lock?.release(); }catch(e){}
+  closeSheet(); state.current=null; render();
+  const left=b.files.length-b.saved-b.skipped;
+  toast(`${b.saved} pièce${b.saved>1?"s":""} ajoutée${b.saved>1?"s":""}${b.skipped?` · ${b.skipped} ignorée${b.skipped>1?"s":""}`:""}${left>0?` · ${left} non traitée${left>1?"s":""}`:""}`);
 }
 
 /* ================= Pièces manquantes ================= */
@@ -1513,7 +1550,8 @@ document.addEventListener("click", async e=>{
   else if(act==="resetprefs"){ prefs={pairs:{},colors:{}}; await put("meta",{key:"prefs",...prefs}); state.current=null; closeSheet(); render(); toast("Goûts appris réinitialisés"); }
   else if(act==="backup") shareBackup();
   else if(act==="snooze"){ const k=BK.get(); k.snooze=Date.now()+3*DAY; BK.set(k); render(); }
-  else if(act==="stopbatch"){ if(batch) batch.cancel=true; }
+  else if(act==="stopbatch") finishBatch();
+  else if(act==="skipbatch") nextBatchItem(false);
   else if(act==="gaps") analyzeGaps();
   else if(act==="valise") openValise();
   else if(act==="valnew") openValiseForm();
@@ -1527,7 +1565,7 @@ document.addEventListener("click", async e=>{
 });
 document.getElementById("addBtn").addEventListener("click",()=>openEditor(null));
 document.getElementById("importFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(f) importData(f); e.target.value=""; });
-document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeSheet(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(batch) finishBatch(); else closeSheet(); } });
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") refreshWeather(); });
 
 async function load(){
