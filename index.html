@@ -506,6 +506,7 @@ function openEditor(item){
   const isNew=!item;
   sheetState = item ? {...item, newPhoto:undefined} : {id:uid(), type:"haut", color:"noir", style:"casual", season:"toutes", name:"", photo:null, created:Date.now()};
   renderEditor(isNew);
+  if(isNew) loadModel().catch(()=>{});
 }
 function renderEditor(isNew){
   const s=sheetState;
@@ -516,7 +517,7 @@ function renderEditor(isNew){
     <div class="photo-pick">${preview}<div style="display:grid;gap:6px">
       <label class="btn primary" for="photoIn">${(s.photo||s.previewURL)?"Changer la photo":"Prendre une photo"}</label>
       <input type="file" id="photoIn" accept="image/*" hidden>
-      <span class="hint" id="colorHint">${s.detected?`Couleur détectée : ${C[s.detected].label.toLowerCase()}. Corrige si besoin.`:"Pose le vêtement à plat sur un fond uni, c'est plus lisible."}</span></div></div>
+      <span class="hint" id="colorHint" aria-live="polite">${s.hint||"Prends la pièce seule, à plat ou sur un cintre : type, style, saison et couleur sont reconnus automatiquement."}</span></div></div>
     <div class="field"><div class="ctl-label">Nom (facultatif)</div><input type="text" id="nameIn" placeholder="ex. Chemise Oxford" value="${esc(s.name)}" maxlength="40"></div>
     <div class="field"><div class="ctl-label">Type</div>${opt("type",TYPES,s.type)}</div>
     <div class="field"><div class="ctl-label">Couleur principale</div>
@@ -532,13 +533,74 @@ function renderEditor(isNew){
 
 async function onPhoto(e){
   const f=e.target.files[0]; if(!f) return;
+  let res;
+  try{ res = await processImage(f); }catch(err){ toast("Impossible de lire cette photo. Essaie en JPEG ou PNG."); return; }
+  const s=sheetState; if(!s) return;
+  if(s.previewURL) URL.revokeObjectURL(s.previewURL);
+  s.newPhoto=res.blob; s.previewURL=URL.createObjectURL(res.blob);
+  s.touched=new Set(); s.detected=res.color; s.color=res.color;
+  s.hint = modelReady ? "Analyse de la pièce…" : "Chargement de la reconnaissance (une seule fois, ~16 Mo)…";
+  renderEditor(s.isNew);
   try{
-    const {blob, color} = await processImage(f);
-    if(sheetState.previewURL) URL.revokeObjectURL(sheetState.previewURL);
-    sheetState.newPhoto=blob; sheetState.previewURL=URL.createObjectURL(blob);
-    sheetState.detected=color; sheetState.color=color;
-    renderEditor(sheetState.isNew);
-  }catch(err){ toast("Impossible de lire cette photo. Essaie en JPEG ou PNG."); }
+    const g = await recognize(res.canvas);
+    if(sheetState!==s) return; // feuille fermée ou autre pièce entre-temps
+    const parts=[];
+    if(g){
+      for(const f of ["type","style","season"]) if(g[f] && !s.touched.has(f)) s[f]=g[f];
+      parts.push(`${g.label}`);
+    }
+    parts.push(`couleur ${C[s.color].label.toLowerCase()}`);
+    s.hint = g ? `Reconnu : ${parts.join(", ")}. Corrige si besoin.` : `Type pas reconnu avec certitude, choisis-le. Couleur détectée : ${C[s.color].label.toLowerCase()}.`;
+  }catch(err){
+    if(sheetState!==s) return;
+    s.hint = `Reconnaissance indisponible (connexion ?). Couleur détectée : ${C[s.color].label.toLowerCase()}.`;
+  }
+  renderEditor(s.isNew);
+}
+
+/* ================= Reconnaissance automatique =================
+   MobileNet (ImageNet, 1000 classes) tourne dans le navigateur : gratuit, rien n'est envoyé sur un serveur.
+   On ne garde que les classes de vêtements, chacune associée à un type, un style et une saison. */
+const CLOTHES = {
+  610:["haut","casual","toutes","T-shirt"], 841:["haut","casual","mi","sweat"], 474:["haut","poly","mi","gilet / cardigan"],
+  911:["haut","casual","hiver","pull en laine"], 617:["haut","poly","toutes","chemise"], 457:["haut","chic","toutes","chemise habillée"],
+  906:["haut","chic","toutes","chemise et cravate"], 697:["haut","casual","toutes","haut"],
+  834:["veste","chic","mi","veste de costume"], 869:["veste","chic","mi","trench"], 568:["veste","chic","hiver","manteau"],
+  501:["veste","casual","hiver","manteau"], 735:["veste","casual","mi","poncho"], 399:["veste","chic","hiver","manteau long"],
+  465:["veste","casual","hiver","doudoune sans manches"], 652:["veste","casual","mi","veste militaire"],
+  608:["bas","casual","toutes","jean"], 655:["bas","casual","ete","jupe"], 689:["bas","casual","ete","jupe"], 842:["bas","sport","ete","short de bain"],
+  770:["chaussures","sport","toutes","baskets de running"], 630:["chaussures","chic","toutes","mocassins"],
+  514:["chaussures","casual","hiver","bottes"], 774:["chaussures","casual","ete","sandales"], 502:["chaussures","casual","ete","sabots"],
+};
+let modelReady=false, modelP=null;
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+function loadModel(){
+  if(!modelP) modelP=(async()=>{
+    if(!window.tf) await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js");
+    const m = await tf.loadLayersModel("https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_1.0_224/model.json");
+    modelReady=true; return m;
+  })().catch(e=>{ modelP=null; throw e; });
+  return modelP;
+}
+function guessFromProbs(probs){
+  const entries=Object.entries(CLOTHES).map(([i,v])=>({p:probs[i],type:v[0],style:v[1],season:v[2],label:v[3]}));
+  if(entries.reduce((a,e)=>a+e.p,0)<0.12) return null; // la photo ne ressemble à aucun vêtement connu du modèle
+  const top=(list,f)=>{ const t={}; for(const e of list) t[e[f]]=(t[e[f]]||0)+e.p; return Object.entries(t).sort((x,y)=>y[1]-x[1])[0][0]; };
+  const type=top(entries,"type");
+  const same=entries.filter(e=>e.type===type); // style et saison : seulement parmi les classes du type retenu
+  const best=same.reduce((x,y)=>y.p>x.p?y:x);
+  return {type, style:top(same,"style"), season:top(same,"season"), label:best.label};
+}
+async function recognize(canvas){
+  const model = await loadModel();
+  const probs = tf.tidy(()=>{
+    const side=Math.min(canvas.width,canvas.height);
+    const sq=document.createElement("canvas"); sq.width=sq.height=224;
+    sq.getContext("2d").drawImage(canvas,(canvas.width-side)/2,(canvas.height-side)/2,side,side,0,0,224,224);
+    const x=tf.browser.fromPixels(sq).toFloat().div(127.5).sub(1).expandDims(0);
+    return model.predict(x).dataSync();
+  });
+  return guessFromProbs(probs);
 }
 async function processImage(file){
   const img = await new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=URL.createObjectURL(file); });
@@ -546,7 +608,7 @@ async function processImage(file){
   const cv=document.createElement("canvas"); cv.width=Math.round(img.width*r); cv.height=Math.round(img.height*r);
   const g=cv.getContext("2d"); g.drawImage(img,0,0,cv.width,cv.height); URL.revokeObjectURL(img.src);
   const blob = await new Promise(res=>cv.toBlob(res,"image/jpeg",.82));
-  return {blob, color: detectColor(cv)};
+  return {blob, color: detectColor(cv), canvas: cv};
 }
 // Couleur dominante : on échantillonne le centre de la photo et on vote pour la teinte de palette la plus proche
 function detectColor(cv){
@@ -665,7 +727,7 @@ document.addEventListener("click", async e=>{
   if(b.dataset.skin){ applySkin(b.dataset.skin); b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); return; }
   if(b.dataset.filter){ state.filter=b.dataset.filter; render(); return; }
   if(b.dataset.f && sheetState){
-    sheetState[b.dataset.f]=b.dataset.v;
+    sheetState[b.dataset.f]=b.dataset.v; sheetState.touched?.add(b.dataset.f);
     b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));
     if(b.dataset.f==="type"||b.dataset.f==="color"){ const p=document.querySelector(".photo-pick .ph"); if(p&&!sheetState.previewURL&&!sheetState.photo) p.outerHTML=ph(sheetState); }
     return;
