@@ -65,6 +65,13 @@
 :root[data-skin="rose"]{--statusbar:#4a1d22}
 :root[data-skin="epure"]{--statusbar:#161b22}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--statusbar)}
+.tips{background:var(--tile);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.tips summary{cursor:pointer;font-weight:600;color:var(--accent-soft);list-style:none;display:flex;justify-content:space-between;align-items:center}
+.tips summary::-webkit-details-marker{display:none}
+.tips summary::after{content:"+";font-size:20px;line-height:1}
+.tips[open] summary::after{content:"−"}
+.tips ul{margin:10px 0 2px;padding-left:18px;display:grid;gap:6px;font-size:14px;color:var(--muted)}
+.tips b{color:var(--ink);font-weight:600}
 .skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
 .skin{border:1px solid var(--line);background:var(--tile);border-radius:14px;padding:10px 8px;display:grid;justify-items:center;gap:6px;font-size:13px;font-weight:500}
 .skin[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent),var(--glow)}
@@ -514,6 +521,17 @@ function renderEditor(isNew){
   const opt = (name, list, val)=>`<div class="opts" role="group">${list.map(o=>`<button class="chip" data-f="${name}" data-v="${o.id}" aria-pressed="${o.id===val}">${o.label}</button>`).join("")}</div>`;
   openSheet(`<div class="grab"></div>
     <div class="sheet-h"><h2>${isNew?"Nouvelle pièce":"Modifier la pièce"}</h2><button class="icon-btn" data-act="close" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <details class="tips" ${(isNew&&state.items.filter(i=>!i.sample).length<3)||s.showTips?"open":""}>
+      <summary>Conseils pour une bonne photo</summary>
+      <ul>
+        <li><b>Une seule pièce</b> par photo, rien d'autre dans le cadre.</li>
+        <li><b>Centre-la et remplis le cadre</b> : la reconnaissance regarde surtout le milieu de l'image.</li>
+        <li><b>Fond uni et contrasté</b> : drap ou sol clair pour une pièce foncée, fond sombre pour une pièce claire.</li>
+        <li><b>Lumière du jour</b>, près d'une fenêtre, sans flash ni contre-jour : les couleurs restent justes.</li>
+        <li><b>À plat, prise du dessus</b>, ou sur un cintre contre un mur. Défroisse et étale bien les manches.</li>
+        <li><b>Chaussures</b> : une seule, de profil.</li>
+      </ul>
+    </details>
     <div class="photo-pick">${preview}<div style="display:grid;gap:6px">
       <label class="btn primary" for="photoIn">${(s.photo||s.previewURL)?"Changer la photo":"Prendre une photo"}</label>
       <input type="file" id="photoIn" accept="image/*" hidden>
@@ -545,12 +563,13 @@ async function onPhoto(e){
     const g = await recognize(res.canvas);
     if(sheetState!==s) return; // feuille fermée ou autre pièce entre-temps
     const parts=[];
+    if(!g) s.showTips=true;
     if(g){
       for(const f of ["type","style","season"]) if(g[f] && !s.touched.has(f)) s[f]=g[f];
       parts.push(`${g.label}`);
     }
     parts.push(`couleur ${C[s.color].label.toLowerCase()}`);
-    s.hint = g ? `Reconnu : ${parts.join(", ")}. Corrige si besoin.` : `Type pas reconnu avec certitude, choisis-le. Couleur détectée : ${C[s.color].label.toLowerCase()}.`;
+    s.hint = g ? `Reconnu : ${parts.join(", ")}. Corrige si besoin.` : `Type pas reconnu avec certitude, choisis-le (ou reprends la photo en suivant les conseils). Couleur détectée : ${C[s.color].label.toLowerCase()}.`;
   }catch(err){
     if(sheetState!==s) return;
     s.hint = `Reconnaissance indisponible (connexion ?). Couleur détectée : ${C[s.color].label.toLowerCase()}.`;
