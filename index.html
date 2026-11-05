@@ -810,7 +810,7 @@ async function onPhoto(e){
   if(s.previewURL) URL.revokeObjectURL(s.previewURL);
   s.newPhoto=res.blob; s.newCut=false; s.previewURL=URL.createObjectURL(res.blob);
   s.touched=new Set(); s.detected=res.color; s.color=res.color; s.busy=true;
-  s.hint = modelReady ? "Analyse de la pièce…" : "Chargement de la reconnaissance (une seule fois, ~16 Mo)…";
+  s.hint = modelReady||seen("reco") ? "Analyse de la pièce…" : "Premier lancement : téléchargement de la reconnaissance (~16 Mo, une seule fois)…";
   renderEditor(s.isNew);
   let label=null;
   try{
@@ -823,7 +823,7 @@ async function onPhoto(e){
     : label===false ? `Reconnaissance indisponible (connexion ?). Couleur détectée : ${C[s.color].label.toLowerCase()}.`
     : `Type pas reconnu avec certitude, choisis-le (ou reprends la photo en suivant les conseils). Couleur détectée : ${C[s.color].label.toLowerCase()}.`;
   if(settings.cutout){
-    s.hint = recoMsg()+" Détourage en cours…"; renderEditor(s.isNew);
+    s.hint = recoMsg()+(seen("cut")?" Détourage en cours…":" Détourage en cours (premier détourage : ~40 Mo à télécharger, une seule fois)…"); renderEditor(s.isNew);
     await doCutout(s, res.blob);
     if(sheetState!==s) return;
   }
@@ -833,6 +833,8 @@ async function onPhoto(e){
 
 /* ================= Détourage (suppression du fond, dans le navigateur) ================= */
 let bgLib=null;
+const seen = k => { try{ return localStorage.getItem("penderie.dl."+k)==="1"; }catch(e){ return false; } };
+const markSeen = k => { try{ localStorage.setItem("penderie.dl."+k,"1"); }catch(e){} };
 function loadBgLib(){
   if(!bgLib) bgLib = import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.8/+esm").catch(e=>{ bgLib=null; throw e; });
   return bgLib;
@@ -861,7 +863,7 @@ async function doCutout(s, blob){
     const r = await cutout(blob);
     if(sheetState!==s) return;
     if(s.previewURL) URL.revokeObjectURL(s.previewURL);
-    s.newPhoto=r.blob; s.newCut=true; s.previewURL=URL.createObjectURL(r.blob); s.cutFailed=false;
+    markSeen("cut"); s.newPhoto=r.blob; s.newCut=true; s.previewURL=URL.createObjectURL(r.blob); s.cutFailed=false;
     if(!s.touched?.has("color")){ s.color=r.color; s.detected=r.color; }
   }catch(e){ s.cutFailed=true; }
 }
@@ -891,7 +893,7 @@ function loadModel(){
   if(!modelP) modelP=(async()=>{
     if(!window.tf) await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js");
     const m = await tf.loadLayersModel("https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_1.0_224/model.json");
-    modelReady=true; return m;
+    modelReady=true; markSeen("reco"); return m;
   })().catch(e=>{ modelP=null; throw e; });
   return modelP;
 }
@@ -1081,7 +1083,7 @@ document.addEventListener("click", async e=>{
   else if(act==="nodel") document.getElementById("delZone").innerHTML=`<button class="btn danger" data-act="askdel" style="width:100%">Supprimer cette pièce</button>`;
   else if(act==="del") deleteItem(sheetState.id);
   else if(act==="cutnow"){
-    const s=sheetState; s.busy=true; s.hint="Détourage en cours… (~40 Mo à télécharger la première fois)"; renderEditor(s.isNew);
+    const s=sheetState; s.busy=true; s.hint=seen("cut")?"Détourage en cours…":"Détourage en cours… Premier détourage : téléchargement du modèle (~40 Mo, une seule fois)."; renderEditor(s.isNew);
     await doCutout(s, s.newPhoto!==undefined ? s.newPhoto : s.photo);
     if(sheetState!==s) return;
     s.busy=false; s.hint = s.cutFailed ? "Le détourage n'a pas pu se faire. Vérifie ta connexion et réessaie." : "Fond retiré. Enregistre pour garder cette version.";
