@@ -27,7 +27,7 @@
 /* Layout : app mobile à une colonne, barre d'onglets en bas. Thèmes au choix via data-skin sur <html> (réglages). */
 :root{
   --bg:#2b1016; --g1:#9a2f3a; --g2:#6a1f38; --surface:rgba(70,22,30,.62); --surface-solid:#34141b; --tile:#1c080c;
-  --ink:#fbeeed; --muted:#d3aeb2; --accent:#ff4a3d; --accent-rgb:255,74,61; --accent-soft:#ff6b5f; --accent-ink:#fff3f1;
+  --ink:#fbeeed; --muted:#e6c3c6; --accent:#ff4a3d; --accent-rgb:255,74,61; --accent-soft:#ff6b5f; --accent-ink:#fff3f1;
   --good:#ff7a6e; --bad:#ffb26b; --chip:rgba(255,255,255,.08); --nav:rgba(43,16,22,.82); --scrim:rgba(10,2,4,.55);
   --swatch-line:rgba(255,255,255,.3); --sil:rgba(255,255,255,.25);
   --glow:0 0 6px rgba(var(--accent-rgb),.55),0 0 18px rgba(var(--accent-rgb),.25);
@@ -38,27 +38,27 @@
 }
 :root[data-skin="minuit"]{ /* l'ambiance d'origine, plus sombre */
   --bg:#130709; --g1:#5a1a21; --g2:#3a1220; --surface:rgba(32,12,16,.78); --surface-solid:#1d0b0f; --tile:#0c0405;
-  --ink:#f4e7e6; --muted:#b9959a; --accent:#ff3e32; --accent-rgb:255,62,50; --accent-soft:#d8453a; --nav:rgba(19,7,9,.82); --scrim:rgba(5,1,2,.6); --chip:rgba(255,255,255,.06)}
+  --ink:#f4e7e6; --muted:#d4b1b5; --accent:#ff3e32; --accent-rgb:255,62,50; --accent-soft:#d8453a; --nav:rgba(19,7,9,.82); --scrim:rgba(5,1,2,.6); --chip:rgba(255,255,255,.06)}
 :root[data-skin="rose"]{
   --bg:#fbefee; --g1:#ffd3cc; --g2:#f7d6e4; --surface:rgba(255,255,255,.78); --surface-solid:#fff8f7; --tile:#ffffff;
-  --ink:#2b1316; --muted:#80595d; --accent:#e0352b; --accent-rgb:224,53,43; --accent-soft:#c42f26; --accent-ink:#fff;
+  --ink:#2b1316; --muted:#6b4549; --accent:#e0352b; --accent-rgb:224,53,43; --accent-soft:#c42f26; --accent-ink:#fff;
   --good:#d6453b; --bad:#c26a12; --chip:rgba(80,20,25,.06); --nav:rgba(255,248,247,.86); --scrim:rgba(60,20,25,.3);
   --swatch-line:rgba(0,0,0,.18); --sil:rgba(0,0,0,.25); --glow:0 0 0 1px rgba(var(--accent-rgb),.08),0 4px 14px rgba(var(--accent-rgb),.18); color-scheme:light}
 :root[data-skin="ocean"]{
   --bg:#13233a; --g1:#2a6aa0; --g2:#33307a; --surface:rgba(28,48,78,.62); --surface-solid:#182a44; --tile:#0b1626;
-  --ink:#eaf3fb; --muted:#a7bdd2; --accent:#45c9ff; --accent-rgb:69,201,255; --accent-soft:#7ed8ff;
+  --ink:#eaf3fb; --muted:#c0d3e4; --accent:#45c9ff; --accent-rgb:69,201,255; --accent-soft:#7ed8ff;
   --good:#6fd3ff; --bad:#ffb26b; --nav:rgba(19,35,58,.84)}
 :root[data-skin="foret"]{
   --bg:#16261c; --g1:#3c7a4e; --g2:#4a4a24; --surface:rgba(34,60,42,.6); --surface-solid:#1c3124; --tile:#0c1710;
-  --ink:#eef6ef; --muted:#adc6b2; --accent:#7ee894; --accent-rgb:126,232,148; --accent-soft:#a3f0b3;
+  --ink:#eef6ef; --muted:#c5dcc9; --accent:#7ee894; --accent-rgb:126,232,148; --accent-soft:#a3f0b3;
   --good:#8ff0a4; --bad:#ffc06b; --nav:rgba(22,38,28,.84)}
 :root[data-skin="synthwave"]{
   --bg:#221438; --g1:#8a35a8; --g2:#2f3a8a; --surface:rgba(52,30,84,.6); --surface-solid:#2a1a44; --tile:#120a20;
-  --ink:#f6eefc; --muted:#c5addb; --accent:#ff52da; --accent-rgb:255,82,218; --accent-soft:#ff86e6;
+  --ink:#f6eefc; --muted:#dac8ec; --accent:#ff52da; --accent-rgb:255,82,218; --accent-soft:#ff86e6;
   --good:#ff7ae3; --bad:#ffd166; --nav:rgba(34,20,56,.84)}
 :root[data-skin="epure"]{
   --bg:#f4f5f7; --g1:#e3e7ee; --g2:#eceef3; --surface:rgba(255,255,255,.9); --surface-solid:#ffffff; --tile:#ffffff;
-  --ink:#161b22; --muted:#5d6675; --accent:#1c2430; --accent-rgb:28,36,48; --accent-soft:#1c2430; --accent-ink:#fff;
+  --ink:#161b22; --muted:#48505d; --accent:#1c2430; --accent-rgb:28,36,48; --accent-soft:#1c2430; --accent-ink:#fff;
   --good:#2c8a57; --bad:#c2410c; --chip:rgba(0,0,0,.05); --nav:rgba(255,255,255,.9); --scrim:rgba(10,14,20,.35);
   --swatch-line:rgba(0,0,0,.18); --sil:rgba(0,0,0,.25); --glow:0 1px 3px rgba(0,0,0,.12); color-scheme:light}
 :root{--statusbar:transparent}
@@ -80,7 +80,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);min-height:100vh;
-  background-image:radial-gradient(90% 55% at 85% 0%,var(--g1) 0%,transparent 60%),radial-gradient(80% 50% at 0% 100%,var(--g2) 0%,transparent 60%);background-attachment:fixed;font:15px/1.45 var(--body);-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(90% 55% at 85% 0%,var(--g1) 0%,transparent 60%),radial-gradient(80% 50% at 0% 100%,var(--g2) 0%,transparent 60%);background-attachment:fixed;font:16px/1.45 var(--body);-webkit-tap-highlight-color:transparent;
   padding-top:env(safe-area-inset-top,0px)}
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer}
@@ -90,13 +90,13 @@ button{cursor:pointer}
 header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px 4px}
 h1{font:600 40px/1 var(--display);letter-spacing:.01em;margin:0;color:var(--accent-soft)}
 h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
-.sub{color:var(--muted);font-size:13px}
+.sub{color:var(--muted);font-size:14px}
 .icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--tile);color:var(--accent);display:grid;place-items:center}
 .icon-btn svg{width:20px;height:20px}
 
 /* Segments */
 .controls{display:grid;gap:10px;margin-block:14px}
-.ctl-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
+.ctl-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
 .seg{display:flex;background:var(--chip);border-radius:12px;padding:3px;gap:3px}
 .seg button{flex:1;border:0;background:transparent;border-radius:9px;padding:8px 6px;font-weight:500;font-size:14px;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--tile);color:var(--accent);box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.55),var(--glow)}
@@ -111,7 +111,7 @@ h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 .piece.wide .ph{aspect-ratio:2/1}
 .ph img{width:100%;height:100%;object-fit:cover;display:block}
 .ph svg{width:62%;height:62%}
-.piece .cap{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;min-width:0}
+.piece .cap{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:14px;min-width:0}
 .piece .cap span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dot{width:12px;height:12px;border-radius:50%;flex:none;border:1px solid var(--swatch-line)}
 .dot.motif,.sw.motif{background:linear-gradient(135deg,#c63a2f 0 25%,#e9c449 25% 50%,#3e7d4f 50% 75%,#3b7fd4 75%)}
@@ -152,7 +152,7 @@ h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 .tag .ph{aspect-ratio:1;border-radius:11px}
 .tag .meta{padding:8px 4px 2px;display:grid;gap:2px;min-width:0}
 .tag .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tag .ty{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.tag .ty{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:5px}
 .tag .hole{position:absolute;top:14px;left:14px;width:10px;height:10px;border-radius:50%;background:var(--bg);border:1.5px solid rgba(var(--accent-rgb),.45);z-index:1}
 .badge{position:absolute;top:12px;right:12px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;background:var(--tile);color:var(--accent);border:1px solid var(--accent);padding:2px 7px;border-radius:99px}
 
@@ -184,19 +184,19 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .field input[type=text]{border:1px solid var(--line);background:var(--tile);border-radius:12px;padding:11px 12px;width:100%}
 .opts{display:flex;flex-wrap:wrap;gap:6px}
 .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
-.swb{border:1px solid var(--line);background:var(--tile);border-radius:12px;padding:8px 4px 6px;display:grid;justify-items:center;gap:4px;font-size:11px;line-height:1.15;text-align:center}
+.swb{border:1px solid var(--line);background:var(--tile);border-radius:12px;padding:8px 4px 6px;display:grid;justify-items:center;gap:4px;font-size:12px;line-height:1.15;text-align:center}
 .swb[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent),var(--glow)}
 .sw.none{background:linear-gradient(135deg,transparent 46%,var(--muted) 46% 54%,transparent 54%)}
 .swb.alt{border-style:dashed;border-color:rgba(var(--accent-rgb),.7)}
 .sw{width:26px;height:26px;border-radius:50%;border:1px solid var(--swatch-line)}
-.hint{font-size:12px;color:var(--muted)}
+.hint{font-size:13.5px;color:var(--muted)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .menu{display:grid;gap:8px}
 .menu .btn{white-space:normal;text-align:left;display:flex;gap:10px;align-items:center}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tab-h) + 18px + env(safe-area-inset-bottom,0px));background:var(--tile);color:var(--ink);border:1px solid rgba(var(--accent-rgb),.5);box-shadow:var(--glow);
   padding:10px 16px;border-radius:12px;font-weight:500;z-index:60;max-width:calc(100% - 32px);text-align:center}
 .confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px}
-.wx{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.wx{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
 .wx svg{width:15px;height:15px;color:var(--accent);flex:none;vertical-align:-3px}
 .wx b{color:var(--ink);font-weight:600}
 .wx.warn{color:var(--bad)}
@@ -213,7 +213,7 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 10px;display:grid;gap:4px;align-content:start}
 .stat b{font:700 30px/1 var(--display);color:var(--accent-soft);font-variant-numeric:tabular-nums}
 .stat small{font-size:16px}
-.stat span{font-size:12px;color:var(--muted);line-height:1.3}
+.stat span{font-size:13px;color:var(--muted);line-height:1.3}
 .fav .when{font-size:12px;color:var(--muted);width:74px;flex:none;line-height:1.25;padding-left:4px;overflow-wrap:anywhere}
 .rank{display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}
 .rk{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px}
@@ -292,6 +292,49 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .ob-steps li>span:last-child{display:grid;gap:2px}
 .ob-steps .t{font-weight:500}
 .note{margin:0;font-size:13px;background:rgba(var(--accent-rgb),.1);border:1px solid rgba(var(--accent-rgb),.35);border-radius:12px;padding:10px 12px}
+.bigshot{display:grid;justify-items:center;gap:6px;padding:30px 16px;border:1.5px dashed rgba(var(--accent-rgb),.55);border-radius:18px;background:var(--tile);text-align:center;cursor:pointer}
+.bigshot svg{width:44px;height:44px;color:var(--accent);filter:drop-shadow(0 0 6px rgba(var(--accent-rgb),.7))}
+.bigshot b{font-size:18px}
+.bigshot span{color:var(--muted);font-size:14px}
+.link.center{justify-self:center;font-size:15px}
+.photo-big{position:relative}
+.photo-big .ph{width:100%;max-width:300px;aspect-ratio:1;margin:0 auto;border-radius:18px}
+.busy{position:absolute;inset:auto 0 12px;margin:0 auto;width:max-content;max-width:90%;display:flex;gap:8px;align-items:center;background:var(--tile);border:1px solid var(--line);border-radius:99px;padding:8px 14px;font-size:14px}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid rgba(var(--accent-rgb),.3);border-top-color:var(--accent);animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+.summary{display:grid;background:var(--tile);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.sum-r{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 14px;border-top:1px solid var(--line)}
+.sum-r:first-child{border-top:0}
+.sum-r span{color:var(--muted)}
+.sum-r b{display:flex;align-items:center;gap:6px;font-weight:600;text-align:right}
+.mini-links{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center}
+.more{border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:grid;gap:14px;background:var(--tile)}
+.more summary{cursor:pointer;font-weight:600;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.more[open]{gap:14px}
+.more[open]>summary{margin-bottom:6px}
+.acts3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.act{border:1px solid var(--line);background:var(--tile);border-radius:12px;padding:10px 4px;display:grid;justify-items:center;gap:5px;font-size:13px;font-weight:600;line-height:1.2;text-align:center}
+.act svg{width:20px;height:20px}
+.act.on{color:var(--accent);border-color:var(--accent);box-shadow:var(--glow)}
+button.piece{border:0;background:none;padding:0;text-align:left;position:relative;display:block;width:100%}
+.swap-ic{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:var(--tile);border:1px solid var(--line);display:grid;place-items:center;color:var(--accent)}
+.swap-ic svg{width:15px;height:15px}
+.swipe-hint{margin:0;text-align:center;font-size:13px}
+.outfit{touch-action:pan-y;will-change:transform}
+.outfit[data-dir="like"]{box-shadow:0 0 0 2px var(--accent),var(--glow)}
+.outfit[data-dir="next"]{opacity:.85}
+.empty.first .need{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.ok-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:12px;background:var(--chip);color:var(--muted);font-weight:600;font-size:13px}
+.ok-chip svg{width:16px;height:16px;color:var(--good)}
+.bk.sample{margin:12px 0 0;box-shadow:none;border-style:dashed}
+.rk.pick{width:100%;text-align:left;color:inherit;font:inherit}
+.rk.pick .ph svg{width:40%;height:40%;color:var(--muted)}
+.faq{display:grid;gap:8px}
+.faq details{background:var(--tile);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.faq summary{cursor:pointer;font-weight:600}
+.faq p{margin:8px 0 0;color:var(--muted);line-height:1.5}
+header.top .icon-btn svg{width:22px;height:22px}
 </style>
 </head>
 <body>
@@ -301,6 +344,7 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
       <h1>Penderie</h1>
       <div class="sub" id="count">Ton dressing, sur ton téléphone</div>
     </div>
+    <button class="icon-btn" data-act="help" aria-label="Comment ça marche ?" id="helpBtn"></button>
   </header>
 
   <main id="view"></main>
@@ -310,7 +354,7 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
   <div class="in">
     <button class="t" data-tab="tenue" aria-current="page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><path d="M18.5 15l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z"/></svg>
-      Tenue
+      Aujourd'hui
     </button>
     <button class="t" data-tab="dressing">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6a2 2 0 1 1 2-2"/><path d="M12 6v1.5L3 14h18l-9-6.5"/><path d="M5 14v6h14v-6"/></svg>
@@ -321,7 +365,7 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
     </button>
     <button class="t" data-tab="suivi">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>
-      Suivi
+      Stats
     </button>
     <button class="t" data-act="menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
@@ -377,7 +421,7 @@ const STYLES = [
   {id:"casual",label:"Décontracté"},
   {id:"chic",label:"Habillé"},
   {id:"sport",label:"Sport"},
-  {id:"poly",label:"Passe-partout"},
+  {id:"poly",label:"Va avec tout"},
 ];
 const SEASONS = [
   {id:"ete",label:"Été"},
@@ -496,7 +540,7 @@ function scoreOutfit(pieces, ctx){
   if(settings.jacket==="rarely" && pieces.some(p=>p.type==="veste" && p.id!==ctx.pin)) s -= ctx.weather==="froid" ? 1 : 3;
   const pull=pieces.find(p=>p.type==="pull"), haut=pieces.find(p=>p.type==="haut");
   if(pull && haut){
-    if(ctx.weather==="froid"){ s+=1; ok.push("Superposition : "+itemName(pull).toLowerCase()+" par-dessus "+itemName(haut).toLowerCase()); }
+    if(ctx.weather==="froid"){ s+=1; ok.push(itemName(pull)+" par-dessus "+itemName(haut).toLowerCase()+", parfait quand il fait frais"); }
     if(haut.season==="hiver"){ s-=6; warn.push("Deux couches épaisses l'une sur l'autre"); }
   }
   const ps = prefScore(pieces); s+=ps;
@@ -522,7 +566,7 @@ function generate(items, ctx, avoid){
   const H=pool("haut"), B=pool("bas"), S=pool("chaussures");
   const V = pin?.type==="veste" ? [pin] : (ctx.weather==="chaud" ? [] : eligible(items,"veste",ctx));
   const missing=[]; if(!H.length)missing.push("un haut"); if(!B.length)missing.push("un bas"); if(!S.length)missing.push("une paire de chaussures");
-  if(missing.length) return {missing, dirty:items.filter(isDirty).length};
+  if(missing.length) return {missing, missingTypes:[!H.length&&"haut",!B.length&&"bas",!S.length&&"chaussures"].filter(Boolean), dirty:items.filter(isDirty).length};
   // réglage « veste » : toujours dès qu'il fait frais, si besoin (froid ou pluie), ou rarement (jamais imposée)
   const needJacket = V.length && (settings.jacket==="always" ? (ctx.weather!=="chaud" || ctx.rain)
                     : settings.jacket==="rarely" ? false
@@ -652,10 +696,15 @@ async function refreshWeather(force){
   try{
     const pos = await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej,{timeout:10000,maximumAge:3600e3,enableHighAccuracy:false}));
     const lat=pos.coords.latitude.toFixed(2), lon=pos.coords.longitude.toFixed(2);
-    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=apparent_temperature_max,apparent_temperature_min,precipitation_probability_max&current=temperature_2m&timezone=auto&forecast_days=1`);
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=apparent_temperature_max,apparent_temperature_min,precipitation_probability_max,weather_code&current=temperature_2m&timezone=auto&forecast_days=1`);
     if(!r.ok) throw new Error("http");
     const d = await r.json();
-    const wx = {t:Date.now(), max:d.daily.apparent_temperature_max[0], min:d.daily.apparent_temperature_min[0], rainP:d.daily.precipitation_probability_max?.[0]??0, now:d.current?.temperature_2m};
+    let city=null;
+    try{ // nom de la ville (service gratuit, sans compte) ; sans lui, on affiche juste la météo
+      const g=await (await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=fr`)).json();
+      city=g.city||g.locality||null;
+    }catch(e){}
+    const wx = {t:Date.now(), max:d.daily.apparent_temperature_max[0], min:d.daily.apparent_temperature_min[0], rainP:d.daily.precipitation_probability_max?.[0]??0, now:d.current?.temperature_2m, code:d.daily.weather_code?.[0], city};
     try{ localStorage.setItem("penderie.wx",JSON.stringify(wx)); }catch(e){}
     applyWx(wx);
   }catch(e){
@@ -703,7 +752,7 @@ function ph(item){
 }
 const dot = (c,c2) => { const a=C[c].hex, b=c2&&C[c2]?.hex; return `<span class="dot ${c==="motif"?"motif":""}" style="${a?`background:${b?`linear-gradient(90deg,${a} 0 55%,${b} 55%)`:a}`:""}"></span>`; };
 const typeLabel = i => i.type==="accessoire" ? (K[i.kind]?.label||"Accessoire") : T[i.type].label;
-const itemName = i => i.name || ((i.type==="accessoire" ? (K[i.kind]?.short||"Accessoire") : T[i.type].label.split(" ")[0])+" "+C[i.color].label.toLowerCase());
+const itemName = i => i.name || (i.type==="bas"&&i.color==="denim" ? "Jean" : (i.type==="accessoire" ? (K[i.kind]?.short||"Accessoire") : T[i.type].label.split(" ")[0])+" "+C[i.color].label.toLowerCase());
 function toast(msg){
   document.querySelector(".toast")?.remove();
   const t=document.createElement("div"); t.className="toast"; t.textContent=msg; t.setAttribute("role","status");
@@ -717,6 +766,10 @@ const ICON = {
   heart:f=>`<svg viewBox="0 0 24 24" fill="${f?"currentColor":"none"}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>`,
   down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 15v4.5a2.5 2.5 0 0 0 5 0V15h3.6a2 2 0 0 0 2-2.3l-1.2-7A2 2 0 0 0 17.4 4H7v11l3 0zM7 4H4v11h3"/></svg>',
   bag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M8 20v1M16 20v1M4 12h16"/></svg>',
+  camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="4"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg>',
+  help:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7M12 17h.01"/></svg>',
   pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7-6.3-7-11.5a7 7 0 0 1 14 0C19 14.7 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   rain:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 15a4 4 0 1 1 .9-7.9A5.5 5.5 0 0 1 18.5 9 3.5 3.5 0 0 1 18 16H7z"/><path d="M9 19l-1 2M13 19l-1 2M17 19l-1 2"/></svg>',
 };
@@ -729,7 +782,9 @@ function render(){
     ? [n?`${n} pièce${n>1?"s":""}`:"",ex?`${ex} exemple${ex>1?"s":""}`:""].filter(Boolean).join(" · ") : "Ton dressing, sur ton téléphone";
   document.querySelectorAll("nav .t[data-tab]").forEach(b=>b.setAttribute("aria-current", b.dataset.tab===state.tab?"page":"false"));
   const v=document.getElementById("view");
-  v.innerHTML = state.tab==="tenue" ? viewTenue() : state.tab==="suivi" ? viewSuivi() : viewDressing();
+  const sampleBar = state.items.some(i=>i.sample) ? `<div class="bk sample"><div><b>Dressing d'exemple</b><span class="sub">Ce ne sont pas tes vêtements, juste de quoi tester. Retire-les quand tu ajoutes les tiens.</span></div><div class="bk-a"><button class="btn primary sm" data-act="clearsamples">Retirer</button></div></div>` : "";
+  v.innerHTML = sampleBar + (state.tab==="tenue" ? viewTenue() : state.tab==="suivi" ? viewSuivi() : viewDressing());
+  if(state.tab==="tenue") bindSwipe();
   if(state.tab==="dressing"){
     // la recherche ne redessine que la grille : le champ garde le focus et le clavier reste ouvert
     document.getElementById("dq")?.addEventListener("input",e=>{ state.q=e.target.value; document.getElementById("dgrid").innerHTML=dressingList(); });
@@ -742,18 +797,26 @@ function emptyBlock(title, text){
     <div class="row2" style="width:100%;max-width:340px"><button class="btn primary" data-act="add">Ajouter une pièce</button><button class="btn ghost" data-act="samples">Voir un exemple</button></div></div>`;
 }
 
+// codes météo internationaux (WMO) → mots de tous les jours
+function skyLabel(c){
+  if(c==null) return "";
+  if(c===0) return "ensoleillé"; if(c<=2) return "éclaircies"; if(c===3) return "couvert"; if(c<=48) return "brouillard";
+  if(c<=57) return "bruine"; if(c<=67) return "pluie"; if(c<=77) return "neige"; if(c<=82) return "averses"; if(c<=86) return "averses de neige"; return "orages";
+}
 function weatherLine(){
   const c=state.ctx;
   if(c.wmode!=="auto") return `<div class="wx">Météo choisie à la main · <button class="link" data-act="wxauto">Revenir en auto</button></div>`;
   if(state.wxStatus==="loading") return `<div class="wx">${ICON.pin}Recherche de la météo du jour…</div>`;
-  if(state.wxStatus==="denied") return `<div class="wx warn">Localisation refusée : choisis la météo à la main, ou autorise la localisation pour Safari dans les réglages de l'iPhone.</div>`;
+  if(state.wxStatus==="denied") return `<div class="wx">Pas de météo locale : choisis Chaud, Doux ou Froid juste au-dessus.</div>`;
   if(state.wxStatus==="error"||state.wxStatus==="unavailable") return `<div class="wx warn">Météo indisponible pour l'instant · <button class="link" data-act="wxretry">Réessayer</button></div>`;
-  if(state.wx){ const w=state.wx; return `<div class="wx">${ICON.pin}<span>Aujourd'hui <b>${Math.round(w.min)}–${Math.round(w.max)} °C</b> ressentis${w.rainP>=50?` · ${ICON.rain}<b>pluie ${w.rainP} %</b>`:""}</span></div>`; }
+  if(state.wx){ const w=state.wx, sky=skyLabel(w.code); return `<div class="wx">${ICON.pin}<span>${w.city?`<b>${esc(w.city)}</b> · `:"Aujourd'hui · "}${sky?sky+" · ":""}<b>${Math.round(w.min)}–${Math.round(w.max)} °C</b>${w.rainP>=50&&!(w.code>=51)?` · ${ICON.rain}pluie probable`:""}</span></div>`; }
   return `<div class="wx">${ICON.pin}Météo automatique</div>`;
 }
 
-function piecesTile(p, wide){
-  return `<div class="piece ${wide?"wide":""}">${ph(p)}<div class="cap">${dot(p.color,p.color2)}<span>${esc(itemName(p))}</span></div></div>`;
+function piecesTile(p, wide, swappable){
+  const inner=`${ph(p)}<div class="cap">${dot(p.color,p.color2)}<span>${esc(itemName(p))}</span></div>`;
+  return swappable ? `<button class="piece ${wide?"wide":""}" data-act="swap" data-type="${p.type}" aria-label="Changer : ${esc(itemName(p))}">${inner}<span class="swap-ic">${ICON.swap}</span></button>`
+                   : `<div class="piece ${wide?"wide":""}">${inner}</div>`;
 }
 
 function viewTenue(){
@@ -771,8 +834,12 @@ function viewTenue(){
   const g=state.current;
   let card;
   if(g.missing){
-    card = `<div class="empty"><h2>Il manque des pièces</h2><p>Pour cette météo et cette occasion, ajoute au moins ${g.missing.join(", ")}.${g.dirty?` ${g.dirty} pièce${g.dirty>1?"s sont":" est"} au lavage en ce moment.`:""}</p>
-      <div class="row2" style="width:100%;max-width:340px"><button class="btn primary" data-act="add">Ajouter une pièce</button>${g.dirty?`<button class="btn ghost" data-act="washall">Lessive faite</button>`:`<span></span>`}</div></div>`;
+    const need=g.missingTypes||[], LBL={haut:["un haut","Haut"],bas:["un bas","Bas"],chaussures:["des chaussures","Chaussures"]};
+    const firstTime=!["haut","bas","chaussures"].every(t=>state.items.some(x=>x.type===t));
+    card = `<div class="empty first"><h2>${need.length===1?"Plus qu'une pièce !":`Encore ${need.length} pièces`}</h2>
+      <p>${firstTime?"Pour ta première tenue, il te faut un haut, un bas et des chaussures.":"Pour cette météo et cette occasion, il manque :"}${g.dirty?` (${g.dirty} pièce${g.dirty>1?"s sont":" est"} au lavage.)`:""}</p>
+      <div class="need">${["haut","bas","chaussures"].map(t=>need.includes(t)?`<button class="btn primary sm" data-act="addtype" data-type="${t}" data-label="${LBL[t][1]}">+ Ajouter ${LBL[t][0]}</button>`:`<span class="ok-chip">${ICON.check}${LBL[t][1]}</span>`).join("")}</div>
+      ${g.dirty?`<button class="btn ghost sm" data-act="washall">Lessive faite : tout est propre</button>`:""}</div>`;
   } else {
     const o=g.outfit, isFav = state.outfits.some(f=>f.k===o.k);
     const ordered = MAIN_ORDER.map(t=>o.pieces.find(p=>p.type===t)).filter(Boolean);
@@ -780,16 +847,18 @@ function viewTenue(){
     const acc = o.acc||[];
     const accNotes = acc.map(a=>a.note).filter(Boolean);
     card = `<article class="outfit" aria-label="Tenue proposée">
-      <div class="flatlay">${ordered.map((p,i)=>piecesTile(p, odd&&i===ordered.length-1)).join("")}</div>
+      <div class="flatlay">${ordered.map((p,i)=>piecesTile(p, odd&&i===ordered.length-1, true)).join("")}</div>
       ${acc.length?`<div><div class="ctl-label">Accessoires</div><div class="accrow">${acc.map(a=>piecesTile(a.item)).join("")}</div></div>`:""}
       <div class="score-row"><div class="score">${o.colorScore}<small>/10</small></div><div style="flex:1"><div class="ctl-label" style="margin:0 0 5px">Harmonie des couleurs</div><div class="meter"><i style="width:${o.colorScore*10}%"></i></div></div></div>
       <ul class="why">${o.ok.map(t=>`<li>${esc(t)}</li>`).join("")}${accNotes.filter(n=>!n.startsWith("ceinture et")).map(t=>`<li>${esc(t)}</li>`).join("")}${o.warn.map(t=>`<li class="warn">${esc(t)}</li>`).join("")}${accNotes.filter(n=>n.startsWith("ceinture et")).map(t=>`<li class="warn">Attention : ${esc(t)}</li>`).join("")}${g.noJacket?`<li class="warn">Il fait froid et tu n'as pas encore de veste enregistrée</li>`:""}${c.rain&&c.weather!=="chaud"?`<li>Pluie prévue : la veste est incluse d'office</li>`:""}</ul>
-      <div class="actions">
-        <button class="btn primary" data-act="next">Autre tenue</button>
-        <button class="btn ghost sq" data-act="dislike" aria-label="Pas fan, propose autre chose">${ICON.down}</button>
-        <button class="btn ghost sq" data-act="fav" aria-label="${isFav?"Retirer des favoris":"J'aime, garder en favori"}" aria-pressed="${isFav}">${ICON.heart(isFav)}</button>
-        <button class="btn ghost" data-act="wear">Je la porte</button>
+      ${addLayerLinks(o)}
+      <button class="btn primary" data-act="next">Une autre tenue</button>
+      <div class="acts3">
+        <button class="act" data-act="dislike">${ICON.down}<span>Pas pour moi</span></button>
+        <button class="act ${isFav?"on":""}" data-act="fav" aria-pressed="${isFav}">${ICON.heart(isFav)}<span>${isFav?"Adorée":"J'adore"}</span></button>
+        <button class="act" data-act="wear">${ICON.check}<span>Je la mets aujourd'hui</span></button>
       </div>
+      ${swipeHintSeen()?"":`<p class="sub swipe-hint">Astuce : touche une pièce pour la changer, glisse la tenue ← pour une autre, → pour l'adorer.</p>`}
     </article>`;
   }
   const favs = state.outfits.map(f=>({f, pieces:f.ids.map(id=>state.items.find(i=>i.id===id)).filter(Boolean)})).filter(x=>x.pieces.length===x.f.ids.length);
@@ -819,7 +888,7 @@ function essentialsCard(){
   if(hidden || real.length>=25 || state.items.some(i=>i.sample)) return "";
   const done=ESSENTIALS.map(e=>real.some(e.test)); const n=done.filter(Boolean).length;
   if(n===ESSENTIALS.length) return "";
-  return `<div class="ess"><div class="ess-h"><div><b>Les 10 essentiels</b><span class="sub">De quoi composer des tenues dès le départ · ${n}/10</span></div><button class="icon-btn" data-act="esshide" aria-label="Masquer">${ICON.x}</button></div>
+  return `<div class="ess"><div class="ess-h"><div><b>Les 10 essentiels</b><span class="sub">Avec eux, l'app peut déjà te proposer des tenues · ${n}/10</span></div><button class="icon-btn" data-act="esshide" aria-label="Masquer">${ICON.x}</button></div>
     <div class="meter"><i style="width:${n*10}%"></i></div>
     <div class="ess-list">${ESSENTIALS.map((e,k)=>`<button class="chip ${done[k]?"done":""}" data-act="ess" data-k="${k}" ${done[k]?"disabled":""}>${done[k]?"✓ ":"+ "}${e.label}</button>`).join("")}</div></div>`;
 }
@@ -883,22 +952,22 @@ function viewSuivi(){
     <div class="section-h"><h2>Dernières tenues</h2></div>${hist}
     <div class="section-h"><h2>Les plus portées</h2></div>${mostHtml}
     <div class="section-h"><h2>À ressortir</h2><span class="sub">de saison, pas portées depuis 2 mois</span></div>${sleepyHtml}
-    <div class="section-h"><h2>Coût par port</h2></div>${costHtml(count)}
+    <div class="section-h"><h2>Prix par utilisation</h2></div>${costHtml(count)}
     <div class="section-h"><h2>Ce qui manque</h2></div>${gapsHtml()}
     <div class="section-h"><h2>Couleurs du dressing</h2></div>${colorsHtml}`;
 }
 
 function costHtml(count){
   const priced=state.items.filter(i=>i.price>0);
-  if(!priced.length) return `<p class="sub" style="margin:0">Indique le prix de tes pièces (facultatif, dans leur fiche) : l'app calcule combien chacune te coûte à chaque fois que tu la portes. Plus tu la portes, plus elle devient rentable.</p>`;
+  if(!priced.length) return `<p class="sub" style="margin:0">Indique le prix de tes pièces (facultatif, dans leur fiche) : l'app calcule combien chacune te coûte à chaque fois que tu la mets. Plus tu la mets, plus elle devient rentable.</p>`;
   const euro=v=>v.toLocaleString("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:(v<10||v%1)?2:0});
   const rows=priced.map(i=>{ const n=count[i.id]||0; return {i,n,cpw:i.price/Math.max(1,n)}; }).sort((a,b)=>b.cpw-a.cpw);
   const total=priced.reduce((a,i)=>a+i.price,0), wornTotal=rows.reduce((a,r)=>a+r.n,0);
   return `<div class="stats"><div class="stat"><b>${euro(total)}</b><span>valeur des ${priced.length} pièce${priced.length>1?"s":""} chiffrée${priced.length>1?"s":""}</span></div>
-    <div class="stat"><b>${euro(total/Math.max(1,wornTotal))}</b><span>coût moyen par port</span></div>
+    <div class="stat"><b>${euro(total/Math.max(1,wornTotal))}</b><span>en moyenne, à chaque fois que tu mets une pièce</span></div>
     <div class="stat"><b>${euro(rows[rows.length-1].cpw)}</b><span>la plus rentable : ${esc(itemName(rows[rows.length-1].i))}</span></div></div>
     <div class="ctl-label" style="margin-top:12px">À rentabiliser</div>
-    <div class="rank">${rows.slice(0,6).map(r=>`<div class="rk">${ph(r.i)}<div class="rk-b"><div class="rk-n"><span>${esc(itemName(r.i))}</span><b>${euro(r.cpw)}</b></div><span class="sub">${euro(r.i.price)} · ${r.n} port${r.n>1?"s":""}${r.n?"":" pour l'instant"}</span></div></div>`).join("")}</div>`;
+    <div class="rank">${rows.slice(0,6).map(r=>`<div class="rk">${ph(r.i)}<div class="rk-b"><div class="rk-n"><span>${esc(itemName(r.i))}</span><b>${euro(r.cpw)}</b></div><span class="sub">${euro(r.i.price)} · mise ${r.n} fois${r.n?"":" pour l'instant"}</span></div></div>`).join("")}</div>`;
 }
 
 /* ================= Feuille d'ajout / édition ================= */
@@ -909,6 +978,19 @@ function openSheet(html){
   if(cur){ cur.innerHTML=html; return; }
   const bg=document.createElement("div"); bg.className="sheet-bg"; bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
   bg.addEventListener("click",e=>{ if(e.target===bg){ if(batch||ob) return; closeSheet(); } });
+  // tirer la feuille vers le bas pour la fermer, comme dans les apps iPhone
+  const sh=bg.querySelector(".sheet"); let y0=null,x0=0,dy=0,drag=false;
+  sh.addEventListener("touchstart",e=>{ if(sh.scrollTop>0||batch||ob){ y0=null; return; } y0=e.touches[0].clientY; x0=e.touches[0].clientX; dy=0; drag=false; },{passive:true});
+  sh.addEventListener("touchmove",e=>{
+    if(y0==null) return; dy=e.touches[0].clientY-y0; const dx=e.touches[0].clientX-x0;
+    if(!drag && dy>12 && dy>Math.abs(dx)*1.5 && sh.scrollTop<=0) drag=true;
+    if(drag){ e.preventDefault(); sh.style.transition="none"; sh.style.transform=`translateY(${Math.max(0,dy)}px)`; }
+  },{passive:false});
+  sh.addEventListener("touchend",()=>{
+    if(y0==null) return; y0=null; if(!drag) return;
+    if(dy>110){ sh.style.transition="transform .2s ease"; sh.style.transform="translateY(100%)"; setTimeout(closeSheet,180); }
+    else { sh.style.transition="transform .2s ease"; sh.style.transform=""; }
+  });
   document.body.appendChild(bg); document.body.style.overflow="hidden";
 }
 function closeSheet(){ document.querySelector(".sheet-bg")?.remove(); document.body.style.overflow=""; if(sheetState?.previewURL) URL.revokeObjectURL(sheetState.previewURL); sheetState=null; }
@@ -922,55 +1004,85 @@ function openEditor(item, preset){
 }
 function renderEditor(isNew){
   const s=sheetState;
+  const hasPhoto=!!(s.previewURL||s.photo);
+  const simple = isNew && !s.expanded;
   const preview = s.previewURL ? `<div class="ph ${s.newCut?"cut":""}"><img src="${s.previewURL}" alt=""></div>` : ph(s);
   const opt = (name, list, val)=>`<div class="opts" role="group">${list.map(o=>`<button class="chip" data-f="${name}" data-v="${o.id}" aria-pressed="${o.id===val}">${o.label}</button>`).join("")}</div>`;
   const canCut = !s.busy && ((s.previewURL && !s.newCut) || (!s.previewURL && s.photo && !s.cut));
-  openSheet(`<div class="grab"></div>
+  const head = `<div class="grab"></div>
     <div class="sheet-h"><h2>${s.batch?`Pièce ${batch.idx+1} sur ${batch.files.length}`:isNew?"Nouvelle pièce":"Modifier la pièce"}</h2><button class="icon-btn" data-act="${s.batch?"stopbatch":"close"}" aria-label="${s.batch?"Arrêter l'ajout en série":"Fermer"}">${ICON.x}</button></div>
     ${s.batch?`<div class="meter"><i style="width:${Math.round(100*batch.idx/batch.files.length)}%"></i></div>`:""}
-    <details class="tips" ${s.batch?"hidden":""} ${(isNew&&state.items.filter(i=>!i.sample).length<3)||s.showTips?"open":""}>
+    <input type="file" id="photoIn" accept="image/*" hidden>`;
+  const tips = `<details class="tips" ${(isNew&&state.items.filter(i=>!i.sample).length<3)||s.showTips?"open":""}>
       <summary>Conseils pour une bonne photo</summary>
       <ul>
-        <li><b>Une seule pièce</b> par photo, rien d'autre dans le cadre.</li>
-        <li><b>Centre-la et remplis le cadre</b> : la reconnaissance regarde surtout le milieu de l'image.</li>
-        <li><b>Fond uni et contrasté</b> : drap ou sol clair pour une pièce foncée, fond sombre pour une pièce claire. Le détourage n'en sera que plus net.</li>
-        <li><b>Lumière du jour</b>, près d'une fenêtre, sans flash ni contre-jour : les couleurs restent justes.</li>
-        <li><b>À plat, prise du dessus</b>, ou sur un cintre contre un mur. Défroisse et étale bien les manches.</li>
-        <li><b>Chaussures</b> : une seule, de profil. <b>Accessoires</b> : posés seuls, bien au centre.</li>
+        <li><b>Une seule pièce</b> par photo, rien d'autre autour.</li>
+        <li><b>Bien au centre</b>, qu'elle remplisse presque toute la photo.</li>
+        <li><b>Sur un fond uni</b> : un drap ou un sol clair pour une pièce foncée, un fond sombre pour une pièce claire.</li>
+        <li><b>À la lumière du jour</b>, près d'une fenêtre, sans flash : les couleurs restent justes.</li>
+        <li><b>À plat, vue du dessus</b>, ou sur un cintre contre un mur, bien étalée.</li>
+        <li><b>Chaussures</b> : une seule, de profil.</li>
       </ul>
-    </details>
-    ${isNew&&!s.batch?`<label class="btn ghost" for="batchIn" style="text-align:center">Ajouter plusieurs photos d'un coup</label><input type="file" id="batchIn" accept="image/*" multiple hidden>`:""}
-    <div class="photo-pick">${preview}<div style="display:grid;gap:6px">
-      <label class="btn primary" for="photoIn">${(s.photo||s.previewURL)?"Changer la photo":"Prendre une photo"}</label>
-      <input type="file" id="photoIn" accept="image/*" hidden>
-      ${canCut?`<button class="btn ghost sm" data-act="cutnow">Détourer la photo</button>`:""}
+    </details>`;
+  const saveLabel = s.batch?(batch.idx+1<batch.files.length?"C'est bon · suivante":"C'est bon · terminer"):isNew?"C'est bon, ajouter":"Enregistrer";
+  let body;
+  if(simple && !hasPhoto){
+    body = `${s.presetLabel?`<p class="sub" style="margin:0">Pour : <b>${esc(s.presetLabel)}</b></p>`:""}
+      <label class="bigshot" for="photoIn">${ICON.camera}<b>Prendre une photo</b><span>ou en choisir une dans ta galerie</span></label>
+      ${s.batch?"":`<label class="btn ghost" for="batchIn" style="text-align:center">Ajouter plusieurs photos d'un coup</label><input type="file" id="batchIn" accept="image/*" multiple hidden>`}
+      ${tips}
+      <button class="link center" data-act="expand">Ajouter sans photo</button>`;
+  } else if(simple){
+    const row=(l,v)=>`<div class="sum-r"><span>${l}</span><b>${v}</b></div>`;
+    body = `<div class="photo-big">${preview}${s.busy?`<div class="busy"><span class="spin"></span>${esc(s.busyMsg||"Analyse en cours…")}</div>`:""}</div>
+      ${s.busy?"":`<div class="summary">
+        ${row("C'est",esc(typeLabel(s)))}
+        ${row("Couleur",`${dot(s.color,s.color2)} ${C[s.color].label}${s.color2?` et ${C[s.color2].label.toLowerCase()}`:""}`)}
+        ${row("Style",STYLES.find(x=>x.id===s.style).label)}
+        ${row("Saison",SEASONS.find(x=>x.id===s.season).label)}
+      </div>
+      ${s.recoUnsure?`<p class="sub" style="margin:0">On n'a pas reconnu le type à coup sûr : vérifie-le avec « Corriger ».</p>`:""}
+      ${s.colorAlt&&s.colorAlt!==s.color?`<p class="sub" style="margin:0">Pas sûr de la couleur : ça pourrait aussi être <b>${C[s.colorAlt].label.toLowerCase()}</b>. Touche « Corriger » si besoin.</p>`:""}
+      ${s.cutFailed?`<p class="sub" style="margin:0">Le fond n'a pas pu être retiré, la photo d'origine est gardée.</p>`:""}
+      <div class="row2"><button class="btn ghost" data-act="expand">Corriger</button><button class="btn primary" data-act="save">${saveLabel}</button></div>
+      ${s.batch?`<button class="btn ghost" data-act="skipbatch">Ignorer cette photo</button>`:""}
+      <div class="mini-links"><label class="link" for="photoIn">Reprendre la photo</label>${canCut?`<button class="link" data-act="cutnow">Retirer le fond</button>`:""}${(s.newCut&&s.newOrig)?`<button class="link" data-act="uncut">Garder le fond</button>`:""}</div>`}`;
+  } else {
+    body = `<div class="photo-pick">${preview}<div style="display:grid;gap:6px">
+      <label class="btn primary" for="photoIn">${hasPhoto?"Changer la photo":"Prendre une photo"}</label>
+      ${canCut?`<button class="btn ghost sm" data-act="cutnow">Retirer le fond</button>`:""}
       ${!s.busy && (s.previewURL?s.newCut:s.cut) && (s.orig||s.newOrig) ? `<button class="btn ghost sm" data-act="uncut">Revenir à la photo d'origine</button>`:""}
-      <span class="hint" id="colorHint" aria-live="polite">${s.hint||"Prends la pièce seule, à plat ou sur un cintre : type, style, saison et couleur sont reconnus automatiquement."}</span></div></div>
-    <div class="field"><div class="ctl-label">Nom (facultatif)</div><input type="text" id="nameIn" placeholder="ex. Chemise Oxford" value="${esc(s.name)}" maxlength="40"></div>
-    <div class="field"><div class="ctl-label">Type</div>${opt("type",TYPES,s.type)}</div>
-    ${s.type==="accessoire"?`<div class="field"><div class="ctl-label">Genre d'accessoire</div>${opt("kind",KINDS,s.kind)}</div>`:""}
-    <div class="field"><div class="ctl-label">Couleur principale</div>
+      ${s.hint?`<span class="hint" id="colorHint" aria-live="polite">${s.hint}</span>`:""}</div></div>
+    <div class="field"><div class="ctl-label">C'est…</div>${opt("type",TYPES,s.type)}</div>
+    ${s.type==="accessoire"?`<div class="field"><div class="ctl-label">Quel accessoire</div>${opt("kind",KINDS,s.kind)}</div>`:""}
+    <div class="field"><div class="ctl-label">Couleur</div>
       <div class="swatches" role="group">${COLORS.map(c=>`<button class="swb ${s.colorAlt===c.id&&c.id!==s.color&&!s.touched?.has("color")?"alt":""}" data-f="color" data-v="${c.id}" aria-pressed="${c.id===s.color}"><span class="sw ${c.id==="motif"?"motif":""}" style="${c.hex?`background:${c.hex}`:""}"></span>${c.label}</button>`).join("")}</div></div>
-    ${s.color!=="motif"?`<div class="field"><div class="ctl-label">Couleur secondaire (facultatif)</div>
-      <div class="swatches" role="group"><button class="swb" data-f="color2" data-v="" aria-pressed="${!s.color2}"><span class="sw none"></span>Aucune</button>${COLORS.filter(c=>c.id!=="motif"&&c.id!==s.color).map(c=>`<button class="swb" data-f="color2" data-v="${c.id}" aria-pressed="${c.id===s.color2}"><span class="sw" style="background:${c.hex}"></span>${c.label}</button>`).join("")}</div>
-      <span class="hint">Pour les pièces bicolores : logo, semelle, empiècement… Elle compte moins que la principale, mais l'app saura l'accorder.</span></div>`:""}
     <div class="field"><div class="ctl-label">Style</div>${opt("style",STYLES,s.style)}</div>
     <div class="field"><div class="ctl-label">Saison</div>${opt("season",SEASONS,s.season)}</div>
-    <div class="row2"><div class="field"><div class="ctl-label">Marque (facultatif)</div><input type="text" id="brandIn" placeholder="ex. Nike" value="${esc(s.brand||"")}" maxlength="30"></div>
-      <div class="field"><div class="ctl-label">Prix (facultatif)</div><input type="text" id="priceIn" inputmode="decimal" placeholder="€" value="${s.price?String(s.price).replace(".",","):""}" maxlength="8"></div></div>
-    ${settings.laundry?`<div class="field"><div class="ctl-label">Lavage</div>
-      <div class="opts" role="group">${[[1,"Après 1 port"],[2,"2 ports"],[3,"3 ports"],[5,"5 ports"],[10,"10 ports"],[0,"Jamais"]].map(([v,l])=>`<button class="chip" data-f="washEvery" data-v="${v}" aria-pressed="${washEvery(s)===v}">${l}</button>`).join("")}</div>
-      ${isNew?"":`<button class="toggle" data-act="toggledirty" aria-pressed="${!!s.dirty}"><span><b>Au lavage en ce moment</b><br><span class="sub">${s.dirty?"Pas proposée dans les tenues.":`Portée ${s.since||0} fois depuis la dernière lessive.`}</span></span><i></i></button>`}</div>`:""}
-    <button class="btn primary" data-act="save" ${s.busy?"disabled":""}>${s.busy?"Patiente, analyse en cours…":s.batch?(batch.idx+1<batch.files.length?"Enregistrer et suivante":"Enregistrer et terminer"):isNew?"Ajouter au dressing":"Enregistrer"}</button>
+    <details class="more" ${s.moreOpen?"open":""}><summary>Plus de détails <span class="sub">nom, 2e couleur, marque, prix, lavage</span></summary>
+      <div class="field"><div class="ctl-label">Nom</div><input type="text" id="nameIn" placeholder="ex. Chemise Oxford" value="${esc(s.name)}" maxlength="40"></div>
+      ${s.color!=="motif"?`<div class="field"><div class="ctl-label">Deuxième couleur</div>
+        <div class="swatches" role="group"><button class="swb" data-f="color2" data-v="" aria-pressed="${!s.color2}"><span class="sw none"></span>Aucune</button>${COLORS.filter(c=>c.id!=="motif"&&c.id!==s.color).map(c=>`<button class="swb" data-f="color2" data-v="${c.id}" aria-pressed="${c.id===s.color2}"><span class="sw" style="background:${c.hex}"></span>${c.label}</button>`).join("")}</div>
+        <span class="hint">Pour un logo, une semelle, un détail d'une autre couleur.</span></div>`:""}
+      <div class="row2"><div class="field"><div class="ctl-label">Marque</div><input type="text" id="brandIn" placeholder="ex. Nike" value="${esc(s.brand||"")}" maxlength="30"></div>
+        <div class="field"><div class="ctl-label">Prix payé</div><input type="text" id="priceIn" inputmode="decimal" placeholder="€" value="${s.price?String(s.price).replace(".",","):""}" maxlength="8"></div></div>
+      ${settings.laundry?`<div class="field"><div class="ctl-label">À laver après</div>
+        <div class="opts" role="group">${[[1,"1 fois"],[2,"2 fois"],[3,"3 fois"],[5,"5 fois"],[10,"10 fois"],[0,"Jamais"]].map(([v,l])=>`<button class="chip" data-f="washEvery" data-v="${v}" aria-pressed="${washEvery(s)===v}">${l}</button>`).join("")}</div>
+        ${isNew?"":`<button class="toggle" data-act="toggledirty" aria-pressed="${!!s.dirty}"><span><b>Au lavage en ce moment</b><br><span class="sub">${s.dirty?"Elle n'est pas proposée dans les tenues.":`Portée ${s.since||0} fois depuis le dernier lavage.`}</span></span><i></i></button>`}</div>`:""}
+    </details>
+    <button class="btn primary" data-act="save" ${s.busy?"disabled":""}>${s.busy?"Patiente, analyse en cours…":saveLabel}</button>
     ${s.batch?`<button class="btn ghost" data-act="skipbatch">Ignorer cette photo</button>`:""}
     ${isNew?"":`<button class="btn ghost" data-act="pin" data-id="${s.id}">Créer une tenue avec cette pièce</button>
-    <div id="delZone"><button class="btn danger" data-act="askdel" style="width:100%">Supprimer cette pièce</button></div>`}`);
+    <div id="delZone"><button class="btn danger" data-act="askdel" style="width:100%">Supprimer cette pièce</button></div>`}`;
+  }
+  openSheet(head+body);
   sheetState.isNew=isNew;
   document.getElementById("photoIn").addEventListener("change",onPhoto);
   document.getElementById("batchIn")?.addEventListener("change",e=>startBatch(e.target.files));
-  document.getElementById("nameIn").addEventListener("input",e=>{ sheetState.name=e.target.value; });
-  document.getElementById("brandIn").addEventListener("input",e=>{ sheetState.brand=e.target.value; });
-  document.getElementById("priceIn").addEventListener("input",e=>{ sheetState.priceTxt=e.target.value; });
+  document.getElementById("nameIn")?.addEventListener("input",e=>{ sheetState.name=e.target.value; });
+  document.getElementById("brandIn")?.addEventListener("input",e=>{ sheetState.brand=e.target.value; });
+  document.getElementById("priceIn")?.addEventListener("input",e=>{ sheetState.priceTxt=e.target.value; });
+  document.querySelector(".more")?.addEventListener("toggle",e=>{ if(sheetState) sheetState.moreOpen=e.target.open; });
 }
 
 async function onPhoto(e){
@@ -981,7 +1093,8 @@ async function onPhoto(e){
   if(s.previewURL) URL.revokeObjectURL(s.previewURL);
   s.newPhoto=res.blob; s.newOrig=res.blob; s.newCut=false; s.previewURL=URL.createObjectURL(res.blob);
   s.touched=new Set(); s.wb=res.wb; s.detected=res.color; s.colorAlt=res.colorAlt; s.color=res.color; s.busy=true;
-  s.hint = modelReady||seen("reco") ? "Analyse de la pièce…" : "Premier lancement : téléchargement de la reconnaissance (~16 Mo, une seule fois)…";
+  s.hint = modelReady||seen("reco") ? "Analyse de la pièce…" : "Première fois : téléchargement de l'outil de reconnaissance (~16 Mo, une seule fois)…";
+  s.busyMsg = s.hint;
   renderEditor(s.isNew);
   let label=null;
   try{
@@ -989,17 +1102,19 @@ async function onPhoto(e){
     if(sheetState!==s) return; // feuille fermée ou autre pièce entre-temps
     if(!g) s.showTips=true;
     if(g){ for(const f of ["type","style","season","kind"]) if(g[f] && !s.touched.has(f)) s[f]=g[f]; label=g.label; }
+    s.recoUnsure=!g;
   }catch(err){ if(sheetState!==s) return; label=false; }
   const col = ()=> `${C[s.color].label.toLowerCase()}${s.color2&&C[s.color2]?` et ${C[s.color2].label.toLowerCase()}`:""}${s.colorAlt&&s.colorAlt!==s.color&&!s.touched?.has("color")?` (ou peut-être ${C[s.colorAlt].label.toLowerCase()})`:""}`;
   const recoMsg = ()=> label ? `Reconnu : ${label}, couleur ${col()}. Corrige si besoin.`
     : label===false ? `Reconnaissance indisponible (connexion ?). Couleur détectée : ${col()}.`
     : `Type pas reconnu avec certitude, choisis-le (ou reprends la photo en suivant les conseils). Couleur détectée : ${col()}.`;
   if(settings.cutout){
-    s.hint = recoMsg()+(seen("cut")?" Détourage en cours…":" Détourage en cours (premier détourage : ~40 Mo à télécharger, une seule fois)…"); renderEditor(s.isNew);
+    s.busyMsg = seen("cut")?"On retire le fond…":"On retire le fond (première fois : ~40 Mo à télécharger, une seule fois)…";
+    s.hint = recoMsg()+" "+s.busyMsg; renderEditor(s.isNew);
     await doCutout(s, res.blob);
     if(sheetState!==s) return;
   }
-  s.busy=false; s.hint = recoMsg() + (s.cutFailed?" Le détourage n'a pas pu se faire, la photo d'origine est gardée.":"");
+  s.busy=false; s.hint = recoMsg() + (s.cutFailed?" Le fond n'a pas pu être retiré, la photo d'origine est gardée.":"");
   renderEditor(s.isNew);
 }
 
@@ -1267,11 +1382,11 @@ function openMenu(){
       <div class="skins" role="group" aria-label="Thème">${SKINS.map(s=>`<button class="skin" data-skin="${s.id}" aria-pressed="${s.id===currentSkin()}"><span class="pv" style="background:${s.bg}"><i style="background:${s.ac};box-shadow:0 0 8px ${s.ac}"></i></span>${s.label}</button>`).join("")}</div></div>
     <div class="field"><div class="ctl-label">Style des tenues</div>
       <div><span class="sub">Veste</span>${seg("setjacket",[["always","Dès qu'il fait frais"],["auto","Si froid ou pluie"],["rarely","Rarement"]],settings.jacket)}</div>
-      <button class="toggle" data-act="toggleset" data-k="layering" aria-pressed="${settings.layering}"><span><b>Superposition</b><br><span class="sub">Pull ou sweat par-dessus le haut quand il fait frais.</span></span><i></i></button>
+      <button class="toggle" data-act="toggleset" data-k="layering" aria-pressed="${settings.layering}"><span><b>Pull par-dessus</b><br><span class="sub">Ajoute un pull ou un sweat sur le haut quand il fait frais.</span></span><i></i></button>
       <button class="toggle" data-act="toggleset" data-k="accessories" aria-pressed="${settings.accessories}"><span><b>Accessoires</b><br><span class="sub">Ajoute jusqu'à 3 accessoires à chaque tenue.</span></span><i></i></button>
-      <button class="toggle" data-act="toggleset" data-k="laundry" aria-pressed="${settings.laundry}"><span><b>Suivi du lavage</b><br><span class="sub">Après quelques ports, une pièce passe au lavage et n'est plus proposée.</span></span><i></i></button></div>
+      <button class="toggle" data-act="toggleset" data-k="laundry" aria-pressed="${settings.laundry}"><span><b>Suivi du lavage</b><br><span class="sub">Une pièce mise plusieurs fois passe « au lavage » et n'est plus proposée jusqu'à ce qu'elle soit propre.</span></span><i></i></button></div>
     <div class="field"><div class="ctl-label">Photos</div>
-      <button class="toggle" data-act="togglecut" aria-pressed="${settings.cutout}"><span><b>Détourer automatiquement</b><br><span class="sub">Retire le fond de chaque nouvelle photo. Télécharge ~40 Mo la première fois.</span></span><i></i></button></div>
+      <button class="toggle" data-act="togglecut" aria-pressed="${settings.cutout}"><span><b>Retirer le fond des photos</b><br><span class="sub">Ta pièce ressort seule, comme dans un catalogue. Télécharge ~40 Mo la première fois.</span></span><i></i></button></div>
     <div class="field"><div class="ctl-label">Goûts appris</div>
       <p class="sub" style="margin:0">L'app retient tes « j'aime », « pas fan » et les tenues que tu portes pour affiner ses propositions.</p>
       <div id="prefZone"><button class="btn ghost" data-act="askreset" style="width:100%">Réinitialiser les goûts appris</button></div></div>
@@ -1279,9 +1394,10 @@ function openMenu(){
     <p class="sub" style="margin:0">Ton dressing vit dans l'app, sur ce téléphone. Sauvegarde-le dans iCloud Drive pour ne rien perdre (changement de téléphone, app supprimée) ou pour le retrouver sur un autre appareil.
     ${BK.get().last?`<br><b>Dernière sauvegarde : ${dateFR(BK.get().last)}</b>${BK.get().changes?` · ${BK.get().changes} changement${BK.get().changes>1?"s":""} depuis`:" · à jour"}`:"<br><b>Aucune sauvegarde pour l'instant.</b>"}</p></div>
     <div class="menu">
-      <button class="btn primary" id="bkBtn" data-act="backup" ${backupFile?"":"disabled"}>${backupFile?"Sauvegarder maintenant":"Préparation de la sauvegarde…"}</button>
+      <button class="btn primary" data-bk="1" data-act="backup" ${backupFile?"":"disabled"}>${backupFile?"Sauvegarder maintenant":"Préparation de la sauvegarde…"}</button>
       <button class="btn" data-act="import">Restaurer une sauvegarde</button>
       ${hasSamples?`<button class="btn danger" data-act="clearsamples">Retirer les exemples</button>`:`<button class="btn" data-act="samples">Charger des pièces d'exemple</button>`}
+      <button class="btn ghost" data-act="help">Comment ça marche ?</button>
       <button class="btn ghost" data-act="onboarding">Revoir la configuration de départ</button>
     </div>`);
 }
@@ -1352,8 +1468,10 @@ const BK = {
 let backupFile=null, backupBusy=null, backupLost=0;
 function needsBackup(){
   const b=BK.get(), real=state.items.filter(i=>!i.sample).length;
-  if(real<3 || b.changes===0 || Date.now()<b.snooze) return false;
-  return b.changes>=5 || Date.now()-b.last>7*DAY;
+  // pas de rappel tant que le dressing est petit : on ne harcèle pas quelqu'un qui découvre l'app
+  if(real<8 || b.changes===0 || Date.now()<b.snooze) return false;
+  if(!b.last) return true;                       // jamais sauvegardé, et déjà 8 pièces
+  return b.changes>=10 || Date.now()-b.last>7*DAY;
 }
 async function prepareBackup(){
   if(backupFile) return backupFile;
@@ -1374,12 +1492,11 @@ async function prepareBackup(){
   return backupBusy;
 }
 function armBackupButton(label){
+  // plusieurs boutons de sauvegarde peuvent être affichés en même temps (bandeau + réglages) : on les met tous à jour
   prepareBackup().then(()=>{
-    const b=document.getElementById("bkBtn"); if(!b) return;
-    b.disabled=false; b.textContent=label; b.dataset.act="backup";
+    document.querySelectorAll("[data-bk]").forEach(b=>{ b.disabled=false; b.dataset.act="backup"; if(/Préparation|Réessayer/.test(b.textContent)) b.textContent=b.closest(".bk")?"Sauvegarder":"Sauvegarder maintenant"; });
   }).catch(()=>{
-    const b=document.getElementById("bkBtn"); if(!b) return;
-    b.disabled=false; b.textContent="Réessayer"; b.dataset.act="backupretry";
+    document.querySelectorAll("[data-bk]").forEach(b=>{ b.disabled=false; b.textContent="Réessayer"; b.dataset.act="backupretry"; });
     toast("La sauvegarde n'a pas pu être préparée. Réessaie.");
   });
 }
@@ -1400,7 +1517,7 @@ function backupBanner(){
   armBackupButton("Sauvegarder");
   const n=BK.get().changes;
   return `<div class="bk"><div><b>${n} changement${n>1?"s":""} pas encore sauvegardé${n>1?"s":""}</b><span class="sub">Un tap, puis « Enregistrer dans Fichiers » → iCloud Drive.</span></div>
-    <div class="bk-a"><button class="btn primary sm" id="bkBtn" data-act="backup" ${backupFile?"":"disabled"}>${backupFile?"Sauvegarder":"Préparation…"}</button><button class="link" data-act="snooze">Plus tard</button></div></div>`;
+    <div class="bk-a"><button class="btn primary sm" data-bk="1" data-act="backup" ${backupFile?"":"disabled"}>${backupFile?"Sauvegarder":"Préparation…"}</button><button class="link" data-act="snooze">Plus tard</button></div></div>`;
 }
 
 /* ================= Ajout en série =================
@@ -1449,7 +1566,7 @@ function showBatchItem(){
   }
   if(r.error){ batch.skipped++; batch.idx++; toast(`Photo ${batch.idx} illisible, ignorée`); return showBatchItem(); }
   sheetState={id:uid(), type:r.type, kind:r.kind, color:r.color, colorAlt:r.colorAlt, color2:r.color2, style:r.style, season:r.season, name:"", photo:null,
-    created:Date.now(), newPhoto:r.photo, newCut:r.cut, newOrig:r.orig, previewURL:URL.createObjectURL(r.photo), touched:new Set(), batch:true,
+    created:Date.now(), newPhoto:r.photo, newCut:r.cut, newOrig:r.orig, recoUnsure:!r.label, previewURL:URL.createObjectURL(r.photo), touched:new Set(), batch:true,
     hint: r.label ? `Reconnu : ${r.label}, couleur ${C[r.color].label.toLowerCase()}${r.color2?` et ${C[r.color2].label.toLowerCase()}`:""}. Corrige si besoin.` : `Type pas reconnu avec certitude, choisis-le. Couleur détectée : ${C[r.color].label.toLowerCase()}.`};
   renderEditor(true);
 }
@@ -1670,11 +1787,11 @@ function renderOnboarding(){
   else if(ob.step===2) body=`<h2 class="ob-t">Ton style</h2>
     <div class="field"><div class="ctl-label">Le plus souvent, tu t'habilles…</div>${seg("obocc",[["casual","Décontracté"],["chic","Habillé"],["sport","Sport"]],state.ctx.occ)}</div>
     <div class="field"><div class="ctl-label">Une veste dans tes tenues</div>${seg("setjacket",[["always","Dès qu'il fait frais"],["auto","Si froid ou pluie"],["rarely","Rarement"]],settings.jacket)}</div>
-    <button class="toggle" data-act="toggleset" data-k="layering" aria-pressed="${settings.layering}"><span><b>Superposition</b><br><span class="sub">Un pull ou un sweat par-dessus le haut quand il fait frais.</span></span><i></i></button>
+    <button class="toggle" data-act="toggleset" data-k="layering" aria-pressed="${settings.layering}"><span><b>Pull par-dessus</b><br><span class="sub">Ajoute un pull ou un sweat sur le haut quand il fait frais.</span></span><i></i></button>
     <button class="toggle" data-act="toggleset" data-k="accessories" aria-pressed="${settings.accessories}"><span><b>Accessoires</b><br><span class="sub">Casquette, ceinture, montre… ajoutés aux tenues.</span></span><i></i></button>${nav()}`;
   else if(ob.step===3) body=`<h2 class="ob-t">Au quotidien</h2>
-    <button class="toggle" data-act="toggleset" data-k="laundry" aria-pressed="${settings.laundry}"><span><b>Suivi du lavage</b><br><span class="sub">Un T-shirt porté passe au lavage, un jean après quelques ports : l'app ne te le repropose pas tant qu'il n'est pas propre.</span></span><i></i></button>
-    <button class="toggle" data-act="togglecut" aria-pressed="${settings.cutout}"><span><b>Détourer les photos</b><br><span class="sub">Retire le fond pour un rendu catalogue. Télécharge ~40 Mo une seule fois.</span></span><i></i></button>
+    <button class="toggle" data-act="toggleset" data-k="laundry" aria-pressed="${settings.laundry}"><span><b>Suivi du lavage</b><br><span class="sub">Un T-shirt mis une fois passe au lavage, un jean après quelques fois : l'app ne te le repropose pas tant qu'il n'est pas propre.</span></span><i></i></button>
+    <button class="toggle" data-act="togglecut" aria-pressed="${settings.cutout}"><span><b>Retirer le fond des photos</b><br><span class="sub">Ta pièce ressort seule, comme dans un catalogue. Télécharge ~40 Mo une seule fois.</span></span><i></i></button>
     <div class="field"><div class="ctl-label">Météo du jour</div>
       <p class="sub" style="margin:0">Pour choisir entre chaud, doux et froid, l'app a besoin de ta position approximative. Elle n'est envoyée qu'au service météo.</p>
       <button class="btn ghost" data-act="obwx" id="obwx">${state.wxStatus==="ok"?"✓ Météo activée":"Activer la météo locale"}</button></div>${nav(install?"Continuer":"Terminer")}`;
@@ -1717,9 +1834,92 @@ async function onboardingAction(act,b){
   else if(act==="obinstall"){ try{ installEvt.prompt(); const r=await installEvt.userChoice; installEvt=null; if(r.outcome==="accepted") finishOnboarding(); else renderOnboarding(); }catch(e){} }
 }
 
+/* ================= Changer une seule pièce ================= */
+function swapCandidates(type){
+  const o=state.current.outfit, ctx=state.ctx, cur=o.pieces.find(p=>p.type===type);
+  const base=o.pieces.filter(p=>p.type!==type);
+  const order=p=>MAIN_ORDER.indexOf(p.type);
+  const opts=state.items.filter(i=>i.type===type && i.id!==cur?.id && !isDirty(i) && OCC[ctx.occ][i.style]!==null && SEA[ctx.weather][i.season]!==null)
+    .map(i=>{ const pieces=[...base,i].sort((a,b)=>order(a)-order(b)); return {item:i, pieces, sc:scoreOutfit(pieces,ctx)}; });
+  if(cur && (type==="veste"||type==="pull")) opts.push({item:null, pieces:base, sc:scoreOutfit(base,ctx)});
+  return {cur, opts:opts.sort((a,b)=>b.sc.s-a.sc.s)};
+}
+function addLayerLinks(o){
+  if(state.ctx.weather==="chaud") return "";
+  const links=[];
+  for(const [t,l] of [["veste","une veste"],["pull","un pull"]]){
+    if(o.pieces.some(p=>p.type===t)) continue;
+    if(t==="pull" && !settings.layering) continue;
+    if(state.items.some(i=>i.type===t && !isDirty(i))) links.push(`<button class="link" data-act="swap" data-type="${t}">+ Ajouter ${l}</button>`);
+  }
+  return links.length?`<div class="mini-links">${links.join("")}</div>`:"";
+}
+function openSwap(type){
+  if(!state.current?.outfit) return;
+  const {cur,opts}=swapCandidates(type);
+  const L={haut:"le haut",bas:"le bas",chaussures:"les chaussures",veste:"la veste",pull:"le pull"};
+  openSheet(`<div class="grab"></div>
+    <div class="sheet-h"><h2>${cur?`Changer ${L[type]}`:`Ajouter ${type==="veste"?"une veste":"un pull"}`}</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
+    ${opts.length?`<p class="sub" style="margin:0">Classés du plus au moins assorti avec le reste de la tenue.</p>
+    <div class="rank">${opts.map(x=>`<button class="rk pick" data-act="swapto" data-type="${type}" data-id="${x.item?x.item.id:"none"}">${x.item?ph(x.item):`<div class="ph">${ICON.x}</div>`}<div class="rk-b"><div class="rk-n"><span>${x.item?esc(itemName(x.item)):`Sans ${type==="veste"?"veste":"pull"}`}</span><b>${x.sc.colorScore}/10</b></div><span class="sub">${esc(x.sc.warn[0]||x.sc.ok[0]||"")}</span></div></button>`).join("")}</div>`
+    :`<p class="sub">Aucune autre pièce de ce type ne convient à cette météo et cette occasion${state.items.some(i=>i.type===type&&isDirty(i))?" (certaines sont au lavage)":""}.</p>`}`);
+}
+function applySwap(type,id){
+  const o=state.current.outfit, x=swapCandidates(type).opts.find(z=>(z.item?z.item.id:"none")===id);
+  if(!x) return;
+  state.current={...state.current, outfit:{...x.sc, pieces:x.pieces, acc:o.acc, k:x.pieces.map(p=>p.id).sort().join(",")}};
+  closeSheet(); render();
+}
+
+/* ================= Glisser la tenue ================= */
+const swipeHintSeen=()=>{ try{ return localStorage.getItem("penderie.swipe")==="1"; }catch(e){ return false; } };
+let swiped=false;
+function bindSwipe(){
+  const card=document.querySelector(".outfit"); if(!card) return;
+  let x0=null,y0=0,dx=0,drag=false;
+  card.addEventListener("touchstart",e=>{ x0=e.touches[0].clientX; y0=e.touches[0].clientY; dx=0; drag=false; card.style.transition="none"; },{passive:true});
+  card.addEventListener("touchmove",e=>{
+    if(x0==null) return; dx=e.touches[0].clientX-x0; const dy=e.touches[0].clientY-y0;
+    if(!drag && Math.abs(dx)>12 && Math.abs(dx)>Math.abs(dy)*1.4) drag=true;
+    if(drag){ e.preventDefault(); card.style.transform=`translateX(${dx}px) rotate(${dx/28}deg)`; card.dataset.dir = dx>40?"like":dx<-40?"next":""; }
+  },{passive:false});
+  card.addEventListener("touchend",async()=>{
+    if(x0==null) return; x0=null;
+    if(!drag) return;
+    swiped=true; setTimeout(()=>swiped=false,80);
+    try{ localStorage.setItem("penderie.swipe","1"); }catch(e){}
+    card.style.transition="transform .25s ease, opacity .25s";
+    if(dx<-90){ card.style.transform="translateX(-120%) rotate(-12deg)"; card.style.opacity="0"; setTimeout(()=>document.querySelector('[data-act="next"]')?.click(),180); }
+    else if(dx>90){
+      card.style.transform="translateX(0)"; card.dataset.dir="";
+      const fav=document.querySelector('[data-act="fav"]'); if(fav && fav.getAttribute("aria-pressed")!=="true") fav.click(); else toast("Déjà dans tes favoris ♥");
+    }
+    else { card.style.transform=""; card.dataset.dir=""; }
+  });
+}
+
+/* ================= Aide ================= */
+function openHelp(){
+  const Q=[
+    ["Où sont mes vêtements et mes photos ?","Uniquement sur ce téléphone, dans l'app. Rien n'est envoyé sur internet, il n'y a pas de compte. Seule ta position approximative part au service météo, pour connaître le temps du jour."],
+    ["C'est vraiment gratuit ?","Oui : pas de pub, pas d'abonnement, pas de limite de pièces."],
+    ["Comment l'app choisit mes tenues ?","Elle associe des couleurs qui vont ensemble, garde un style cohérent (pas de jogging avec des chaussures de ville), tient compte de la météo et de l'occasion, retient ce que tu adores et ce qui n'est pas pour toi, et évite ce que tu as mis ces derniers jours ou qui est au lavage."],
+    ["Une pièce de la tenue ne me plaît pas","Touche-la : l'app te propose les autres pièces du même type, de la plus à la moins assortie."],
+    ["À quoi sert « Je la mets aujourd'hui » ?","L'app note ce que tu portes : elle évite de te reproposer les mêmes pièces trop vite, sait quand elles doivent passer au lavage et remplit tes stats."],
+    ["Comment ne rien perdre, ou changer de téléphone ?","Dans Réglages, touche « Sauvegarder maintenant » puis « Enregistrer dans Fichiers » (iCloud Drive). Sur le nouveau téléphone, ouvre l'app puis Réglages › « Restaurer une sauvegarde »."],
+    ["La photo est mal reconnue","Touche « Corriger » et change ce qui ne va pas. Pour la prochaine fois : une seule pièce, bien au centre, sur un fond uni, à la lumière du jour."],
+    ["J'ai supprimé l'icône de l'app","Si tu n'avais pas de sauvegarde, ton dressing est perdu : il vivait dans l'app. D'où l'intérêt de sauvegarder de temps en temps (l'app te le rappelle)."],
+  ];
+  openSheet(`<div class="grab"></div>
+    <div class="sheet-h"><h2>Comment ça marche ?</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
+    <div class="faq">${Q.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div>
+    <button class="btn ghost" data-act="onboarding">Revoir la présentation de départ</button>`);
+}
+
 /* ================= Événements ================= */
 document.addEventListener("click", async e=>{
   const b=e.target.closest("button"); if(!b) return;
+  if(swiped && b.closest(".outfit")) return; // un glissement n'est pas un tap
   if(b.dataset.tab){ state.tab=b.dataset.tab; render(); scrollTo(0,0); return; }
   if(b.dataset.seg==="setjacket"){ settings.jacket=b.dataset.v; saveSettings(); state.current=null; b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); return; }
   if(b.dataset.seg==="obocc"){ state.ctx.occ=b.dataset.v; saveCtx(); state.current=null; b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); return; }
@@ -1752,10 +1952,10 @@ document.addEventListener("click", async e=>{
   else if(act==="nodel") document.getElementById("delZone").innerHTML=`<button class="btn danger" data-act="askdel" style="width:100%">Supprimer cette pièce</button>`;
   else if(act==="del") deleteItem(sheetState.id);
   else if(act==="cutnow"){
-    const s=sheetState; s.newOrig = s.newPhoto!==undefined ? (s.newOrig||s.newPhoto) : (s.orig||s.photo); s.busy=true; s.hint=seen("cut")?"Détourage en cours…":"Détourage en cours… Premier détourage : téléchargement du modèle (~40 Mo, une seule fois)."; renderEditor(s.isNew);
+    const s=sheetState; s.newOrig = s.newPhoto!==undefined ? (s.newOrig||s.newPhoto) : (s.orig||s.photo); s.busy=true; s.hint=seen("cut")?"On retire le fond…":"On retire le fond… Première fois : téléchargement de l'outil (~40 Mo, une seule fois)."; s.busyMsg=s.hint; renderEditor(s.isNew);
     await doCutout(s, s.newPhoto!==undefined ? s.newPhoto : s.photo);
     if(sheetState!==s) return;
-    s.busy=false; s.hint = s.cutFailed ? "Le détourage n'a pas pu se faire. Vérifie ta connexion et réessaie." : "Fond retiré. Enregistre pour garder cette version.";
+    s.busy=false; s.hint = s.cutFailed ? "Le fond n'a pas pu être retiré. Vérifie ta connexion et réessaie." : "Fond retiré. Enregistre pour garder cette version.";
     renderEditor(s.isNew);
   }
   else if(act==="pin"){ closeSheet(); state.ctx.pin=b.dataset.id; state.tab="tenue"; state.current=null; state.avoid.clear(); render(); scrollTo(0,0); }
@@ -1779,7 +1979,7 @@ document.addEventListener("click", async e=>{
     }
     const w={id:uid(),date:now,ids:all.map(p=>p.id)}; await put("wears",w); state.wears.unshift(w);
     await learn(cur.pieces,0.5);
-    toast(`Ajoutée à ton historique.${toWash.length?` ${toWash.length===1?esc(itemName(toWash[0]))+" passe":toWash.length+" pièces passent"} au lavage.`:" Ces pièces passeront après les autres pendant 2 jours."}`);
+    toast(`C'est noté pour aujourd'hui !${toWash.length?` ${toWash.length===1?itemName(toWash[0])+" passe":toWash.length+" pièces passent"} au lavage.`:""}`);
     state.current=null; render();
   }
   else if(act==="delwear"){ await del("wears",b.dataset.id); state.wears=state.wears.filter(w=>w.id!==b.dataset.id); render(); }
@@ -1799,9 +1999,14 @@ document.addEventListener("click", async e=>{
   else if(act==="washall"){ for(const it of state.items.filter(i=>i.dirty||i.since)){ it.dirty=false; it.since=0; await put("items",it); } state.current=null; state.filter="tout"; render(); toast("Tout est propre, les pièces reviennent dans les tenues."); }
   else if(act==="toggledirty"){ sheetState.dirty=!sheetState.dirty; if(!sheetState.dirty) sheetState.since=0; renderEditor(sheetState.isNew); }
   else if(act==="toggleset"){ const k=b.dataset.k; settings[k]=!settings[k]; saveSettings(); b.setAttribute("aria-pressed",settings[k]); state.current=null; }
+  else if(act==="swap") openSwap(b.dataset.type);
+  else if(act==="swapto") applySwap(b.dataset.type,b.dataset.id);
+  else if(act==="help") openHelp();
+  else if(act==="expand"){ sheetState.expanded=true; renderEditor(sheetState.isNew); const sh=document.querySelector(".sheet"); if(sh) sh.scrollTop=0; }
+  else if(act==="addtype"){ openEditor(null,{type:b.dataset.type, presetLabel:b.dataset.label}); }
   else if(act==="uncut"){ const s=sheetState; const o=s.newOrig||s.orig; if(s.previewURL) URL.revokeObjectURL(s.previewURL); s.newPhoto=o; s.newOrig=o; s.newCut=false; s.previewURL=URL.createObjectURL(o); s.hint="Photo d'origine restaurée. Enregistre pour garder cette version."; renderEditor(s.isNew); }
   else if(act==="esshide"){ try{ localStorage.setItem("penderie.essHidden","1"); }catch(e){} render(); }
-  else if(act==="ess"){ openEditor(null, ESSENTIALS[Number(b.dataset.k)].preset); }
+  else if(act==="ess"){ const e=ESSENTIALS[Number(b.dataset.k)]; openEditor(null, {...e.preset, presetLabel:e.label}); }
   else if(act==="onboarding"){ closeSheet(); startOnboarding(true); }
   else if(act?.startsWith("ob")) onboardingAction(act,b);
   else if(act==="backupretry"){ backupFile=null; b.disabled=true; b.textContent="Préparation…"; armBackupButton(b.closest(".bk")?"Sauvegarder":"Sauvegarder maintenant"); }
@@ -1831,6 +2036,7 @@ async function load(){
   const p = await getOne("meta","prefs"); if(p) prefs={pairs:p.pairs||{},colors:p.colors||{}};
 }
 (async()=>{
+  document.getElementById("helpBtn").innerHTML=ICON.help;
   { const s=SKINS.find(x=>x.id===currentSkin()); if(s) document.querySelector('meta[name="theme-color"]').setAttribute("content",s.bg); }
   try{ await load(); }catch(e){ toast("Le stockage du navigateur est bloqué (navigation privée ?)."); }
   const fromIcon = applyCfgFromHash();
