@@ -103,7 +103,7 @@ h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 
 /* Tenue */
 .outfit{background:var(--surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:20px;padding:14px;display:grid;gap:12px}
-.flatlay{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.flatlay{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .flatlay .piece{position:relative}
 .flatlay .piece.wide{grid-column:span 2}
 .ph{border-radius:14px;overflow:hidden;background:var(--chip);display:grid;place-items:center}
@@ -124,8 +124,8 @@ h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 .why li{display:flex;gap:8px;align-items:flex-start}
 .why li::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;margin-top:7px;background:var(--good)}
 .why li.warn::before{background:var(--bad)}
-.actions{display:grid;grid-template-columns:1fr auto auto;gap:8px}
-.btn{border:0;border-radius:12px;padding:12px 14px;font-weight:600;background:var(--chip)}
+.actions{display:grid;grid-template-columns:1fr auto auto auto;gap:8px}
+.btn{border:0;border-radius:12px;padding:12px 14px;font-weight:600;background:var(--chip);white-space:nowrap}
 .btn.primary{background:var(--tile);color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent),var(--glow);text-shadow:0 0 8px rgba(var(--accent-rgb),.6)}
 .btn.ghost{background:transparent;border:1px solid var(--line)}
 .btn.danger{background:transparent;color:var(--bad);border:1px solid var(--line)}
@@ -135,9 +135,10 @@ h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 
 /* Favoris */
 .section-h{display:flex;align-items:baseline;justify-content:space-between;margin:26px 0 10px}
-.favs{display:grid;gap:8px}
+.favs{display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}
 .fav{display:flex;align-items:center;gap:8px;background:var(--surface);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:14px;padding:8px}
-.fav .thumbs{display:flex;gap:4px;flex:1;min-width:0;border:0;background:none;padding:0}
+.fav .thumbs{display:flex;gap:4px;flex:1;min-width:0;border:0;background:none;padding:0;overflow-x:auto;scrollbar-width:none}
+.fav .thumbs::-webkit-scrollbar{display:none}
 .fav .thumbs .ph{width:48px;height:48px;border-radius:10px;flex:none}
 .fav .icon-btn{width:36px;height:36px;border:0;background:transparent;color:var(--muted)}
 
@@ -158,7 +159,7 @@ h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 /* Barre d'onglets */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--nav);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line);z-index:20;
   padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-nav.tabs .in{max-width:640px;margin:0 auto;height:var(--tab-h);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+nav.tabs .in{max-width:640px;margin:0 auto;height:var(--tab-h);display:grid;grid-template-columns:1fr 1fr auto 1fr 1fr;align-items:center;gap:4px}
 nav.tabs button.t{border:0;background:none;display:grid;justify-items:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted);padding:6px}
 nav.tabs button.t svg{width:22px;height:22px}
 nav.tabs button.t[aria-current="page"]{color:var(--accent)}
@@ -189,10 +190,48 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .hint{font-size:12px;color:var(--muted)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .menu{display:grid;gap:8px}
-.menu .btn{text-align:left;display:flex;gap:10px;align-items:center}
+.menu .btn{white-space:normal;text-align:left;display:flex;gap:10px;align-items:center}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tab-h) + 18px + env(safe-area-inset-bottom,0px));background:var(--tile);color:var(--ink);border:1px solid rgba(var(--accent-rgb),.5);box-shadow:var(--glow);
   padding:10px 16px;border-radius:12px;font-weight:500;z-index:60;max-width:calc(100% - 32px);text-align:center}
 .confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px}
+.wx{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.wx svg{width:15px;height:15px;color:var(--accent);flex:none;vertical-align:-3px}
+.wx b{color:var(--ink);font-weight:600}
+.wx.warn{color:var(--bad)}
+.link{border:0;background:none;color:var(--accent);padding:0;font-weight:600;text-decoration:underline;font-size:inherit}
+.pinbar{display:flex;align-items:center;gap:10px;background:var(--tile);border:1px solid var(--accent);border-radius:14px;padding:8px;margin-bottom:12px;box-shadow:var(--glow)}
+.pinbar .ph{width:44px;height:44px;border-radius:10px;flex:none}
+.pinbar span{flex:1;min-width:0;font-size:14px}
+.accrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ph.cut img{object-fit:contain;padding:8%}
+.btn.sq{padding:12px}
+.btn.sm{padding:8px 12px;font-size:13px}
+.btn[disabled]{opacity:.6}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 10px;display:grid;gap:4px;align-content:start}
+.stat b{font:700 30px/1 var(--display);color:var(--accent-soft);font-variant-numeric:tabular-nums}
+.stat small{font-size:16px}
+.stat span{font-size:12px;color:var(--muted);line-height:1.3}
+.fav .when{font-size:12px;color:var(--muted);width:58px;flex:none;line-height:1.2;padding-left:4px}
+.rank{display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}
+.rk{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px}
+.rk .ph{width:48px;height:48px;border-radius:10px;flex:none}
+.rk-b{flex:1;min-width:0;display:grid;gap:6px}
+.rk-n{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.rk-n span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-n b{font-variant-numeric:tabular-nums}
+.colorbar{display:flex;height:22px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.colorbar i{display:block}
+.colorbar i.motif{background:linear-gradient(135deg,#c63a2f 0 25%,#e9c449 25% 50%,#3e7d4f 50% 75%,#3b7fd4 75%)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend b{color:var(--ink);font-weight:600}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;border:1px solid var(--line);background:var(--tile);border-radius:14px;padding:12px 14px;width:100%}
+.toggle i{flex:none;width:44px;height:26px;border-radius:99px;background:var(--chip);position:relative;border:1px solid var(--line)}
+.toggle i::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--muted);transition:transform .2s}
+.toggle[aria-pressed="true"] i{background:rgba(var(--accent-rgb),.25);border-color:var(--accent)}
+.toggle[aria-pressed="true"] i::after{transform:translateX(18px);background:var(--accent);box-shadow:var(--glow)}
+@media (max-width:360px){.seg button{font-size:13px;padding:8px 2px}}
 </style>
 </head>
 <body>
@@ -202,9 +241,6 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
       <h1>Penderie</h1>
       <div class="sub" id="count">Ton dressing, sur ton téléphone</div>
     </div>
-    <button class="icon-btn" id="menuBtn" aria-label="Réglages">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>
-    </button>
   </header>
 
   <main id="view"></main>
@@ -216,12 +252,20 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><path d="M18.5 15l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z"/></svg>
       Tenue
     </button>
-    <button class="fab" id="addBtn" aria-label="Ajouter une pièce">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-    </button>
     <button class="t" data-tab="dressing">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6a2 2 0 1 1 2-2"/><path d="M12 6v1.5L3 14h18l-9-6.5"/><path d="M5 14v6h14v-6"/></svg>
       Dressing
+    </button>
+    <button class="fab" id="addBtn" aria-label="Ajouter une pièce">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <button class="t" data-tab="suivi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>
+      Suivi
+    </button>
+    <button class="t" data-act="menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      Réglages
     </button>
   </div>
 </nav>
@@ -237,6 +281,17 @@ const TYPES = [
   {id:"chaussures", label:"Chaussures", plural:"Chaussures"},
   {id:"pull", label:"Pull / sweat / gilet", plural:"Pulls & sweats"},
   {id:"veste", label:"Veste / manteau", plural:"Vestes"},
+  {id:"accessoire", label:"Accessoire", plural:"Accessoires"},
+];
+const KINDS = [
+  {id:"casquette", label:"Casquette / chapeau", short:"Casquette"},
+  {id:"bonnet", label:"Bonnet", short:"Bonnet"},
+  {id:"echarpe", label:"Écharpe", short:"Écharpe"},
+  {id:"ceinture", label:"Ceinture", short:"Ceinture"},
+  {id:"montre", label:"Montre", short:"Montre"},
+  {id:"lunettes", label:"Lunettes de soleil", short:"Lunettes"},
+  {id:"sac", label:"Sac", short:"Sac"},
+  {id:"bijou", label:"Bijou", short:"Bijou"},
 ];
 const COLORS = [
   {id:"noir",label:"Noir",hex:"#1c1c1e",fam:"neutre"},
@@ -272,6 +327,8 @@ const SEASONS = [
 ];
 const C = Object.fromEntries(COLORS.map(c=>[c.id,c]));
 const T = Object.fromEntries(TYPES.map(t=>[t.id,t]));
+const K = Object.fromEntries(KINDS.map(k=>[k.id,k]));
+const MAIN_ORDER = ["veste","pull","haut","bas","chaussures"];
 
 /* ================= Moteur de suggestion ================= */
 const key = (a,b)=>[a,b].sort().join("|");
@@ -315,6 +372,27 @@ const SEA = { // adéquation météo (null = exclu)
 };
 const DAY = 864e5;
 
+/* Préférences apprises : chaque j'aime / j'aime pas / « je la porte » ajuste un poids
+   par paire de pièces et par paire de couleurs. Le score d'une tenue en tient compte. */
+let prefs = {pairs:{}, colors:{}};
+function prefScore(pieces){
+  let s=0;
+  for(let i=0;i<pieces.length;i++) for(let j=i+1;j<pieces.length;j++){
+    s += (prefs.pairs[key(pieces[i].id,pieces[j].id)]||0)*0.6;
+    s += (prefs.colors[key(pieces[i].color,pieces[j].color)]||0)*0.25;
+  }
+  return s;
+}
+async function learn(pieces, w){
+  const clamp=v=>Math.max(-6,Math.min(6,v));
+  for(let i=0;i<pieces.length;i++) for(let j=i+1;j<pieces.length;j++){
+    const kp=key(pieces[i].id,pieces[j].id), kc=key(pieces[i].color,pieces[j].color);
+    prefs.pairs[kp]=clamp((prefs.pairs[kp]||0)+w);
+    prefs.colors[kc]=clamp((prefs.colors[kc]||0)+w*0.5);
+  }
+  try{ await put("meta",{key:"prefs",...prefs}); }catch(e){}
+}
+
 function scoreOutfit(pieces, ctx){
   let s=0, cs=0, n=0; const ok=[], warn=[];
   for(let i=0;i<pieces.length;i++) for(let j=i+1;j<pieces.length;j++){
@@ -333,17 +411,20 @@ function scoreOutfit(pieces, ctx){
   if(fams.every(f=>f==="neutre")) ok.unshift("Palette 100 % neutre, impossible de se tromper");
   else if(vifs.length===1 && fams.filter(f=>f==="vif").length===1) ok.unshift("Une seule couleur forte ("+C[vifs[0]].label.toLowerCase()+"), le reste neutre : équilibré");
   for(const p of pieces){
-    s+=OCC[ctx.occ][p.style]+SEA[ctx.weather][p.season];
-    if(p.lastWorn && Date.now()-p.lastWorn < 2*DAY) s-=3;
+    s+=(OCC[ctx.occ][p.style]??-3)+(SEA[ctx.weather][p.season]??-2);
+    if(p.lastWorn && Date.now()-p.lastWorn < 2*DAY && p.id!==ctx.pin) s-=3;
   }
   const pull=pieces.find(p=>p.type==="pull"), haut=pieces.find(p=>p.type==="haut");
-  if(pull){
+  if(pull && haut){
     if(ctx.weather==="froid"){ s+=1; ok.push("Superposition : "+itemName(pull).toLowerCase()+" par-dessus "+itemName(haut).toLowerCase()); }
-    if(haut && haut.season==="hiver"){ s-=6; warn.push("Deux couches épaisses l'une sur l'autre"); }
+    if(haut.season==="hiver"){ s-=6; warn.push("Deux couches épaisses l'une sur l'autre"); }
   }
+  const ps = prefScore(pieces); s+=ps;
+  if(ps>=1.5) ok.unshift("Dans l'esprit des tenues que tu as aimées");
+  else if(ps<=-1.5) warn.unshift("Ressemble à des tenues que tu n'as pas aimées");
   const styles=new Set(pieces.map(p=>p.style).filter(x=>x!=="poly"));
   if(styles.size<=1 && !warn.length) ok.push("Pièces du même registre de style");
-  const colorScore = Math.max(1, Math.min(10, Math.round(((cs/n)+3)/5.2*10)));
+  const colorScore = Math.max(1, Math.min(10, Math.round(((cs/Math.max(n,1))+3)/5.2*10)));
   return {s, colorScore, ok:ok.slice(0,3), warn:warn.slice(0,2)};
 }
 
@@ -351,38 +432,86 @@ function eligible(items, type, ctx){
   return items.filter(i=>i.type===type && OCC[ctx.occ][i.style]!==null && SEA[ctx.weather][i.season]!==null);
 }
 function generate(items, ctx, avoid){
-  const H=eligible(items,"haut",ctx), B=eligible(items,"bas",ctx), S=eligible(items,"chaussures",ctx);
-  let V = ctx.weather==="chaud" ? [] : eligible(items,"veste",ctx);
+  const pin = ctx.pin ? items.find(i=>i.id===ctx.pin) : null;
+  const pool = (type)=> pin && pin.type===type ? [pin] : eligible(items,type,ctx);
+  const H=pool("haut"), B=pool("bas"), S=pool("chaussures");
+  const V = pin?.type==="veste" ? [pin] : (ctx.weather==="chaud" ? [] : eligible(items,"veste",ctx));
   const missing=[]; if(!H.length)missing.push("un haut"); if(!B.length)missing.push("un bas"); if(!S.length)missing.push("une paire de chaussures");
   if(missing.length) return {missing};
-  const jackets = ctx.weather==="froid" && V.length ? V : [null,...V];
-  const pulls = ctx.weather==="chaud" ? [null] : [null,...eligible(items,"pull",ctx)]; // couche intermédiaire facultative
+  const needJacket = (ctx.weather==="froid" || (ctx.rain && ctx.weather!=="chaud")) && V.length;
+  const jackets = pin?.type==="veste" || needJacket ? V : [null,...V];
+  const pulls = pin?.type==="pull" ? [pin] : ctx.weather==="chaud" ? [null] : [null,...eligible(items,"pull",ctx)]; // couche intermédiaire facultative
   const total = H.length*B.length*S.length*jackets.length*pulls.length;
   const pick = a=>a[Math.floor(Math.random()*a.length)];
   const combos=[];
   if(total<=20000){
     for(const h of H)for(const b of B)for(const sh of S)for(const v of jackets)for(const pu of pulls){ if(pu&&h.season==="hiver") continue; combos.push([v,pu,h,b,sh].filter(Boolean)); }
   } else {
-    for(let k=0;k<20000;k++) { const hh=pick(H); combos.push([pick(jackets),hh.season==="hiver"?null:pick(pulls),hh,pick(B),pick(S)].filter(Boolean)); }
+    for(let k=0;k<20000;k++){ const hh=pick(H); const pu=pick(pulls); if(pu&&hh.season==="hiver"&&pin?.type!=="pull") { combos.push([pick(jackets),hh,pick(B),pick(S)].filter(Boolean)); continue; } combos.push([pick(jackets),pu,hh,pick(B),pick(S)].filter(Boolean)); }
   }
+  if(!combos.length) return {missing:["un haut léger à porter sous ce pull"]};
   const scored = combos.map(p=>({pieces:p, ...scoreOutfit(p,ctx), k:p.map(x=>x.id).sort().join(",")}));
   scored.sort((a,b)=>b.s-a.s);
-  let pool = scored.filter(o=>!avoid.has(o.k));
-  if(!pool.length){ avoid.clear(); pool=scored; }
-  const top = pool.slice(0,5);
+  let cand = scored.filter(o=>!avoid.has(o.k));
+  if(!cand.length){ avoid.clear(); cand=scored; }
+  const top = cand.slice(0,5);
   // tirage pondéré parmi les meilleures pour varier sans sacrifier la qualité
   const w = top.map((o,i)=>5-i), tot=w.reduce((a,b)=>a+b,0);
   let r=Math.random()*tot, chosen=top[0];
   for(let i=0;i<top.length;i++){ r-=w[i]; if(r<=0){ chosen=top[i]; break; } }
+  chosen.acc = pickAccessories(items, chosen.pieces, ctx, pin?.type==="accessoire"?pin:null);
   return {outfit:chosen, noJacket: ctx.weather==="froid" && !V.length};
+}
+
+/* Accessoires : choisis après la tenue principale, au plus 3, avec quelques règles de bon sens. */
+const KIND_RULES = {
+  bonnet:{weather:["froid"], occ:["casual","sport"]},
+  echarpe:{weather:["froid","doux"]},
+  lunettes:{weather:["chaud","doux"], dry:true},
+  casquette:{occ:["casual","sport"]},
+  ceinture:{occ:["casual","chic"]},
+};
+const LEATHER = c=> c==="marron"||c==="camel" ? "brun" : c==="noir" ? "noir" : c;
+function pickAccessories(items, pieces, ctx, pinAcc){
+  const shoes=pieces.find(p=>p.type==="chaussures"), bas=pieces.find(p=>p.type==="bas");
+  const cands = items.filter(i=>i.type==="accessoire" && i!==pinAcc && OCC[ctx.occ][i.style]!==null && SEA[ctx.weather][i.season]!==null).filter(i=>{
+    const r=KIND_RULES[i.kind]||{};
+    if(r.weather && !r.weather.includes(ctx.weather)) return false;
+    if(r.occ && !r.occ.includes(ctx.occ)) return false;
+    if(r.dry && ctx.rain) return false;
+    if(i.kind==="ceinture" && (!bas || bas.style==="sport")) return false;
+    return true;
+  }).map(a=>{
+    let s=0, note=null;
+    for(const p of pieces){ s+=pairColor(a.color,p.color).s*0.5 + STY[a.style][p.style]*0.3; }
+    s/=Math.max(1,pieces.length); s+=OCC[ctx.occ][a.style];
+    if(a.kind==="ceinture" && shoes){
+      if(LEATHER(a.color)===LEATHER(shoes.color)){ s+=3; note="Ceinture assortie aux chaussures"; }
+      else if(["brun","noir"].includes(LEATHER(a.color)) && ["brun","noir"].includes(LEATHER(shoes.color))){ s-=3; note="ceinture et chaussures pas du même cuir"; }
+    }
+    if((a.kind==="bonnet"||a.kind==="echarpe") && ctx.weather==="froid") s+=1;
+    if(a.lastWorn && Date.now()-a.lastWorn<DAY) s-=1;
+    s += Math.random()*0.6; // un peu de variété
+    return {item:a, s, note};
+  }).sort((x,y)=>y.s-x.s);
+  const chosen=[]; const kinds=new Set();
+  if(pinAcc){ chosen.push({item:pinAcc,s:9,note:null}); kinds.add(pinAcc.kind); }
+  for(const c of cands){
+    if(chosen.length>=3) break;
+    if(kinds.has(c.item.kind) || c.s<=0.8) continue;
+    if(kinds.has("casquette")&&c.item.kind==="bonnet" || kinds.has("bonnet")&&c.item.kind==="casquette") continue;
+    chosen.push(c); kinds.add(c.item.kind);
+  }
+  return chosen;
 }
 
 /* ================= Stockage IndexedDB ================= */
 let dbp;
 function db(){
   if(!dbp) dbp = new Promise((res,rej)=>{
-    const r = indexedDB.open("penderie",1);
-    r.onupgradeneeded = ()=>{ const d=r.result; d.createObjectStore("items",{keyPath:"id"}); d.createObjectStore("outfits",{keyPath:"id"}); };
+    const r = indexedDB.open("penderie",2);
+    r.onupgradeneeded = ()=>{ const d=r.result;
+      for(const [n,k] of [["items","id"],["outfits","id"],["wears","id"],["meta","key"]]) if(!d.objectStoreNames.contains(n)) d.createObjectStore(n,{keyPath:k}); };
     r.onsuccess = ()=>res(r.result); r.onerror = ()=>rej(r.error);
   });
   return dbp;
@@ -396,18 +525,23 @@ async function tx(store, mode, fn){
   });
 }
 const getAll = st => tx(st,"readonly",s=>s.getAll());
+const getOne = (st,k) => tx(st,"readonly",s=>s.get(k));
 const put = (st,v) => tx(st,"readwrite",s=>s.put(v));
 const del = (st,id) => tx(st,"readwrite",s=>s.delete(id));
 const uid = ()=> Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 
 /* ================= État ================= */
 const state = {
-  tab:"tenue", items:[], outfits:[], filter:"tout",
-  ctx:{weather:defaultWeather(), occ:"casual"},
-  current:null, avoid:new Set(),
+  tab:"tenue", items:[], outfits:[], wears:[], filter:"tout",
+  ctx:{weather:defaultWeather(), occ:"casual", wmode:"auto", rain:false, pin:null},
+  wx:null, wxStatus:"idle", current:null, avoid:new Set(),
 };
 function defaultWeather(){ const m=new Date().getMonth()+1; return [12,1,2,11].includes(m)?"froid":[6,7,8,9].includes(m)?"chaud":"doux"; }
-try{ const s=JSON.parse(localStorage.getItem("penderie.ctx")); if(s&&SEA[s.weather]&&OCC[s.occ]) state.ctx=s; }catch(e){}
+try{ const s=JSON.parse(localStorage.getItem("penderie.ctx")); if(s&&SEA[s.weather]&&OCC[s.occ]) Object.assign(state.ctx,{weather:s.weather,occ:s.occ,wmode:s.wmode==="manual"?"manual":"auto"}); }catch(e){}
+const saveCtx = ()=>{ try{ localStorage.setItem("penderie.ctx",JSON.stringify({weather:state.ctx.weather,occ:state.ctx.occ,wmode:state.ctx.wmode})); }catch(e){} };
+const settings = {cutout:true};
+try{ Object.assign(settings, JSON.parse(localStorage.getItem("penderie.settings"))||{}); }catch(e){}
+const saveSettings = ()=>{ try{ localStorage.setItem("penderie.settings",JSON.stringify(settings)); }catch(e){} };
 const urls = new Map();
 function photoURL(item){
   if(!item.photo) return null;
@@ -415,6 +549,38 @@ function photoURL(item){
   return urls.get(item.id);
 }
 function dropURL(id){ if(urls.has(id)){ URL.revokeObjectURL(urls.get(id)); urls.delete(id);} }
+
+/* ================= Météo automatique (Open-Meteo, gratuit, sans clé) ================= */
+function feelToWeather(f){ return f>=21?"chaud":f>=12?"doux":"froid"; }
+async function refreshWeather(force){
+  if(state.ctx.wmode!=="auto") return;
+  try{
+    const c=JSON.parse(localStorage.getItem("penderie.wx")||"null");
+    if(c && !force && Date.now()-c.t<45*60e3){ applyWx(c); return; }
+  }catch(e){}
+  if(!navigator.geolocation){ state.wxStatus="unavailable"; render(); return; }
+  state.wxStatus="loading"; render();
+  try{
+    const pos = await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej,{timeout:10000,maximumAge:3600e3,enableHighAccuracy:false}));
+    const lat=pos.coords.latitude.toFixed(2), lon=pos.coords.longitude.toFixed(2);
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=apparent_temperature_max,apparent_temperature_min,precipitation_probability_max&current=temperature_2m&timezone=auto&forecast_days=1`);
+    if(!r.ok) throw new Error("http");
+    const d = await r.json();
+    const wx = {t:Date.now(), max:d.daily.apparent_temperature_max[0], min:d.daily.apparent_temperature_min[0], rainP:d.daily.precipitation_probability_max?.[0]??0, now:d.current?.temperature_2m};
+    try{ localStorage.setItem("penderie.wx",JSON.stringify(wx)); }catch(e){}
+    applyWx(wx);
+  }catch(e){
+    state.wxStatus = (e && e.code===1) ? "denied" : "error"; render();
+  }
+}
+function applyWx(wx){
+  state.wx=wx; state.wxStatus="ok";
+  const feel=(2*wx.max+wx.min)/3, w=feelToWeather(feel), rain=wx.rainP>=50;
+  if(state.ctx.wmode==="auto" && (w!==state.ctx.weather || rain!==state.ctx.rain)){
+    state.ctx.weather=w; state.ctx.rain=rain; state.current=null; state.avoid.clear(); saveCtx();
+  }
+  render();
+}
 
 /* ================= Rendu helpers ================= */
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -425,18 +591,30 @@ const SIL = {
   chaussures:'<path d="M10 64V46Q12 39 21 41L38 47Q51 52 62 54L82 58Q91 60 91 69V73H10Z"/>',
   veste:'<path d="M29 13 43 9 50 24 57 9 71 13 88 30 85 82H74L72 48V90H28V48L26 82H15L12 30Z"/><path d="M50 24V90" fill="none" stroke-width="2"/>',
 };
+const SIL_ACC = {
+  casquette:'<path d="M18 62Q18 30 50 28Q80 30 82 60Z"/><path d="M60 59H94Q92 68 80 68H58Z"/>',
+  bonnet:'<path d="M24 64Q24 24 50 24Q76 24 76 64Z"/><rect x="20" y="62" width="60" height="14" rx="4"/><circle cx="50" cy="19" r="7"/>',
+  echarpe:'<path d="M24 22H76V40H60V88H44V40H24Z"/><path d="M44 80H60" fill="none" stroke-width="2"/>',
+  ceinture:'<rect x="6" y="43" width="88" height="14" rx="3"/><rect x="34" y="38" width="20" height="24" rx="3" fill="none" stroke="#c9ccd2" stroke-width="4"/>',
+  montre:'<rect x="40" y="8" width="20" height="84" rx="6"/><circle cx="50" cy="50" r="19"/><circle cx="50" cy="50" r="13" fill="none" stroke="#e9ebee" stroke-width="2"/>',
+  lunettes:'<circle cx="29" cy="54" r="17"/><circle cx="71" cy="54" r="17"/><path d="M46 51Q50 45 54 51M12 50 6 40M88 50 94 40" fill="none" stroke="currentColor" stroke-width="4"/>',
+  sac:'<path d="M16 40H84L79 88H21Z"/><path d="M35 40V31Q35 18 50 18Q65 18 65 31V40" fill="none" stroke="currentColor" stroke-width="5"/>',
+  bijou:'<path d="M20 26Q50 82 80 26" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="50" cy="60" r="9"/>',
+};
 let gid=0;
 function silhouette(item){
   const c=C[item.color]; let fill=c.hex, defs="";
   if(!fill){ const id="m"+(++gid); defs=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c63a2f"/><stop offset=".35" stop-color="#e9c449"/><stop offset=".65" stop-color="#3e7d4f"/><stop offset="1" stop-color="#3b7fd4"/></linearGradient></defs>`; fill=`url(#${id})`; }
-  return `<svg viewBox="0 0 100 100" aria-hidden="true">${defs}<g fill="${fill}" stroke="var(--sil)" stroke-width="1.5" stroke-linejoin="round">${SIL[item.type]}</g></svg>`;
+  const shape = item.type==="accessoire" ? SIL_ACC[item.kind]||SIL_ACC.montre : SIL[item.type];
+  return `<svg viewBox="0 0 100 100" aria-hidden="true" style="color:${c.hex||"#c63a2f"}">${defs}<g fill="${fill}" stroke="var(--sil)" stroke-width="1.5" stroke-linejoin="round">${shape}</g></svg>`;
 }
 function ph(item){
   const u=photoURL(item);
-  return `<div class="ph">${u?`<img src="${u}" alt="${esc(item.name||T[item.type].label)}">`:silhouette(item)}</div>`;
+  return `<div class="ph ${item.cut?"cut":""}">${u?`<img src="${u}" alt="${esc(itemName(item))}">`:silhouette(item)}</div>`;
 }
 const dot = c => `<span class="dot ${c==="motif"?"motif":""}" style="${C[c].hex?`background:${C[c].hex}`:""}"></span>`;
-const itemName = i => i.name || (T[i.type].label.split(" ")[0]+" "+C[i.color].label.toLowerCase());
+const typeLabel = i => i.type==="accessoire" ? (K[i.kind]?.label||"Accessoire") : T[i.type].label;
+const itemName = i => i.name || ((i.type==="accessoire" ? (K[i.kind]?.short||"Accessoire") : T[i.type].label.split(" ")[0])+" "+C[i.color].label.toLowerCase());
 function toast(msg){
   document.querySelector(".toast")?.remove();
   const t=document.createElement("div"); t.className="toast"; t.textContent=msg; t.setAttribute("role","status");
@@ -445,15 +623,23 @@ function toast(msg){
 function seg(name, opts, val){
   return `<div class="seg" role="group" aria-label="${name}">${opts.map(([v,l])=>`<button data-seg="${name}" data-v="${v}" aria-pressed="${v===val}">${l}</button>`).join("")}</div>`;
 }
+const ICON = {
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  heart:f=>`<svg viewBox="0 0 24 24" fill="${f?"currentColor":"none"}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>`,
+  down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 15v4.5a2.5 2.5 0 0 0 5 0V15h3.6a2 2 0 0 0 2-2.3l-1.2-7A2 2 0 0 0 17.4 4H7v11l3 0zM7 4H4v11h3"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7-6.3-7-11.5a7 7 0 0 1 14 0C19 14.7 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  rain:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 15a4 4 0 1 1 .9-7.9A5.5 5.5 0 0 1 18.5 9 3.5 3.5 0 0 1 18 16H7z"/><path d="M9 19l-1 2M13 19l-1 2M17 19l-1 2"/></svg>',
+};
+const dateFR = t => new Date(t).toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"});
 
 /* ================= Vues ================= */
 function render(){
   const n=state.items.filter(i=>!i.sample).length, ex=state.items.length-n;
   document.getElementById("count").textContent = state.items.length
     ? [n?`${n} pièce${n>1?"s":""}`:"",ex?`${ex} exemple${ex>1?"s":""}`:""].filter(Boolean).join(" · ") : "Ton dressing, sur ton téléphone";
-  document.querySelectorAll("nav .t").forEach(b=>b.setAttribute("aria-current", b.dataset.tab===state.tab?"page":"false"));
+  document.querySelectorAll("nav .t[data-tab]").forEach(b=>b.setAttribute("aria-current", b.dataset.tab===state.tab?"page":"false"));
   const v=document.getElementById("view");
-  v.innerHTML = state.tab==="tenue" ? viewTenue() : viewDressing();
+  v.innerHTML = state.tab==="tenue" ? viewTenue() : state.tab==="suivi" ? viewSuivi() : viewDressing();
 }
 
 function emptyBlock(title, text){
@@ -461,29 +647,51 @@ function emptyBlock(title, text){
     <div class="row2" style="width:100%;max-width:340px"><button class="btn primary" data-act="add">Ajouter une pièce</button><button class="btn ghost" data-act="samples">Voir un exemple</button></div></div>`;
 }
 
+function weatherLine(){
+  const c=state.ctx;
+  if(c.wmode!=="auto") return `<div class="wx">Météo choisie à la main · <button class="link" data-act="wxauto">Revenir en auto</button></div>`;
+  if(state.wxStatus==="loading") return `<div class="wx">${ICON.pin}Recherche de la météo du jour…</div>`;
+  if(state.wxStatus==="denied") return `<div class="wx warn">Localisation refusée : choisis la météo à la main, ou autorise la localisation pour Safari dans les réglages de l'iPhone.</div>`;
+  if(state.wxStatus==="error"||state.wxStatus==="unavailable") return `<div class="wx warn">Météo indisponible pour l'instant · <button class="link" data-act="wxretry">Réessayer</button></div>`;
+  if(state.wx){ const w=state.wx; return `<div class="wx">${ICON.pin}<span>Aujourd'hui <b>${Math.round(w.min)}–${Math.round(w.max)} °C</b> ressentis${w.rainP>=50?` · ${ICON.rain}<b>pluie ${w.rainP} %</b>`:""}</span></div>`; }
+  return `<div class="wx">${ICON.pin}Météo automatique</div>`;
+}
+
+function piecesTile(p, wide){
+  return `<div class="piece ${wide?"wide":""}">${ph(p)}<div class="cap">${dot(p.color)}<span>${esc(itemName(p))}</span></div></div>`;
+}
+
 function viewTenue(){
+  const c=state.ctx;
+  const wsel = c.wmode==="auto" ? "auto" : c.weather;
   const ctrl = `<div class="controls">
-    <div><div class="ctl-label">Météo</div>${seg("weather",[["chaud","Chaud"],["doux","Doux"],["froid","Froid"]],state.ctx.weather)}</div>
-    <div><div class="ctl-label">Occasion</div>${seg("occ",[["casual","Décontracté"],["chic","Habillé"],["sport","Sport"]],state.ctx.occ)}</div>
+    <div><div class="ctl-label">Météo${c.wmode==="auto"&&state.wxStatus==="ok"?` · ${{chaud:"chaud",doux:"doux",froid:"froid"}[c.weather]}`:""}</div>${seg("weather",[["auto","Auto"],["chaud","Chaud"],["doux","Doux"],["froid","Froid"]],wsel)}${weatherLine()}</div>
+    <div><div class="ctl-label">Occasion</div>${seg("occ",[["casual","Décontracté"],["chic","Habillé"],["sport","Sport"]],c.occ)}</div>
   </div>`;
   if(!state.items.length) return ctrl+emptyBlock("Prends ton dressing en photo","Ajoute tes hauts, bas, chaussures et vestes. L'app compose des tenues selon les couleurs, le style et la météo.");
-  if(!state.current) state.current = generate(state.items, state.ctx, state.avoid);
+  const pin = c.pin ? state.items.find(i=>i.id===c.pin) : null;
+  if(c.pin && !pin) c.pin=null;
+  const pinBar = pin ? `<div class="pinbar">${ph(pin)}<span>Tenue autour de <b>${esc(itemName(pin))}</b></span><button class="icon-btn" data-act="unpin" aria-label="Arrêter">${ICON.x}</button></div>` : "";
+  if(!state.current) state.current = generate(state.items, c, state.avoid);
   const g=state.current;
   let card;
   if(g.missing){
     card = `<div class="empty"><h2>Il manque des pièces</h2><p>Pour cette météo et cette occasion, ajoute au moins ${g.missing.join(", ")}.</p><button class="btn primary" data-act="add">Ajouter une pièce</button></div>`;
   } else {
     const o=g.outfit, isFav = state.outfits.some(f=>f.k===o.k);
-    const ordered = ["veste","pull","haut","bas","chaussures"].map(t=>o.pieces.find(p=>p.type===t)).filter(Boolean);
+    const ordered = MAIN_ORDER.map(t=>o.pieces.find(p=>p.type===t)).filter(Boolean);
     const odd = ordered.length%2===1;
+    const acc = o.acc||[];
+    const accNotes = acc.map(a=>a.note).filter(Boolean);
     card = `<article class="outfit" aria-label="Tenue proposée">
-      <div class="flatlay">${ordered.map((p,i)=>`<div class="piece ${odd&&i===ordered.length-1?"wide":""}">${ph(p)}<div class="cap">${dot(p.color)}<span>${esc(itemName(p))}</span></div></div>`).join("")}</div>
+      <div class="flatlay">${ordered.map((p,i)=>piecesTile(p, odd&&i===ordered.length-1)).join("")}</div>
+      ${acc.length?`<div><div class="ctl-label">Accessoires</div><div class="accrow">${acc.map(a=>piecesTile(a.item)).join("")}</div></div>`:""}
       <div class="score-row"><div class="score">${o.colorScore}<small>/10</small></div><div style="flex:1"><div class="ctl-label" style="margin:0 0 5px">Harmonie des couleurs</div><div class="meter"><i style="width:${o.colorScore*10}%"></i></div></div></div>
-      <ul class="why">${o.ok.map(t=>`<li>${esc(t)}</li>`).join("")}${o.warn.map(t=>`<li class="warn">${esc(t)}</li>`).join("")}${g.noJacket?`<li class="warn">Il fait froid et tu n'as pas encore de veste enregistrée</li>`:""}</ul>
+      <ul class="why">${o.ok.map(t=>`<li>${esc(t)}</li>`).join("")}${accNotes.filter(n=>!n.startsWith("ceinture et")).map(t=>`<li>${esc(t)}</li>`).join("")}${o.warn.map(t=>`<li class="warn">${esc(t)}</li>`).join("")}${accNotes.filter(n=>n.startsWith("ceinture et")).map(t=>`<li class="warn">Attention : ${esc(t)}</li>`).join("")}${g.noJacket?`<li class="warn">Il fait froid et tu n'as pas encore de veste enregistrée</li>`:""}${c.rain&&c.weather!=="chaud"?`<li>Pluie prévue : la veste est incluse d'office</li>`:""}</ul>
       <div class="actions">
         <button class="btn primary" data-act="next">Autre tenue</button>
-        <button class="btn ghost" data-act="fav" aria-label="${isFav?"Retirer des favoris":"Garder en favori"}" aria-pressed="${isFav}">
-          <svg viewBox="0 0 24 24" fill="${isFav?"currentColor":"none"}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
+        <button class="btn ghost sq" data-act="dislike" aria-label="Pas fan, propose autre chose">${ICON.down}</button>
+        <button class="btn ghost sq" data-act="fav" aria-label="${isFav?"Retirer des favoris":"J'aime, garder en favori"}" aria-pressed="${isFav}">${ICON.heart(isFav)}</button>
         <button class="btn ghost" data-act="wear">Je la porte</button>
       </div>
     </article>`;
@@ -491,20 +699,52 @@ function viewTenue(){
   const favs = state.outfits.map(f=>({f, pieces:f.ids.map(id=>state.items.find(i=>i.id===id)).filter(Boolean)})).filter(x=>x.pieces.length===x.f.ids.length);
   const favHtml = favs.length ? `<div class="section-h"><h2>Mes tenues favorites</h2><span class="sub">${favs.length}</span></div>
     <div class="favs">${favs.map(({f,pieces})=>`<div class="fav"><button class="thumbs" data-act="showfav" data-id="${f.id}" aria-label="Afficher cette tenue">${pieces.map(ph).join("")}</button>
-      <button class="icon-btn" data-act="unfav" data-id="${f.id}" aria-label="Retirer des favoris"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>`).join("")}</div>` : "";
-  return ctrl+card+favHtml;
+      <button class="icon-btn" data-act="unfav" data-id="${f.id}" aria-label="Retirer des favoris">${ICON.x}</button></div>`).join("")}</div>` : "";
+  return ctrl+pinBar+card+favHtml;
 }
 
 function viewDressing(){
   if(!state.items.length) return `<div style="margin-top:14px">${emptyBlock("Ton dressing est vide","Commence par 4 ou 5 pièces que tu portes souvent. Tu peux prendre la photo directement depuis l'app.")}</div>`;
   const counts = Object.fromEntries(TYPES.map(t=>[t.id,state.items.filter(i=>i.type===t.id).length]));
-  const chips = [["tout","Tout",state.items.length],...TYPES.map(t=>[t.id,t.plural,counts[t.id]])];
+  const chips = [["tout","Tout",state.items.length],...TYPES.filter(t=>counts[t.id]||t.id!=="accessoire").map(t=>[t.id,t.plural,counts[t.id]])];
   const list = state.items.filter(i=>state.filter==="tout"||i.type===state.filter).sort((a,b)=>b.created-a.created);
   return `<div class="filters" role="group" aria-label="Filtrer">${chips.map(([v,l,n])=>`<button class="chip" data-filter="${v}" aria-pressed="${state.filter===v}">${l}<span class="n">${n}</span></button>`).join("")}</div>
   ${list.length?`<div class="grid">${list.map(i=>`<button class="tag" data-act="edit" data-id="${i.id}">
       <span class="hole"></span>${i.sample?`<span class="badge">Exemple</span>`:""}
-      ${ph(i)}<div class="meta"><span class="nm">${esc(itemName(i))}</span><span class="ty">${dot(i.color)}${T[i.type].label} · ${STYLES.find(s=>s.id===i.style).label}</span></div></button>`).join("")}</div>`
+      ${ph(i)}<div class="meta"><span class="nm">${esc(itemName(i))}</span><span class="ty">${dot(i.color)}${esc(typeLabel(i))} · ${STYLES.find(s=>s.id===i.style).label}</span></div></button>`).join("")}</div>`
   : `<p class="sub">Aucune pièce dans cette catégorie.</p>`}`;
+}
+
+/* ================= Suivi : historique et stats ================= */
+function viewSuivi(){
+  if(!state.items.length) return `<div style="margin-top:14px">${emptyBlock("Rien à suivre pour l'instant","Ajoute tes pièces, puis appuie sur « Je la porte » quand tu choisis une tenue : l'historique et les stats se remplissent tout seuls.")}</div>`;
+  const now=Date.now(), byId=Object.fromEntries(state.items.map(i=>[i.id,i]));
+  const recent=state.wears.filter(w=>now-w.date<30*DAY);
+  const count={}; for(const w of state.wears) for(const id of w.ids) count[id]=(count[id]||0)+1;
+  const worn30=new Set(recent.flatMap(w=>w.ids));
+  const pct=Math.round(100*state.items.filter(i=>worn30.has(i.id)).length/state.items.length);
+  const tiles=`<div class="stats">
+    <div class="stat"><b>${recent.length}</b><span>tenue${recent.length>1?"s":""} portée${recent.length>1?"s":""} en 30 jours</span></div>
+    <div class="stat"><b>${pct}<small> %</small></b><span>du dressing porté en 30 jours</span></div>
+    <div class="stat"><b>${state.outfits.length}</b><span>tenue${state.outfits.length>1?"s":""} favorite${state.outfits.length>1?"s":""}</span></div></div>`;
+  const hist = state.wears.length ? `<div class="favs">${state.wears.slice(0,12).map(w=>{ const ps=w.ids.map(id=>byId[id]).filter(Boolean); return `<div class="fav"><div class="when">${dateFR(w.date)}</div><div class="thumbs">${ps.map(ph).join("")}</div><button class="icon-btn" data-act="delwear" data-id="${w.id}" aria-label="Retirer de l'historique">${ICON.x}</button></div>`; }).join("")}</div>`
+    : `<p class="sub">Aucune tenue enregistrée. Appuie sur « Je la porte » dans l'onglet Tenue.</p>`;
+  const most = Object.entries(count).filter(([id])=>byId[id]).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxC = most[0]?.[1]||1;
+  const mostHtml = most.length ? `<div class="rank">${most.map(([id,n])=>`<div class="rk">${ph(byId[id])}<div class="rk-b"><div class="rk-n"><span>${esc(itemName(byId[id]))}</span><b>${n}×</b></div><div class="meter"><i style="width:${n/maxC*100}%"></i></div></div></div>`).join("")}</div>` : `<p class="sub">Pas encore de données.</p>`;
+  const sleepy = state.items.filter(i=>!worn30.has(i.id) && !(i.lastWorn && now-i.lastWorn<60*DAY) && now-i.created>3*DAY)
+    .sort((a,b)=>(a.lastWorn||0)-(b.lastWorn||0)).slice(0,8);
+  const sleepyHtml = sleepy.length ? `<div class="rank">${sleepy.map(i=>`<div class="rk">${ph(i)}<div class="rk-b"><div class="rk-n"><span>${esc(itemName(i))}</span></div><span class="sub">${i.lastWorn?`Dernière fois : ${dateFR(i.lastWorn)}`:"Jamais portée"}</span></div><button class="btn ghost sm" data-act="pin" data-id="${i.id}">Tenue avec</button></div>`).join("")}</div>`
+    : `<p class="sub">Toutes tes pièces ont été portées récemment.</p>`;
+  const colCount={}; for(const i of state.items) colCount[i.color]=(colCount[i.color]||0)+1;
+  const cols=Object.entries(colCount).sort((a,b)=>b[1]-a[1]);
+  const colorsHtml = `<div class="colorbar">${cols.map(([c,n])=>`<i class="${c==="motif"?"motif":""}" style="flex:${n};${C[c].hex?`background:${C[c].hex}`:""}" title="${C[c].label}"></i>`).join("")}</div>
+    <div class="legend">${cols.slice(0,6).map(([c,n])=>`<span>${dot(c)}${C[c].label} <b>${Math.round(100*n/state.items.length)} %</b></span>`).join("")}</div>`;
+  return `<div style="margin-top:14px">${tiles}</div>
+    <div class="section-h"><h2>Dernières tenues</h2></div>${hist}
+    <div class="section-h"><h2>Les plus portées</h2></div>${mostHtml}
+    <div class="section-h"><h2>À ressortir</h2><span class="sub">pas portées depuis 2 mois</span></div>${sleepyHtml}
+    <div class="section-h"><h2>Couleurs du dressing</h2></div>${colorsHtml}`;
 }
 
 /* ================= Feuille d'ajout / édition ================= */
@@ -519,39 +759,44 @@ function closeSheet(){ document.querySelector(".sheet-bg")?.remove(); document.b
 
 function openEditor(item){
   const isNew=!item;
-  sheetState = item ? {...item, newPhoto:undefined} : {id:uid(), type:"haut", color:"noir", style:"casual", season:"toutes", name:"", photo:null, created:Date.now()};
+  sheetState = item ? {...item, newPhoto:undefined} : {id:uid(), type:"haut", kind:"montre", color:"noir", style:"casual", season:"toutes", name:"", photo:null, created:Date.now()};
+  if(!sheetState.kind) sheetState.kind="montre";
   renderEditor(isNew);
   if(isNew) loadModel().catch(()=>{});
 }
 function renderEditor(isNew){
   const s=sheetState;
-  const preview = s.previewURL ? `<div class="ph"><img src="${s.previewURL}" alt=""></div>` : ph(s);
+  const preview = s.previewURL ? `<div class="ph ${s.newCut?"cut":""}"><img src="${s.previewURL}" alt=""></div>` : ph(s);
   const opt = (name, list, val)=>`<div class="opts" role="group">${list.map(o=>`<button class="chip" data-f="${name}" data-v="${o.id}" aria-pressed="${o.id===val}">${o.label}</button>`).join("")}</div>`;
+  const canCut = !s.busy && ((s.previewURL && !s.newCut) || (!s.previewURL && s.photo && !s.cut));
   openSheet(`<div class="grab"></div>
-    <div class="sheet-h"><h2>${isNew?"Nouvelle pièce":"Modifier la pièce"}</h2><button class="icon-btn" data-act="close" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="sheet-h"><h2>${isNew?"Nouvelle pièce":"Modifier la pièce"}</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
     <details class="tips" ${(isNew&&state.items.filter(i=>!i.sample).length<3)||s.showTips?"open":""}>
       <summary>Conseils pour une bonne photo</summary>
       <ul>
         <li><b>Une seule pièce</b> par photo, rien d'autre dans le cadre.</li>
         <li><b>Centre-la et remplis le cadre</b> : la reconnaissance regarde surtout le milieu de l'image.</li>
-        <li><b>Fond uni et contrasté</b> : drap ou sol clair pour une pièce foncée, fond sombre pour une pièce claire.</li>
+        <li><b>Fond uni et contrasté</b> : drap ou sol clair pour une pièce foncée, fond sombre pour une pièce claire. Le détourage n'en sera que plus net.</li>
         <li><b>Lumière du jour</b>, près d'une fenêtre, sans flash ni contre-jour : les couleurs restent justes.</li>
         <li><b>À plat, prise du dessus</b>, ou sur un cintre contre un mur. Défroisse et étale bien les manches.</li>
-        <li><b>Chaussures</b> : une seule, de profil.</li>
+        <li><b>Chaussures</b> : une seule, de profil. <b>Accessoires</b> : posés seuls, bien au centre.</li>
       </ul>
     </details>
     <div class="photo-pick">${preview}<div style="display:grid;gap:6px">
       <label class="btn primary" for="photoIn">${(s.photo||s.previewURL)?"Changer la photo":"Prendre une photo"}</label>
       <input type="file" id="photoIn" accept="image/*" hidden>
+      ${canCut?`<button class="btn ghost sm" data-act="cutnow">Détourer la photo</button>`:""}
       <span class="hint" id="colorHint" aria-live="polite">${s.hint||"Prends la pièce seule, à plat ou sur un cintre : type, style, saison et couleur sont reconnus automatiquement."}</span></div></div>
     <div class="field"><div class="ctl-label">Nom (facultatif)</div><input type="text" id="nameIn" placeholder="ex. Chemise Oxford" value="${esc(s.name)}" maxlength="40"></div>
     <div class="field"><div class="ctl-label">Type</div>${opt("type",TYPES,s.type)}</div>
+    ${s.type==="accessoire"?`<div class="field"><div class="ctl-label">Genre d'accessoire</div>${opt("kind",KINDS,s.kind)}</div>`:""}
     <div class="field"><div class="ctl-label">Couleur principale</div>
       <div class="swatches" role="group">${COLORS.map(c=>`<button class="swb" data-f="color" data-v="${c.id}" aria-pressed="${c.id===s.color}"><span class="sw ${c.id==="motif"?"motif":""}" style="${c.hex?`background:${c.hex}`:""}"></span>${c.label}</button>`).join("")}</div></div>
     <div class="field"><div class="ctl-label">Style</div>${opt("style",STYLES,s.style)}</div>
     <div class="field"><div class="ctl-label">Saison</div>${opt("season",SEASONS,s.season)}</div>
-    <button class="btn primary" data-act="save">${isNew?"Ajouter au dressing":"Enregistrer"}</button>
-    ${isNew?"":`<div id="delZone"><button class="btn danger" data-act="askdel" style="width:100%">Supprimer cette pièce</button></div>`}`);
+    <button class="btn primary" data-act="save" ${s.busy?"disabled":""}>${s.busy?"Patiente, analyse en cours…":isNew?"Ajouter au dressing":"Enregistrer"}</button>
+    ${isNew?"":`<button class="btn ghost" data-act="pin" data-id="${s.id}">Créer une tenue avec cette pièce</button>
+    <div id="delZone"><button class="btn danger" data-act="askdel" style="width:100%">Supprimer cette pièce</button></div>`}`);
   sheetState.isNew=isNew;
   document.getElementById("photoIn").addEventListener("change",onPhoto);
   document.getElementById("nameIn").addEventListener("input",e=>{ sheetState.name=e.target.value; });
@@ -563,31 +808,67 @@ async function onPhoto(e){
   try{ res = await processImage(f); }catch(err){ toast("Impossible de lire cette photo. Essaie en JPEG ou PNG."); return; }
   const s=sheetState; if(!s) return;
   if(s.previewURL) URL.revokeObjectURL(s.previewURL);
-  s.newPhoto=res.blob; s.previewURL=URL.createObjectURL(res.blob);
-  s.touched=new Set(); s.detected=res.color; s.color=res.color;
+  s.newPhoto=res.blob; s.newCut=false; s.previewURL=URL.createObjectURL(res.blob);
+  s.touched=new Set(); s.detected=res.color; s.color=res.color; s.busy=true;
   s.hint = modelReady ? "Analyse de la pièce…" : "Chargement de la reconnaissance (une seule fois, ~16 Mo)…";
   renderEditor(s.isNew);
+  let label=null;
   try{
     const g = await recognize(res.canvas);
     if(sheetState!==s) return; // feuille fermée ou autre pièce entre-temps
-    const parts=[];
     if(!g) s.showTips=true;
-    if(g){
-      for(const f of ["type","style","season"]) if(g[f] && !s.touched.has(f)) s[f]=g[f];
-      parts.push(`${g.label}`);
-    }
-    parts.push(`couleur ${C[s.color].label.toLowerCase()}`);
-    s.hint = g ? `Reconnu : ${parts.join(", ")}. Corrige si besoin.` : `Type pas reconnu avec certitude, choisis-le (ou reprends la photo en suivant les conseils). Couleur détectée : ${C[s.color].label.toLowerCase()}.`;
-  }catch(err){
+    if(g){ for(const f of ["type","style","season","kind"]) if(g[f] && !s.touched.has(f)) s[f]=g[f]; label=g.label; }
+  }catch(err){ if(sheetState!==s) return; label=false; }
+  const recoMsg = ()=> label ? `Reconnu : ${label}, couleur ${C[s.color].label.toLowerCase()}. Corrige si besoin.`
+    : label===false ? `Reconnaissance indisponible (connexion ?). Couleur détectée : ${C[s.color].label.toLowerCase()}.`
+    : `Type pas reconnu avec certitude, choisis-le (ou reprends la photo en suivant les conseils). Couleur détectée : ${C[s.color].label.toLowerCase()}.`;
+  if(settings.cutout){
+    s.hint = recoMsg()+" Détourage en cours…"; renderEditor(s.isNew);
+    await doCutout(s, res.blob);
     if(sheetState!==s) return;
-    s.hint = `Reconnaissance indisponible (connexion ?). Couleur détectée : ${C[s.color].label.toLowerCase()}.`;
   }
+  s.busy=false; s.hint = recoMsg() + (s.cutFailed?" Le détourage n'a pas pu se faire, la photo d'origine est gardée.":"");
   renderEditor(s.isNew);
+}
+
+/* ================= Détourage (suppression du fond, dans le navigateur) ================= */
+let bgLib=null;
+function loadBgLib(){
+  if(!bgLib) bgLib = import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.8/+esm").catch(e=>{ bgLib=null; throw e; });
+  return bgLib;
+}
+async function cutout(blob){
+  const lib = await loadBgLib();
+  const out = await lib.removeBackground(blob, {model:"isnet_quint8", output:{format:"image/png"}});
+  // recadre au plus près de la pièce, avec une petite marge, pour qu'elle remplisse la vignette
+  const img = await createImageBitmap(out);
+  const cv=document.createElement("canvas"); cv.width=img.width; cv.height=img.height;
+  const g=cv.getContext("2d"); g.drawImage(img,0,0);
+  const d=g.getImageData(0,0,cv.width,cv.height).data;
+  let x0=cv.width,y0=cv.height,x1=0,y1=0;
+  for(let y=0;y<cv.height;y+=2) for(let x=0;x<cv.width;x+=2){ if(d[(y*cv.width+x)*4+3]>40){ if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; } }
+  if(x1<=x0||y1<=y0) throw new Error("vide");
+  const pad=Math.round(Math.max(x1-x0,y1-y0)*0.06);
+  x0=Math.max(0,x0-pad); y0=Math.max(0,y0-pad); x1=Math.min(cv.width,x1+pad); y1=Math.min(cv.height,y1+pad);
+  const max=700, r=Math.min(1,max/Math.max(x1-x0,y1-y0));
+  const c2=document.createElement("canvas"); c2.width=Math.round((x1-x0)*r); c2.height=Math.round((y1-y0)*r);
+  c2.getContext("2d").drawImage(cv,x0,y0,x1-x0,y1-y0,0,0,c2.width,c2.height);
+  const png = await new Promise(res=>c2.toBlob(res,"image/png"));
+  return {blob:png, color:detectColor(c2,true)};
+}
+async function doCutout(s, blob){
+  try{
+    const r = await cutout(blob);
+    if(sheetState!==s) return;
+    if(s.previewURL) URL.revokeObjectURL(s.previewURL);
+    s.newPhoto=r.blob; s.newCut=true; s.previewURL=URL.createObjectURL(r.blob); s.cutFailed=false;
+    if(!s.touched?.has("color")){ s.color=r.color; s.detected=r.color; }
+  }catch(e){ s.cutFailed=true; }
 }
 
 /* ================= Reconnaissance automatique =================
    MobileNet (ImageNet, 1000 classes) tourne dans le navigateur : gratuit, rien n'est envoyé sur un serveur.
-   On ne garde que les classes de vêtements, chacune associée à un type, un style et une saison. */
+   On ne garde que les classes de vêtements et d'accessoires, chacune associée à un type, un style et une saison. */
 const CLOTHES = {
   610:["haut","casual","toutes","T-shirt"], 841:["pull","casual","mi","sweat"], 474:["pull","poly","mi","gilet / cardigan"],
   911:["pull","casual","hiver","pull en laine"], 617:["haut","poly","toutes","chemise"], 457:["haut","chic","toutes","chemise habillée"],
@@ -598,6 +879,11 @@ const CLOTHES = {
   608:["bas","casual","toutes","jean"], 655:["bas","casual","ete","jupe"], 689:["bas","casual","ete","jupe"], 842:["bas","sport","ete","short de bain"],
   770:["chaussures","sport","toutes","baskets de running"], 630:["chaussures","chic","toutes","mocassins"],
   514:["chaussures","casual","hiver","bottes"], 774:["chaussures","casual","ete","sandales"], 502:["chaussures","casual","ete","sabots"],
+  836:["accessoire","poly","ete","lunettes de soleil","lunettes"], 837:["accessoire","poly","ete","lunettes de soleil","lunettes"],
+  531:["accessoire","poly","toutes","montre","montre"], 464:["accessoire","poly","toutes","ceinture","ceinture"],
+  824:["accessoire","poly","hiver","écharpe","echarpe"], 796:["accessoire","casual","hiver","bonnet","bonnet"],
+  414:["accessoire","casual","toutes","sac à dos","sac"], 748:["accessoire","chic","toutes","sac","sac"], 636:["accessoire","casual","toutes","sacoche","sac"],
+  515:["accessoire","casual","ete","chapeau","casquette"], 679:["accessoire","poly","toutes","bijou","bijou"],
 };
 let modelReady=false, modelP=null;
 function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
@@ -610,13 +896,13 @@ function loadModel(){
   return modelP;
 }
 function guessFromProbs(probs){
-  const entries=Object.entries(CLOTHES).map(([i,v])=>({p:probs[i],type:v[0],style:v[1],season:v[2],label:v[3]}));
+  const entries=Object.entries(CLOTHES).map(([i,v])=>({p:probs[i],type:v[0],style:v[1],season:v[2],label:v[3],kind:v[4]}));
   if(entries.reduce((a,e)=>a+e.p,0)<0.12) return null; // la photo ne ressemble à aucun vêtement connu du modèle
   const top=(list,f)=>{ const t={}; for(const e of list) t[e[f]]=(t[e[f]]||0)+e.p; return Object.entries(t).sort((x,y)=>y[1]-x[1])[0][0]; };
   const type=top(entries,"type");
   const same=entries.filter(e=>e.type===type); // style et saison : seulement parmi les classes du type retenu
   const best=same.reduce((x,y)=>y.p>x.p?y:x);
-  return {type, style:top(same,"style"), season:top(same,"season"), label:best.label};
+  return {type, style:top(same,"style"), season:top(same,"season"), label:best.label, kind:type==="accessoire"?best.kind:undefined};
 }
 async function recognize(canvas){
   const model = await loadModel();
@@ -637,27 +923,30 @@ async function processImage(file){
   const blob = await new Promise(res=>cv.toBlob(res,"image/jpeg",.82));
   return {blob, color: detectColor(cv), canvas: cv};
 }
-// Couleur dominante : on échantillonne le centre de la photo et on vote pour la teinte de palette la plus proche
-function detectColor(cv){
+// Couleur dominante : on vote pour la teinte de palette la plus proche. Photo brute : centre de l'image.
+// Photo détourée : tous les pixels opaques (le fond est déjà retiré, la mesure est plus juste).
+function detectColor(cv, whole){
   const s=48, c=document.createElement("canvas"); c.width=c.height=s;
-  const w=cv.width, h=cv.height, cw=w*.5, ch=h*.5;
+  const w=cv.width, h=cv.height, cw=whole?w:w*.5, ch=whole?h:h*.5;
   c.getContext("2d").drawImage(cv,(w-cw)/2,(h-ch)/2,cw,ch,0,0,s,s);
   const d=c.getContext("2d").getImageData(0,0,s,s).data;
   const pal=COLORS.filter(x=>x.hex).map(x=>({id:x.id,rgb:[1,3,5].map(k=>parseInt(x.hex.slice(k,k+2),16))}));
   const votes={};
   for(let i=0;i<d.length;i+=4){
+    if(d[i+3]<128) continue;
     const p=[d[i],d[i+1],d[i+2]]; let best=null, bd=1e9;
     for(const q of pal){ const dr=p[0]-q.rgb[0], dg=p[1]-q.rgb[1], db=p[2]-q.rgb[2]; const dist=2*dr*dr+4*dg*dg+3*db*db; if(dist<bd){bd=dist;best=q.id;} }
     votes[best]=(votes[best]||0)+1;
   }
-  return Object.entries(votes).sort((a,b)=>b[1]-a[1])[0][0];
+  const v=Object.entries(votes).sort((a,b)=>b[1]-a[1]);
+  return v.length? v[0][0] : "noir";
 }
 
 async function saveItem(){
-  const s=sheetState;
-  const item={id:s.id,type:s.type,color:s.color,style:s.style,season:s.season,name:(s.name||"").trim(),created:s.created,lastWorn:s.lastWorn||null,sample:s.isNew?false:!!s.sample};
+  const s=sheetState; if(s.busy) return;
+  const item={id:s.id,type:s.type,kind:s.type==="accessoire"?s.kind:undefined,color:s.color,style:s.style,season:s.season,name:(s.name||"").trim(),created:s.created,lastWorn:s.lastWorn||null,sample:s.isNew?false:!!s.sample,cut:!!s.cut};
   item.photo = s.newPhoto!==undefined ? s.newPhoto : (s.photo||null);
-  if(s.newPhoto!==undefined) { dropURL(item.id); item.sample=false; }
+  if(s.newPhoto!==undefined) { dropURL(item.id); item.sample=false; item.cut=!!s.newCut; }
   try{ await put("items",item); }catch(err){ toast("Enregistrement impossible : stockage du navigateur indisponible."); return; }
   const idx=state.items.findIndex(i=>i.id===item.id);
   if(idx>=0) state.items[idx]=item; else state.items.push(item);
@@ -669,6 +958,7 @@ async function deleteItem(id){
   state.items=state.items.filter(i=>i.id!==id);
   for(const f of state.outfits.filter(f=>f.ids.includes(id))){ await del("outfits",f.id); }
   state.outfits=state.outfits.filter(f=>!f.ids.includes(id));
+  if(state.ctx.pin===id) state.ctx.pin=null;
   closeSheet(); state.current=null; render(); toast("Pièce supprimée");
 }
 
@@ -689,15 +979,20 @@ function applySkin(id){
   try{ localStorage.setItem("penderie.skin",id); }catch(e){}
 }
 
-/* ================= Menu : réglages et sauvegarde ================= */
+/* ================= Réglages et sauvegarde ================= */
 function openMenu(){
   const hasSamples=state.items.some(i=>i.sample);
   openSheet(`<div class="grab"></div>
-    <div class="sheet-h"><h2>Réglages</h2><button class="icon-btn" data-act="close" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
-        <div class="field"><div class="ctl-label">Apparence</div>
+    <div class="sheet-h"><h2>Réglages</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
+    <div class="field"><div class="ctl-label">Apparence</div>
       <div class="skins" role="group" aria-label="Thème">${SKINS.map(s=>`<button class="skin" data-skin="${s.id}" aria-pressed="${s.id===currentSkin()}"><span class="pv" style="background:${s.bg}"><i style="background:${s.ac};box-shadow:0 0 8px ${s.ac}"></i></span>${s.label}</button>`).join("")}</div></div>
-<div class="ctl-label" style="margin-bottom:-8px">Sauvegarde</div>
-    <p class="sub" style="margin:0">Ton dressing est enregistré dans ce navigateur, sur cet appareil. Exporte une sauvegarde pour le transférer sur un autre appareil ou ne rien perdre.</p>
+    <div class="field"><div class="ctl-label">Photos</div>
+      <button class="toggle" data-act="togglecut" aria-pressed="${settings.cutout}"><span><b>Détourer automatiquement</b><br><span class="sub">Retire le fond de chaque nouvelle photo. Télécharge ~40 Mo la première fois.</span></span><i></i></button></div>
+    <div class="field"><div class="ctl-label">Goûts appris</div>
+      <p class="sub" style="margin:0">L'app retient tes « j'aime », « pas fan » et les tenues que tu portes pour affiner ses propositions.</p>
+      <div id="prefZone"><button class="btn ghost" data-act="askreset" style="width:100%">Réinitialiser les goûts appris</button></div></div>
+    <div class="field"><div class="ctl-label">Sauvegarde</div>
+    <p class="sub" style="margin:0">Ton dressing est enregistré dans ce navigateur, sur cet appareil. Exporte une sauvegarde pour le transférer sur un autre appareil ou ne rien perdre.</p></div>
     <div class="menu">
       <button class="btn" data-act="export">Exporter une sauvegarde (.json)</button>
       <button class="btn" data-act="import">Importer une sauvegarde</button>
@@ -707,7 +1002,7 @@ function openMenu(){
 const blobToData = b => new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(b); });
 async function exportData(){
   const items = await Promise.all(state.items.map(async i=>({...i, photo: i.photo? await blobToData(i.photo):null})));
-  const data = JSON.stringify({app:"penderie",version:1,exported:new Date().toISOString(),items,outfits:state.outfits});
+  const data = JSON.stringify({app:"penderie",version:2,exported:new Date().toISOString(),items,outfits:state.outfits,wears:state.wears,prefs});
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));
   a.download=`penderie-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000); toast("Sauvegarde exportée");
@@ -722,6 +1017,8 @@ async function importData(file){
       await put("items",{...i,photo}); dropURL(i.id);
     }
     for(const f of (data.outfits||[])) await put("outfits",f);
+    for(const w of (data.wears||[])) await put("wears",w);
+    if(data.prefs){ prefs={pairs:{...prefs.pairs,...data.prefs.pairs},colors:{...prefs.colors,...data.prefs.colors}}; await put("meta",{key:"prefs",...prefs}); }
     await load(); closeSheet(); state.current=null; render(); toast(`${data.items.length} pièces importées`);
   }catch(e){ toast("Ce fichier n'est pas une sauvegarde Penderie valide."); }
 }
@@ -729,37 +1026,53 @@ async function loadSamples(){
   const S=[["haut","blanc","casual","toutes","T-shirt blanc"],["pull","marine","poly","mi","Pull col rond"],["pull","gris","casual","hiver","Gilet zippé"],["pull","bordeaux","casual","mi","Sweat bordeaux"],["haut","bleu","chic","toutes","Chemise bleue"],
     ["bas","denim","casual","toutes","Jean brut"],["bas","beige","poly","mi","Chino beige"],["bas","noir","sport","toutes","Jogging noir"],
     ["chaussures","blanc","casual","toutes","Baskets blanches"],["chaussures","marron","chic","toutes","Derbies marron"],["chaussures","gris","sport","toutes","Running grises"],
-    ["veste","camel","chic","hiver","Manteau camel"],["veste","kaki","casual","mi","Surchemise kaki"]];
+    ["veste","camel","chic","hiver","Manteau camel"],["veste","kaki","casual","mi","Surchemise kaki"],
+    ["accessoire","marron","poly","toutes","Ceinture cuir","ceinture"],["accessoire","noir","poly","toutes","Montre noire","montre"],
+    ["accessoire","gris","casual","hiver","Bonnet gris","bonnet"],["accessoire","noir","casual","toutes","Casquette noire","casquette"],["accessoire","noir","poly","ete","Lunettes noires","lunettes"]];
   let t=Date.now();
-  for(const [type,color,style,season,name] of S){ const it={id:uid(),type,color,style,season,name,photo:null,created:t--,lastWorn:null,sample:true}; await put("items",it); state.items.push(it); }
+  const added=[];
+  for(const [type,color,style,season,name,kind] of S){ const it={id:uid(),type,kind,color,style,season,name,photo:null,created:t-20*DAY-(added.length),lastWorn:null,sample:true}; await put("items",it); state.items.push(it); added.push(it); }
+  // quelques tenues portées fictives pour que l'onglet Suivi montre à quoi il sert
+  const pickN=n=>added.find(i=>i.name===n);
+  const past=[["T-shirt blanc","Jean brut","Baskets blanches","Surchemise kaki"],["Chemise bleue","Chino beige","Derbies marron","Manteau camel","Ceinture cuir"],["T-shirt blanc","Pull col rond","Jean brut","Baskets blanches"],["T-shirt blanc","Jogging noir","Running grises","Casquette noire"],["T-shirt blanc","Sweat bordeaux","Jean brut","Baskets blanches","Surchemise kaki"]];
+  for(let k=0;k<past.length;k++){ const ids=past[k].map(n=>pickN(n).id); const w={id:uid(),date:Date.now()-(k*2+1)*DAY,ids,sample:true}; await put("wears",w); state.wears.push(w); }
+  state.wears.sort((a,b)=>b.date-a.date);
   closeSheet(); state.current=null; render(); toast("Exemples chargés. Remplace-les par tes vraies pièces.");
 }
 async function clearSamples(){
-  for(const i of state.items.filter(i=>i.sample)) await del("items",i.id);
   const gone=new Set(state.items.filter(i=>i.sample).map(i=>i.id));
+  for(const id of gone) await del("items",id);
   for(const f of state.outfits.filter(f=>f.ids.some(id=>gone.has(id)))) await del("outfits",f.id);
+  for(const w of state.wears.filter(w=>w.sample||w.ids.some(id=>gone.has(id)))) await del("wears",w.id);
   state.outfits=state.outfits.filter(f=>!f.ids.some(id=>gone.has(id)));
+  state.wears=state.wears.filter(w=>!(w.sample||w.ids.some(id=>gone.has(id))));
+  if(gone.has(state.ctx.pin)) state.ctx.pin=null;
   state.items=state.items.filter(i=>!i.sample); closeSheet(); state.current=null; render(); toast("Exemples retirés");
 }
+function outfitAll(o){ return [...o.pieces, ...(o.acc||[]).map(a=>a.item)]; }
 
 /* ================= Événements ================= */
 document.addEventListener("click", async e=>{
   const b=e.target.closest("button"); if(!b) return;
   if(b.dataset.tab){ state.tab=b.dataset.tab; render(); scrollTo(0,0); return; }
   if(b.dataset.seg){
-    state.ctx[b.dataset.seg]=b.dataset.v; state.current=null; state.avoid.clear();
-    try{ localStorage.setItem("penderie.ctx",JSON.stringify(state.ctx)); }catch(err){}
-    render(); return;
+    if(b.dataset.seg==="weather"){
+      if(b.dataset.v==="auto"){ state.ctx.wmode="auto"; saveCtx(); refreshWeather(); }
+      else { state.ctx.wmode="manual"; state.ctx.weather=b.dataset.v; state.ctx.rain=false; }
+    } else state.ctx[b.dataset.seg]=b.dataset.v;
+    state.current=null; state.avoid.clear(); saveCtx(); render(); return;
   }
   if(b.dataset.skin){ applySkin(b.dataset.skin); b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); return; }
   if(b.dataset.filter){ state.filter=b.dataset.filter; render(); return; }
   if(b.dataset.f && sheetState){
     sheetState[b.dataset.f]=b.dataset.v; sheetState.touched?.add(b.dataset.f);
+    if(b.dataset.f==="type"||b.dataset.f==="kind"){ renderEditor(sheetState.isNew); return; }
     b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));
-    if(b.dataset.f==="type"||b.dataset.f==="color"){ const p=document.querySelector(".photo-pick .ph"); if(p&&!sheetState.previewURL&&!sheetState.photo) p.outerHTML=ph(sheetState); }
+    if(b.dataset.f==="color"){ const p=document.querySelector(".photo-pick .ph"); if(p&&!sheetState.previewURL&&!sheetState.photo) p.outerHTML=ph(sheetState); }
     return;
   }
   const act=b.dataset.act; if(!act) return;
+  const cur=state.current?.outfit;
   if(act==="add") openEditor(null);
   else if(act==="close") closeSheet();
   else if(act==="edit") openEditor(state.items.find(i=>i.id===b.dataset.id));
@@ -767,41 +1080,64 @@ document.addEventListener("click", async e=>{
   else if(act==="askdel") document.getElementById("delZone").innerHTML=`<div class="confirm"><span>Supprimer définitivement ?</span><button class="btn danger" data-act="del">Oui, supprimer</button><button class="btn ghost" data-act="nodel">Annuler</button></div>`;
   else if(act==="nodel") document.getElementById("delZone").innerHTML=`<button class="btn danger" data-act="askdel" style="width:100%">Supprimer cette pièce</button>`;
   else if(act==="del") deleteItem(sheetState.id);
-  else if(act==="next"){ if(state.current?.outfit) state.avoid.add(state.current.outfit.k); state.current=generate(state.items,state.ctx,state.avoid); render(); }
+  else if(act==="cutnow"){
+    const s=sheetState; s.busy=true; s.hint="Détourage en cours… (~40 Mo à télécharger la première fois)"; renderEditor(s.isNew);
+    await doCutout(s, s.newPhoto!==undefined ? s.newPhoto : s.photo);
+    if(sheetState!==s) return;
+    s.busy=false; s.hint = s.cutFailed ? "Le détourage n'a pas pu se faire. Vérifie ta connexion et réessaie." : "Fond retiré. Enregistre pour garder cette version.";
+    renderEditor(s.isNew);
+  }
+  else if(act==="pin"){ closeSheet(); state.ctx.pin=b.dataset.id; state.tab="tenue"; state.current=null; state.avoid.clear(); render(); scrollTo(0,0); }
+  else if(act==="unpin"){ state.ctx.pin=null; state.current=null; render(); }
+  else if(act==="next"){ if(cur) state.avoid.add(cur.k); state.current=generate(state.items,state.ctx,state.avoid); render(); }
+  else if(act==="dislike"){ if(!cur) return; await learn(cur.pieces,-1); state.avoid.add(cur.k); state.current=generate(state.items,state.ctx,state.avoid); render(); toast("Noté, l'app évitera ce genre de tenue."); }
   else if(act==="fav"){
-    const o=state.current.outfit, ex=state.outfits.find(f=>f.k===o.k);
-    if(ex){ await del("outfits",ex.id); state.outfits=state.outfits.filter(f=>f!==ex); toast("Retirée des favoris"); }
-    else { const f={id:uid(),k:o.k,ids:o.pieces.map(p=>p.id),created:Date.now()}; await put("outfits",f); state.outfits.unshift(f); toast("Tenue gardée en favori"); }
+    const ex=state.outfits.find(f=>f.k===cur.k);
+    if(ex){ await del("outfits",ex.id); state.outfits=state.outfits.filter(f=>f!==ex); await learn(cur.pieces,-1); toast("Retirée des favoris"); }
+    else { const f={id:uid(),k:cur.k,ids:outfitAll(cur).map(p=>p.id),created:Date.now()}; await put("outfits",f); state.outfits.unshift(f); await learn(cur.pieces,1); toast("Tenue gardée en favori. L'app s'en souviendra."); }
     render();
   }
   else if(act==="wear"){
-    const now=Date.now();
-    for(const p of state.current.outfit.pieces){ p.lastWorn=now; const it=state.items.find(i=>i.id===p.id); it.lastWorn=now; await put("items",it); }
-    toast("Noté. Ces pièces passeront après les autres pendant 2 jours.");
+    const now=Date.now(), all=outfitAll(cur);
+    for(const p of all){ const it=state.items.find(i=>i.id===p.id); it.lastWorn=now; p.lastWorn=now; await put("items",it); }
+    const w={id:uid(),date:now,ids:all.map(p=>p.id)}; await put("wears",w); state.wears.unshift(w);
+    await learn(cur.pieces,0.5);
+    toast("Ajoutée à ton historique. Ces pièces passeront après les autres pendant 2 jours.");
   }
+  else if(act==="delwear"){ await del("wears",b.dataset.id); state.wears=state.wears.filter(w=>w.id!==b.dataset.id); render(); }
   else if(act==="showfav"){
-    const f=state.outfits.find(x=>x.id===b.dataset.id); const pieces=f.ids.map(id=>state.items.find(i=>i.id===id));
-    state.current={outfit:{pieces,k:f.k,...scoreOutfit(pieces,state.ctx)}}; render(); scrollTo({top:0,behavior:"smooth"});
+    const f=state.outfits.find(x=>x.id===b.dataset.id); const all=f.ids.map(id=>state.items.find(i=>i.id===id));
+    const pieces=all.filter(p=>p.type!=="accessoire"), acc=all.filter(p=>p.type==="accessoire").map(item=>({item}));
+    state.current={outfit:{pieces,acc,k:f.k,...scoreOutfit(pieces,state.ctx)}}; render(); scrollTo({top:0,behavior:"smooth"});
   }
   else if(act==="unfav"){ await del("outfits",b.dataset.id); state.outfits=state.outfits.filter(f=>f.id!==b.dataset.id); render(); }
+  else if(act==="wxauto"){ state.ctx.wmode="auto"; saveCtx(); refreshWeather(); }
+  else if(act==="wxretry") refreshWeather(true);
+  else if(act==="menu") openMenu();
+  else if(act==="togglecut"){ settings.cutout=!settings.cutout; saveSettings(); b.setAttribute("aria-pressed",settings.cutout); }
+  else if(act==="askreset") document.getElementById("prefZone").innerHTML=`<div class="confirm"><span>Oublier tous les goûts appris ?</span><button class="btn danger" data-act="resetprefs">Oui, réinitialiser</button></div>`;
+  else if(act==="resetprefs"){ prefs={pairs:{},colors:{}}; await put("meta",{key:"prefs",...prefs}); state.current=null; closeSheet(); render(); toast("Goûts appris réinitialisés"); }
   else if(act==="samples") loadSamples();
   else if(act==="clearsamples") clearSamples();
   else if(act==="export") exportData();
   else if(act==="import") document.getElementById("importFile").click();
 });
-document.getElementById("menuBtn").addEventListener("click",openMenu);
 document.getElementById("addBtn").addEventListener("click",()=>openEditor(null));
 document.getElementById("importFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(f) importData(f); e.target.value=""; });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeSheet(); });
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") refreshWeather(); });
 
 async function load(){
   state.items = await getAll("items");
   state.outfits = (await getAll("outfits")).sort((a,b)=>b.created-a.created);
+  state.wears = (await getAll("wears")).sort((a,b)=>b.date-a.date);
+  const p = await getOne("meta","prefs"); if(p) prefs={pairs:p.pairs||{},colors:p.colors||{}};
 }
 (async()=>{
   { const s=SKINS.find(x=>x.id===currentSkin()); if(s) document.querySelector('meta[name="theme-color"]').setAttribute("content",s.bg); }
   try{ await load(); }catch(e){ toast("Le stockage du navigateur est bloqué (navigation privée ?)."); }
   render();
+  refreshWeather();
   if(navigator.storage?.persist) navigator.storage.persist().catch(()=>{});
   if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
 })();
