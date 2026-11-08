@@ -205,7 +205,7 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .pinbar .ph{width:44px;height:44px;border-radius:10px;flex:none}
 .pinbar span{flex:1;min-width:0;font-size:14px}
 .accrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.ph.cut img{object-fit:contain;padding:8%}
+.ph.cut img{object-fit:contain;padding:5%}
 .btn.sq{padding:12px}
 .btn.sm{padding:8px 12px;font-size:13px}
 .btn[disabled]{opacity:.6}
@@ -308,6 +308,16 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .sum-r:first-child{border-top:0}
 .sum-r span{color:var(--muted)}
 .sum-r b{display:flex;align-items:center;gap:6px;font-weight:600;text-align:right}
+button.sum-r{width:100%;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+button.sum-r:first-child{border-top:0}
+button.sum-r:active{background:var(--chip)}
+.sum-r .chev{width:16px;height:16px;color:var(--muted);transition:transform .2s}
+.sum-r.open .chev{transform:rotate(180deg);color:var(--accent)}
+.sum-r.open span{color:var(--accent)}
+.sum-edit{padding:4px 12px 12px;display:grid;gap:8px;background:var(--surface)}
+.sum-edit .ctl-label{margin:4px 0 0}
+.filters.subf{margin-top:-6px}
+.filters.subf .chip{padding:5px 11px;font-size:13px}
 .mini-links{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center}
 .more{border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:grid;gap:14px;background:var(--tile)}
 .more summary{cursor:pointer;font-weight:600;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
@@ -382,11 +392,28 @@ header.top .icon-btn svg{width:22px;height:22px}
 const TYPES = [
   {id:"haut", label:"Haut", plural:"Hauts"},
   {id:"bas", label:"Bas", plural:"Bas"},
+  {id:"robe", label:"Robe / combi", plural:"Robes"},
   {id:"chaussures", label:"Chaussures", plural:"Chaussures"},
   {id:"pull", label:"Pull / sweat / gilet", plural:"Pulls & sweats"},
   {id:"veste", label:"Veste / manteau", plural:"Vestes"},
   {id:"accessoire", label:"Accessoire", plural:"Accessoires"},
 ];
+/* Catégorie précise (facultative). Le « type » reste le rôle dans la tenue (haut, bas, robe…) utilisé par le moteur ;
+   la catégorie sert à l'affichage, au filtre du dressing et à pré-régler style et saison quand on la choisit. */
+const SUBS = {
+  haut:[{id:"tshirt",label:"T-shirt"},{id:"manches-longues",g:"fp",label:"Manches longues"},{id:"debardeur",label:"Débardeur",season:"ete"},{id:"polo",label:"Polo",style:"poly"},
+        {id:"chemise",g:"f",label:"Chemise",style:"poly"},{id:"blouse",g:"f",label:"Blouse / top",style:"poly"},{id:"crop",label:"Crop top",season:"ete"},{id:"body",label:"Body"},{id:"maillot",label:"Maillot de sport",style:"sport"}],
+  bas:[{id:"jean",label:"Jean",style:"casual"},{id:"pantalon",label:"Pantalon",style:"poly"},{id:"chino",label:"Chino",style:"poly"},{id:"jogging",label:"Jogging",style:"sport"},
+       {id:"short",label:"Short",season:"ete"},{id:"jupe",g:"f",label:"Jupe"},{id:"legging",label:"Legging",style:"sport"},{id:"cargo",label:"Cargo",style:"casual"},{id:"costume",label:"Pantalon de costume",style:"chic"}],
+  robe:[{id:"robe",g:"f",label:"Robe"},{id:"robe-soiree",g:"f",label:"Robe de soirée",style:"chic"},{id:"combinaison",g:"f",label:"Combinaison"},{id:"salopette",g:"f",label:"Salopette",style:"casual"}],
+  chaussures:[{id:"baskets",g:"fp",label:"Baskets",style:"casual"},{id:"running",g:"fp",label:"Running / sport",short:"Chaussures de sport",style:"sport"},{id:"ville",g:"fp",label:"Ville (derbies, mocassins)",short:"Chaussures de ville",style:"chic"},
+       {id:"bottes",g:"fp",label:"Bottes / bottines",season:"hiver"},{id:"sandales",g:"fp",label:"Sandales / claquettes",short:"Sandales",season:"ete"},{id:"talons",g:"p",label:"Talons / escarpins",short:"Talons",style:"chic"},{id:"ballerines",g:"fp",label:"Ballerines"}],
+  pull:[{id:"pull",label:"Pull"},{id:"sweat",label:"Sweat",style:"casual"},{id:"hoodie",label:"Sweat à capuche",short:"Hoodie",style:"casual"},{id:"gilet",label:"Gilet / cardigan",short:"Gilet",style:"poly"},{id:"polaire",g:"f",label:"Polaire",style:"casual",season:"hiver"}],
+  veste:[{id:"veste",g:"f",label:"Veste"},{id:"blouson",label:"Blouson",style:"casual"},{id:"veste-jean",g:"f",label:"Veste en jean",style:"casual",season:"mi"},{id:"blazer",label:"Blazer",style:"chic",season:"mi"},
+       {id:"doudoune",g:"f",label:"Doudoune",style:"casual",season:"hiver"},{id:"manteau",label:"Manteau",season:"hiver"},{id:"trench",label:"Trench",style:"chic",season:"mi"},{id:"impermeable",label:"Imperméable / coupe-vent",short:"Coupe-vent",season:"mi"}],
+};
+const SUB = Object.fromEntries(Object.entries(SUBS).flatMap(([t,l])=>l.map(s=>[t+":"+s.id,s])));
+const subOf = i => i.sub && i.type!=="accessoire" ? SUB[i.type+":"+i.sub] : null;
 const KINDS = [
   {id:"casquette", label:"Casquette / chapeau", short:"Casquette"},
   {id:"bonnet", label:"Bonnet", short:"Bonnet"},
@@ -432,7 +459,7 @@ const SEASONS = [
 const C = Object.fromEntries(COLORS.map(c=>[c.id,c]));
 const T = Object.fromEntries(TYPES.map(t=>[t.id,t]));
 const K = Object.fromEntries(KINDS.map(k=>[k.id,k]));
-const MAIN_ORDER = ["veste","pull","haut","bas","chaussures"];
+const MAIN_ORDER = ["veste","pull","haut","robe","bas","chaussures"];
 
 /* ================= Moteur de suggestion ================= */
 const key = (a,b)=>[a,b].sort().join("|");
@@ -517,13 +544,17 @@ function viewColorAvg(list){
 }
 function scoreOutfit(pieces, ctx){
   let s=0, cs=0, n=0; const ok=[], warn=[];
+  // le score additionne des paires : une robe remplace haut + bas, elle compte donc double,
+  // sinon une tenue robe (moins de pièces, donc moins de paires) serait toujours battue
+  const W = p=>p.type==="robe"?2:1;
+  if(pieces.some(p=>p.type==="robe")){ s+=4; cs+=2; n++; } // l'accord « haut/bas » d'une robe est réussi par construction
   for(let i=0;i<pieces.length;i++) for(let j=i+1;j<pieces.length;j++){
-    const p = pairColor(pieces[i].color, pieces[j].color);
-    cs+=p.s; n++;
+    const p = pairColor(pieces[i].color, pieces[j].color), w=W(pieces[i])*W(pieces[j]);
+    cs+=p.s*w; n+=w;
     if(p.ok&&!ok.includes(p.ok)) ok.push(p.ok);
     if(p.warn&&!warn.includes(p.warn)) warn.push(p.warn);
     const st = STY[pieces[i].style][pieces[j].style];
-    s+=st;
+    s+=st*w;
     if(st<0 && !warn.some(w=>w.startsWith("Mélange"))) warn.push("Mélange sport et habillé");
   }
   s+=cs;
@@ -540,8 +571,8 @@ function scoreOutfit(pieces, ctx){
       const fam=C[a.color2].fam;
       if(fam!=="neutre" && (b.color===a.color2 || b.color2===a.color2) && !echoed.has(a.color2)){
         echoed.add(a.color2); s+=2; cs+=n*0.6;
-        const OF={haut:"du haut",pull:"du pull",bas:"du bas",chaussures:"des chaussures",veste:"de la veste",accessoire:"de l'accessoire"};
-        const THE={haut:"le haut",pull:"le pull",bas:"le bas",chaussures:"les chaussures",veste:"la veste",accessoire:"l'accessoire"};
+        const OF={haut:"du haut",pull:"du pull",bas:"du bas",robe:"de la robe",chaussures:"des chaussures",veste:"de la veste",accessoire:"de l'accessoire"};
+        const THE={haut:"le haut",pull:"le pull",bas:"le bas",robe:"la robe",chaussures:"les chaussures",veste:"la veste",accessoire:"l'accessoire"};
         ok.unshift(`Le ${C[a.color2].label.toLowerCase()} ${a.name?"de "+a.name:OF[a.type]} rappelle ${b.name?b.name:THE[b.type]}`);
       }
     }
@@ -552,7 +583,7 @@ function scoreOutfit(pieces, ctx){
   if(fams.every(f=>f==="neutre")) ok.unshift("Palette 100 % neutre, impossible de se tromper");
   else if(vifs.length===1 && fams.filter(f=>f==="vif").length===1 && !echoed.size) ok.unshift("Une seule couleur forte ("+C[vifs[0]].label.toLowerCase()+"), le reste neutre : équilibré");
   for(const p of pieces){
-    s+=(OCC[ctx.occ][p.style]??-3)+(SEA[ctx.weather][p.season]??-2);
+    s+=((OCC[ctx.occ][p.style]??-3)+(SEA[ctx.weather][p.season]??-2))*W(p);
     if(p.lastWorn && Date.now()-p.lastWorn < 2*DAY && p.id!==ctx.pin) s-=3;
   }
   if(settings.jacket==="rarely" && pieces.some(p=>p.type==="veste" && p.id!==ctx.pin)) s -= ctx.weather==="froid" ? 1 : 3;
@@ -584,7 +615,7 @@ function scoreOutfit(pieces, ctx){
 
 /* Lavage : chaque pièce compte ses ports depuis la dernière lessive. Au-delà du seuil, elle passe « au lavage »
    et sort des propositions jusqu'à « Lessive faite ». Seuils par défaut selon le type, modifiables par pièce. */
-const WASH = {haut:1, pull:3, bas:4, veste:10, chaussures:0, accessoire:0};
+const WASH = {haut:1, pull:3, bas:4, robe:2, veste:10, chaussures:0, accessoire:0};
 const washEvery = i => i.washEvery!=null ? i.washEvery : (WASH[i.type]??0);
 const isDirty = i => settings.laundry && !!i.dirty;
 function eligible(items, type, ctx){
@@ -593,23 +624,29 @@ function eligible(items, type, ctx){
 function generate(items, ctx, avoid){
   const pin = ctx.pin ? items.find(i=>i.id===ctx.pin) : null;
   const pool = (type)=> pin && pin.type===type ? [pin] : eligible(items,type,ctx);
-  const H=pool("haut"), B=pool("bas"), S=pool("chaussures");
+  // une robe (ou combi) remplace le duo haut + bas : épingler l'une exclut l'autre famille
+  const H = pin?.type==="robe" ? [] : pool("haut"), B = pin?.type==="robe" ? [] : pool("bas");
+  const R = pin && (pin.type==="haut"||pin.type==="bas") ? [] : pool("robe");
+  const S=pool("chaussures");
   const V = pin?.type==="veste" ? [pin] : (ctx.weather==="chaud" ? [] : eligible(items,"veste",ctx));
-  const missing=[]; if(!H.length)missing.push("un haut"); if(!B.length)missing.push("un bas"); if(!S.length)missing.push("une paire de chaussures");
-  if(missing.length) return {missing, missingTypes:[!H.length&&"haut",!B.length&&"bas",!S.length&&"chaussures"].filter(Boolean), dirty:items.filter(isDirty).length};
+  const noHB = !(H.length&&B.length) && !R.length;
+  const missing=[]; if(noHB&&!H.length)missing.push("un haut"); if(noHB&&!B.length)missing.push("un bas"); if(!S.length)missing.push("une paire de chaussures");
+  if(missing.length) return {missing, missingTypes:[noHB&&!H.length&&"haut",noHB&&!B.length&&"bas",!S.length&&"chaussures"].filter(Boolean), dirty:items.filter(isDirty).length};
+  const bodies=[]; for(const h of H) for(const b of B) bodies.push([h,b]); for(const r of R) bodies.push([r]);
   // réglage « veste » : toujours dès qu'il fait frais, si besoin (froid ou pluie), ou rarement (jamais imposée)
   const needJacket = V.length && (settings.jacket==="always" ? (ctx.weather!=="chaud" || ctx.rain)
                     : settings.jacket==="rarely" ? false
                     : (ctx.weather==="froid" || (ctx.rain && ctx.weather!=="chaud")));
   const jackets = pin?.type==="veste" || needJacket ? V : [null,...V];
   const pulls = pin?.type==="pull" ? [pin] : (ctx.weather==="chaud" || !settings.layering) ? [null] : [null,...eligible(items,"pull",ctx)]; // couche intermédiaire facultative
-  const total = H.length*B.length*S.length*jackets.length*pulls.length;
+  const total = bodies.length*S.length*jackets.length*pulls.length;
   const pick = a=>a[Math.floor(Math.random()*a.length)];
+  const thick = body=>body[0].type==="haut"&&body[0].season==="hiver"; // pas de pull sur un haut d'hiver
   const combos=[];
   if(total<=20000){
-    for(const h of H)for(const b of B)for(const sh of S)for(const v of jackets)for(const pu of pulls){ if(pu&&h.season==="hiver") continue; combos.push([v,pu,h,b,sh].filter(Boolean)); }
+    for(const bd of bodies)for(const sh of S)for(const v of jackets)for(const pu of pulls){ if(pu&&thick(bd)) continue; combos.push([v,pu,...bd,sh].filter(Boolean)); }
   } else {
-    for(let k=0;k<20000;k++){ const hh=pick(H); const pu=pick(pulls); if(pu&&hh.season==="hiver"&&pin?.type!=="pull") { combos.push([pick(jackets),hh,pick(B),pick(S)].filter(Boolean)); continue; } combos.push([pick(jackets),pu,hh,pick(B),pick(S)].filter(Boolean)); }
+    for(let k=0;k<20000;k++){ const bd=pick(bodies); const pu=pick(pulls); if(pu&&thick(bd)&&pin?.type!=="pull") { combos.push([pick(jackets),...bd,pick(S)].filter(Boolean)); continue; } combos.push([pick(jackets),pu,...bd,pick(S)].filter(Boolean)); }
   }
   if(!combos.length) return {missing:["un haut léger à porter sous ce pull"]};
   const scored = combos.map(p=>({pieces:p, ...scoreOutfit(p,ctx), k:p.map(x=>x.id).sort().join(",")}));
@@ -756,6 +793,7 @@ const SIL = {
   haut:'<path d="M30 18 42 12Q50 21 58 12L70 18 87 33 77 45 69 39V88H31V39L23 45 13 33Z"/>',
   pull:'<path d="M32 16 43 12Q50 18 57 12L68 16 84 30 88 80H76L69 40V84H31V40L24 80H12L16 30Z"/><path d="M31 78H69M12 74H24M76 74H88" fill="none" stroke-width="2"/>',
   bas:'<path d="M29 10H71L75 90H56L50 42 44 90H25Z"/>',
+  robe:'<path d="M38 8H44Q50 16 56 8H62L60 30 66 36 80 90H20L34 36 40 30Z"/><path d="M36 36H64" fill="none" stroke-width="2"/>',
   chaussures:'<path d="M10 64V46Q12 39 21 41L38 47Q51 52 62 54L82 58Q91 60 91 69V73H10Z"/>',
   veste:'<path d="M29 13 43 9 50 24 57 9 71 13 88 30 85 82H74L72 48V90H28V48L26 82H15L12 30Z"/><path d="M50 24V90" fill="none" stroke-width="2"/>',
 };
@@ -781,8 +819,20 @@ function ph(item){
   return `<div class="ph ${item.cut?"cut":""}">${u?`<img src="${u}" alt="${esc(itemName(item))}">`:silhouette(item)}</div>`;
 }
 const dot = (c,c2) => { const a=C[c].hex, b=c2&&C[c2]?.hex; return `<span class="dot ${c==="motif"?"motif":""}" style="${a?`background:${b?`linear-gradient(90deg,${a} 0 55%,${b} 55%)`:a}`:""}"></span>`; };
-const typeLabel = i => i.type==="accessoire" ? (K[i.kind]?.label||"Accessoire") : T[i.type].label;
-const itemName = i => i.name || (i.type==="bas"&&i.color==="denim" ? "Jean" : (i.type==="accessoire" ? (K[i.kind]?.short||"Accessoire") : T[i.type].label.split(" ")[0])+" "+C[i.color].label.toLowerCase());
+const typeLabel = i => i.type==="accessoire" ? (K[i.kind]?.label||"Accessoire") : (subOf(i)?.label || T[i.type].label);
+// accord de la couleur avec le nom : « robe noire », « baskets blanches » ; les couleurs-noms (marine, kaki…) restent invariables
+const FEM={noir:"noire",blanc:"blanche",gris:"grise",vert:"verte",violet:"violette",bleu:"bleue"};
+const INV=new Set(["beige","marine","kaki","marron","camel","bordeaux","orange","denim","motif"]);
+const TYPE_G={robe:"f",chaussures:"fp",veste:"f"};
+function colorWord(id,g=""){
+  let w=C[id].label.toLowerCase(); if(INV.has(id)) return w;
+  if(g.includes("f")) w=FEM[id]||w;
+  if(g.includes("p") && !w.endsWith("s")) w+="s";
+  return w;
+}
+const itemName = i => { if(i.name) return i.name; const sb=subOf(i);
+  if(sb) return (sb.short||sb.label)+(sb.id==="jean"&&i.color==="denim"?"":" "+colorWord(i.color,sb.g));
+  return i.type==="bas"&&i.color==="denim" ? "Jean" : (i.type==="accessoire" ? (K[i.kind]?.short||"Accessoire")+" "+C[i.color].label.toLowerCase() : T[i.type].label.split(" ")[0]+" "+colorWord(i.color,TYPE_G[i.type])); };
 function toast(msg){
   document.querySelector(".toast")?.remove();
   const t=document.createElement("div"); t.className="toast"; t.textContent=msg; t.setAttribute("role","status");
@@ -792,6 +842,7 @@ function seg(name, opts, val){
   return `<div class="seg" role="group" aria-label="${name}">${opts.map(([v,l])=>`<button data-seg="${name}" data-v="${v}" aria-pressed="${v===val}">${l}</button>`).join("")}</div>`;
 }
 const ICON = {
+  chev:'<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
   x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   heart:f=>`<svg viewBox="0 0 24 24" fill="${f?"currentColor":"none"}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>`,
   down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M10 15v4.5a2.5 2.5 0 0 0 5 0V15h3.6a2 2 0 0 0 2-2.3l-1.2-7A2 2 0 0 0 17.4 4H7v11l3 0zM7 4H4v11h3"/></svg>',
@@ -901,16 +952,16 @@ function viewTenue(){
 }
 
 const ESSENTIALS = [
-  {label:"T-shirt blanc", test:i=>i.type==="haut"&&i.color==="blanc", preset:{type:"haut",color:"blanc",style:"casual"}},
-  {label:"T-shirt foncé", test:i=>i.type==="haut"&&["noir","marine","gris"].includes(i.color), preset:{type:"haut",color:"noir",style:"casual"}},
-  {label:"Chemise", test:i=>i.type==="haut"&&(i.style==="chic"||i.style==="poly"), preset:{type:"haut",color:"bleu",style:"chic"}},
+  {label:"T-shirt blanc", test:i=>i.type==="haut"&&i.color==="blanc", preset:{type:"haut",sub:"tshirt",color:"blanc",style:"casual"}},
+  {label:"T-shirt foncé", test:i=>i.type==="haut"&&["noir","marine","gris"].includes(i.color), preset:{type:"haut",sub:"tshirt",color:"noir",style:"casual"}},
+  {label:"Chemise", test:i=>i.type==="haut"&&(i.style==="chic"||i.style==="poly"), preset:{type:"haut",sub:"chemise",color:"bleu",style:"chic"}},
   {label:"Pull ou sweat", test:i=>i.type==="pull", preset:{type:"pull",color:"gris",style:"poly",season:"mi"}},
-  {label:"Jean", test:i=>i.type==="bas"&&i.color==="denim", preset:{type:"bas",color:"denim",style:"casual"}},
-  {label:"Chino ou pantalon", test:i=>i.type==="bas"&&i.color!=="denim"&&i.style!=="sport", preset:{type:"bas",color:"beige",style:"poly"}},
-  {label:"Baskets", test:i=>i.type==="chaussures"&&(i.style==="casual"||i.style==="sport"), preset:{type:"chaussures",color:"blanc",style:"casual"}},
-  {label:"Chaussures habillées", test:i=>i.type==="chaussures"&&(i.style==="chic"||i.style==="poly"), preset:{type:"chaussures",color:"marron",style:"chic"}},
+  {label:"Jean", test:i=>i.type==="bas"&&i.color==="denim", preset:{type:"bas",sub:"jean",color:"denim",style:"casual"}},
+  {label:"Chino ou pantalon", test:i=>i.type==="bas"&&i.color!=="denim"&&i.style!=="sport", preset:{type:"bas",sub:"chino",color:"beige",style:"poly"}},
+  {label:"Baskets", test:i=>i.type==="chaussures"&&(i.style==="casual"||i.style==="sport"), preset:{type:"chaussures",sub:"baskets",color:"blanc",style:"casual"}},
+  {label:"Chaussures habillées", test:i=>i.type==="chaussures"&&(i.style==="chic"||i.style==="poly"), preset:{type:"chaussures",sub:"ville",color:"marron",style:"chic"}},
   {label:"Veste mi-saison", test:i=>i.type==="veste"&&i.season!=="hiver", preset:{type:"veste",color:"marine",style:"casual",season:"mi"}},
-  {label:"Manteau", test:i=>i.type==="veste"&&i.season==="hiver", preset:{type:"veste",color:"noir",style:"poly",season:"hiver"}},
+  {label:"Manteau", test:i=>i.type==="veste"&&i.season==="hiver", preset:{type:"veste",sub:"manteau",color:"noir",style:"poly",season:"hiver"}},
 ];
 function essentialsCard(){
   let hidden=false; try{ hidden=localStorage.getItem("penderie.essHidden")==="1"; }catch(e){}
@@ -926,6 +977,7 @@ function dressingList(){
   const wc={}; for(const w of state.wears) for(const id of w.ids) wc[id]=(wc[id]||0)+1;
   const q=(state.q||"").trim().toLowerCase();
   let list = state.items.filter(i=>state.filter==="tout" || (state.filter==="review"?i.review : state.filter==="lavage"? isDirty(i) : i.type===state.filter));
+  if(state.sub && T[state.filter]) list=list.filter(i=>(i.type==="accessoire"?i.kind:(i.sub||"_"))===state.sub);
   if(q) list=list.filter(i=>[itemName(i),typeLabel(i),C[i.color].label,i.color2?C[i.color2].label:"",i.brand||""].join(" ").toLowerCase().includes(q));
   const order=Object.fromEntries(COLORS.map((c,k)=>[c.id,k]));
   const sorts={recent:(a,b)=>b.created-a.created, couleur:(a,b)=>order[a.color]-order[b.color]||b.created-a.created,
@@ -942,14 +994,25 @@ function viewDressing(){
   const nrev=state.items.filter(i=>i.review).length, ndirty=state.items.filter(isDirty).length;
   if(state.filter==="review"&&!nrev) state.filter="tout";
   if(state.filter==="lavage"&&!ndirty) state.filter="tout";
-  const chips = [...(ndirty?[["lavage","Au lavage",ndirty]]:[]),...(nrev?[["review","À vérifier",nrev]]:[]),["tout","Tout",state.items.length],...TYPES.filter(t=>counts[t.id]||t.id!=="accessoire").map(t=>[t.id,t.plural,counts[t.id]])];
+  // catégories principales : on cache celles qui sont vides (sauf les 3 indispensables à une tenue)
+  const chips = [...(ndirty?[["lavage","Au lavage",ndirty]]:[]),...(nrev?[["review","À vérifier",nrev]]:[]),["tout","Tout",state.items.length],...TYPES.filter(t=>counts[t.id]||["haut","bas","chaussures"].includes(t.id)).map(t=>[t.id,t.plural,counts[t.id]])];
+  // 2e rangée : les catégories précises réellement présentes dans le type choisi (rien n'apparaît tant qu'on reste sur « Tout »)
+  let subRow="";
+  if(T[state.filter]){
+    const inType=state.items.filter(i=>i.type===state.filter), sc={};
+    for(const i of inType){ const k=i.type==="accessoire"?i.kind:(i.sub||"_"); sc[k]=(sc[k]||0)+1; }
+    const list=(state.filter==="accessoire"?KINDS:(SUBS[state.filter]||[])).filter(x=>sc[x.id]).map(x=>[x.id,x.short||x.label,sc[x.id]]);
+    if(sc._) list.push(["_","Autres",sc._]);
+    if(state.sub && !sc[state.sub]) state.sub=null;
+    if(list.length>1) subRow=`<div class="filters subf" role="group" aria-label="Catégorie précise"><button class="chip" data-subf="" aria-pressed="${!state.sub}">Toutes</button>${list.map(([v,l,n])=>`<button class="chip" data-subf="${v}" aria-pressed="${state.sub===v}">${esc(l)}<span class="n">${n}</span></button>`).join("")}</div>`;
+  } else state.sub=null;
   const washBar = state.filter==="lavage" ? `<div class="bk" style="margin:0 0 12px"><div><b>${ndirty} pièce${ndirty>1?"s":""} au lavage</b><span class="sub">Elles ne sont pas proposées dans les tenues. Touche une pièce pour la remettre seule.</span></div><div class="bk-a"><button class="btn primary sm" data-act="washall">Lessive faite</button></div></div>` : "";
   return `<div style="margin-top:14px">${essentialsCard()}</div>
   <div class="dtools"><input type="search" id="dq" placeholder="Rechercher…" value="${esc(state.q||"")}" autocomplete="off" aria-label="Rechercher une pièce">
     <select id="dsort" aria-label="Trier">${[["recent","Récentes"],["couleur","Couleur"],["portees","Plus portées"],["nom","Nom"]].map(([v,l])=>`<option value="${v}" ${(state.sort||"recent")===v?"selected":""}>${l}</option>`).join("")}</select></div>
   ${state.filter==="review"?`<p class="sub" style="margin:10px 0 0">Ouvre chaque pièce, corrige si besoin et enregistre : le badge disparaît.</p>`:""}
   <div class="filters" role="group" aria-label="Filtrer">${chips.map(([v,l,n])=>`<button class="chip" data-filter="${v}" aria-pressed="${state.filter===v}">${l}<span class="n">${n}</span></button>`).join("")}</div>
-  ${washBar}<div id="dgrid">${dressingList()}</div>`;
+  ${subRow}${washBar}<div id="dgrid">${dressingList()}</div>`;
 }
 
 /* ================= Suivi : historique et stats ================= */
@@ -1038,7 +1101,10 @@ function renderEditor(isNew){
   const simple = isNew && !s.expanded;
   const preview = s.previewURL ? `<div class="ph ${s.newCut?"cut":""}"><img src="${s.previewURL}" alt=""></div>` : ph(s);
   const opt = (name, list, val)=>`<div class="opts" role="group">${list.map(o=>`<button class="chip" data-f="${name}" data-v="${o.id}" aria-pressed="${o.id===val}">${o.label}</button>`).join("")}</div>`;
-  const canCut = !s.busy && ((s.previewURL && !s.newCut) || (!s.previewURL && s.photo && !s.cut));
+  const swatches = ()=>`<div class="swatches" role="group">${COLORS.map(c=>`<button class="swb ${s.colorAlt===c.id&&c.id!==s.color&&!s.touched?.has("color")?"alt":""}" data-f="color" data-v="${c.id}" aria-pressed="${c.id===s.color}"><span class="sw ${c.id==="motif"?"motif":""}" style="${c.hex?`background:${c.hex}`:""}"></span>${c.label}</button>`).join("")}</div>`;
+  const subPicker = ()=> s.type==="accessoire" ? `<div class="ctl-label">Quel accessoire</div>${opt("kind",KINDS,s.kind)}`
+    : SUBS[s.type] ? `<div class="ctl-label">Précisément <span class="sub">(facultatif)</span></div>${opt("sub",SUBS[s.type],s.sub)}` : "";
+  const canCut = !s.busy &&((s.previewURL && !s.newCut) || (!s.previewURL && s.photo && !s.cut));
   const head = `<div class="grab"></div>
     <div class="sheet-h"><h2>${s.batch?`Pièce ${batch.idx+1} sur ${batch.files.length}`:isNew?"Nouvelle pièce":"Modifier la pièce"}</h2><button class="icon-btn" data-act="${s.batch?"stopbatch":"close"}" aria-label="${s.batch?"Arrêter l'ajout en série":"Fermer"}">${ICON.x}</button></div>
     ${s.batch?`<div class="meter"><i style="width:${Math.round(100*batch.idx/batch.files.length)}%"></i></div>`:""}
@@ -1063,30 +1129,34 @@ function renderEditor(isNew){
       ${tips}
       <button class="link center" data-act="expand">Ajouter sans photo</button>`;
   } else if(simple){
-    const row=(l,v)=>`<div class="sum-r"><span>${l}</span><b>${v}</b></div>`;
+    // chaque ligne du résumé s'ouvre sur place : un toucher sur la ligne, un toucher sur la bonne valeur, c'est corrigé
+    const row=(k,l,v)=>{ const open=s.editRow===k;
+      return `<button class="sum-r ${open?"open":""}" data-act="editrow" data-k="${k}" aria-expanded="${open}"><span>${l}</span><b>${v}${ICON.chev}</b></button>${open?`<div class="sum-edit">${rowPicker(k)}</div>`:""}`; };
+    const rowPicker=k=> k==="type" ? `${opt("type",TYPES,s.type)}${subPicker()}`
+      : k==="color" ? swatches()
+      : k==="style" ? opt("style",STYLES,s.style) : opt("season",SEASONS,s.season);
     body = `<div class="photo-big">${preview}${s.busy?`<div class="busy"><span class="spin"></span>${esc(s.busyMsg||"Analyse en cours…")}</div>`:""}</div>
       ${s.busy?"":`<div class="summary">
-        ${row("C'est",esc(typeLabel(s)))}
-        ${row("Couleur",`${dot(s.color,s.color2)} ${C[s.color].label}${s.color2?` et ${C[s.color2].label.toLowerCase()}`:""}`)}
-        ${row("Style",STYLES.find(x=>x.id===s.style).label)}
-        ${row("Saison",SEASONS.find(x=>x.id===s.season).label)}
+        ${row("type","C'est",esc(typeLabel(s)))}
+        ${row("color","Couleur",`${dot(s.color,s.color2)} ${C[s.color].label}${s.color2?` et ${C[s.color2].label.toLowerCase()}`:""}`)}
+        ${row("style","Style",STYLES.find(x=>x.id===s.style).label)}
+        ${row("season","Saison",SEASONS.find(x=>x.id===s.season).label)}
       </div>
-      ${s.recoUnsure?`<p class="sub" style="margin:0">On n'a pas reconnu le type à coup sûr : vérifie-le avec « Corriger ».</p>`:""}
-      ${s.colorAlt&&s.colorAlt!==s.color?`<p class="sub" style="margin:0">Pas sûr de la couleur : ça pourrait aussi être <b>${C[s.colorAlt].label.toLowerCase()}</b>. Touche « Corriger » si besoin.</p>`:""}
+      ${s.editRow?"":`<p class="sub" style="margin:0">Touche une ligne pour la corriger.${s.recoUnsure&&!s.touched?.has("type")?" Type pas reconnu à coup sûr : vérifie « C'est ».":""}${s.colorAlt&&s.colorAlt!==s.color&&!s.touched?.has("color")?` Couleur incertaine : peut-être <b>${C[s.colorAlt].label.toLowerCase()}</b>.`:""}</p>`}
       ${s.cutFailed?`<p class="sub" style="margin:0">Le fond n'a pas pu être retiré, la photo d'origine est gardée.</p>`:""}
-      <div class="row2"><button class="btn ghost" data-act="expand">Corriger</button><button class="btn primary" data-act="save">${saveLabel}</button></div>
+      <div class="row2"><button class="btn ghost" data-act="expand">Plus de détails</button><button class="btn primary" data-act="save">${saveLabel}</button></div>
       ${s.batch?`<button class="btn ghost" data-act="skipbatch">Ignorer cette photo</button>`:""}
       <div class="mini-links"><label class="link" for="photoIn">Reprendre la photo</label>${canCut?`<button class="link" data-act="cutnow">Retirer le fond</button>`:""}${(s.newCut&&s.newOrig)?`<button class="link" data-act="uncut">Garder le fond</button>`:""}</div>`}`;
   } else {
     body = `<div class="photo-pick">${preview}<div style="display:grid;gap:6px">
       <label class="btn primary" for="photoIn">${hasPhoto?"Changer la photo":"Prendre une photo"}</label>
       ${canCut?`<button class="btn ghost sm" data-act="cutnow">Retirer le fond</button>`:""}
+      ${hasPhoto&&!s.busy&&!s.reframed?`<button class="btn ghost sm" data-act="reframe">Recadrer sur la pièce</button>`:""}
       ${!s.busy && (s.previewURL?s.newCut:s.cut) && (s.orig||s.newOrig) ? `<button class="btn ghost sm" data-act="uncut">Revenir à la photo d'origine</button>`:""}
       ${s.hint?`<span class="hint" id="colorHint" aria-live="polite">${s.hint}</span>`:""}</div></div>
     <div class="field"><div class="ctl-label">C'est…</div>${opt("type",TYPES,s.type)}</div>
-    ${s.type==="accessoire"?`<div class="field"><div class="ctl-label">Quel accessoire</div>${opt("kind",KINDS,s.kind)}</div>`:""}
-    <div class="field"><div class="ctl-label">Couleur</div>
-      <div class="swatches" role="group">${COLORS.map(c=>`<button class="swb ${s.colorAlt===c.id&&c.id!==s.color&&!s.touched?.has("color")?"alt":""}" data-f="color" data-v="${c.id}" aria-pressed="${c.id===s.color}"><span class="sw ${c.id==="motif"?"motif":""}" style="${c.hex?`background:${c.hex}`:""}"></span>${c.label}</button>`).join("")}</div></div>
+    ${subPicker()?`<div class="field">${subPicker()}</div>`:""}
+    <div class="field"><div class="ctl-label">Couleur</div>${swatches()}</div>
     <div class="field"><div class="ctl-label">Style</div>${opt("style",STYLES,s.style)}</div>
     <div class="field"><div class="ctl-label">Saison</div>${opt("season",SEASONS,s.season)}</div>
     <details class="more" ${s.moreOpen?"open":""}><summary>Plus de détails <span class="sub">nom, 2e couleur, marque, prix, lavage</span></summary>
@@ -1131,7 +1201,8 @@ async function onPhoto(e){
     const g = await recognize(res.canvas);
     if(sheetState!==s) return; // feuille fermée ou autre pièce entre-temps
     if(!g) s.showTips=true;
-    if(g){ for(const f of ["type","style","season","kind"]) if(g[f] && !s.touched.has(f)) s[f]=g[f]; label=g.label; }
+    if(g){ for(const f of ["type","style","season","kind","sub"]) if(g[f] && !s.touched.has(f)) s[f]=g[f]; label=g.label;
+      if(s.sub && !SUB[s.type+":"+s.sub]) s.sub=null; }
     s.recoUnsure=!g;
   }catch(err){ if(sheetState!==s) return; label=false; }
   const col = ()=> `${C[s.color].label.toLowerCase()}${s.color2&&C[s.color2]?` et ${C[s.color2].label.toLowerCase()}`:""}${s.colorAlt&&s.colorAlt!==s.color&&!s.touched?.has("color")?` (ou peut-être ${C[s.colorAlt].label.toLowerCase()})`:""}`;
@@ -1164,16 +1235,36 @@ async function cutout(blob, wb){
   const cv=document.createElement("canvas"); cv.width=img.width; cv.height=img.height;
   const g=cv.getContext("2d"); g.drawImage(img,0,0);
   const d=g.getImageData(0,0,cv.width,cv.height).data;
-  let x0=cv.width,y0=cv.height,x1=0,y1=0;
-  for(let y=0;y<cv.height;y+=2) for(let x=0;x<cv.width;x+=2){ if(d[(y*cv.width+x)*4+3]>40){ if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; } }
+  // boîte par la masse des pixels opaques (et non le pixel le plus éloigné) : un reste de fond isolé
+  // dans un coin n'agrandit plus le cadre, la pièce remplit vraiment la vignette
+  const col=new Array(cv.width).fill(0), row=new Array(cv.height).fill(0); let tot=0;
+  for(let y=0;y<cv.height;y+=2) for(let x=0;x<cv.width;x+=2){ if(d[(y*cv.width+x)*4+3]>40){ col[x]++; row[y]++; tot++; } }
+  if(!tot) throw new Error("vide");
+  let [x0,x1]=massBounds(col,tot,.004), [y0,y1]=massBounds(row,tot,.004);
   if(x1<=x0||y1<=y0) throw new Error("vide");
-  const pad=Math.round(Math.max(x1-x0,y1-y0)*0.06);
+  const pad=Math.round(Math.max(x1-x0,y1-y0)*0.04);
   x0=Math.max(0,x0-pad); y0=Math.max(0,y0-pad); x1=Math.min(cv.width,x1+pad); y1=Math.min(cv.height,y1+pad);
   const max=700, r=Math.min(1,max/Math.max(x1-x0,y1-y0));
   const c2=document.createElement("canvas"); c2.width=Math.round((x1-x0)*r); c2.height=Math.round((y1-y0)*r);
   c2.getContext("2d").drawImage(cv,x0,y0,x1-x0,y1-y0,0,0,c2.width,c2.height);
   const png = await new Promise(res=>c2.toBlob(res,"image/png"));
   const dc=detectColor(c2,true,wb); return {blob:png, color:dc.id, colorAlt:dc.alt, color2:dc.second};
+}
+/* Recadre une photo déjà enregistrée (pièces ajoutées avant l'amélioration du cadrage). */
+async function reframeBlob(blob, isCut){
+  const img=await createImageBitmap(blob);
+  const cv=document.createElement("canvas"); cv.width=img.width; cv.height=img.height;
+  const g=cv.getContext("2d",{willReadFrequently:true}); g.drawImage(img,0,0);
+  if(!isCut){ const o=frameSubject(cv); return o ? new Promise(res=>o.toBlob(res,"image/jpeg",.85)) : null; }
+  const d=g.getImageData(0,0,cv.width,cv.height).data;
+  const col=new Array(cv.width).fill(0), row=new Array(cv.height).fill(0); let tot=0;
+  for(let y=0;y<cv.height;y+=2) for(let x=0;x<cv.width;x+=2) if(d[(y*cv.width+x)*4+3]>40){ col[x]++; row[y]++; tot++; }
+  if(!tot) return null;
+  const [x0,x1]=massBounds(col,tot,.004), [y0,y1]=massBounds(row,tot,.004), pad=Math.round(Math.max(x1-x0,y1-y0)*.04);
+  const a=Math.max(0,x0-pad), b=Math.max(0,y0-pad), W=Math.min(cv.width,x1+pad)-a, H=Math.min(cv.height,y1+pad)-b;
+  if(W*H>cv.width*cv.height*.92) return null;
+  const o=document.createElement("canvas"); o.width=W; o.height=H; o.getContext("2d").drawImage(cv,a,b,W,H,0,0,W,H);
+  return new Promise(res=>o.toBlob(res,"image/png"));
 }
 async function doCutout(s, blob){
   try{
@@ -1189,16 +1280,17 @@ async function doCutout(s, blob){
 /* ================= Reconnaissance automatique =================
    MobileNet (ImageNet, 1000 classes) tourne dans le navigateur : gratuit, rien n'est envoyé sur un serveur.
    On ne garde que les classes de vêtements et d'accessoires, chacune associée à un type, un style et une saison. */
-const CLOTHES = {
-  610:["haut","casual","toutes","T-shirt"], 841:["pull","casual","mi","sweat"], 474:["pull","poly","mi","gilet / cardigan"],
-  911:["pull","casual","hiver","pull en laine"], 617:["haut","poly","toutes","chemise"], 457:["haut","chic","toutes","chemise habillée"],
-  906:["haut","chic","toutes","chemise et cravate"], 697:["haut","casual","toutes","haut"],
-  834:["veste","chic","mi","veste de costume"], 869:["veste","chic","mi","trench"], 568:["veste","chic","hiver","manteau"],
-  501:["veste","casual","hiver","manteau"], 735:["veste","casual","mi","poncho"], 399:["veste","chic","hiver","manteau long"],
-  465:["veste","casual","hiver","doudoune sans manches"], 652:["veste","casual","mi","veste militaire"],
-  608:["bas","casual","toutes","jean"], 655:["bas","casual","ete","jupe"], 689:["bas","casual","ete","jupe"], 842:["bas","sport","ete","short de bain"],
-  770:["chaussures","sport","toutes","baskets de running"], 630:["chaussures","chic","toutes","mocassins"],
-  514:["chaussures","casual","hiver","bottes"], 774:["chaussures","casual","ete","sandales"], 502:["chaussures","casual","ete","sabots"],
+const CLOTHES = { // [type, style, saison, libellé, catégorie précise (ou genre d'accessoire)]
+  610:["haut","casual","toutes","T-shirt","tshirt"], 841:["pull","casual","mi","sweat","sweat"], 474:["pull","poly","mi","gilet / cardigan","gilet"],
+  911:["pull","casual","hiver","pull en laine","pull"], 617:["haut","poly","toutes","chemise","chemise"], 457:["haut","chic","toutes","chemise habillée","chemise"],
+  906:["haut","chic","toutes","chemise et cravate","chemise"], 697:["haut","casual","toutes","haut"],
+  834:["veste","chic","mi","veste de costume","blazer"], 869:["veste","chic","mi","trench","trench"], 568:["veste","chic","hiver","manteau","manteau"],
+  501:["veste","casual","hiver","manteau","manteau"], 735:["veste","casual","mi","poncho"], 399:["veste","chic","hiver","manteau long","manteau"],
+  465:["veste","casual","hiver","doudoune sans manches","doudoune"], 652:["veste","casual","mi","veste militaire","veste"],
+  608:["bas","casual","toutes","jean","jean"], 655:["bas","casual","ete","jupe","jupe"], 689:["bas","casual","ete","jupe","jupe"], 842:["bas","sport","ete","short de bain","short"],
+  578:["robe","chic","toutes","robe","robe"],
+  770:["chaussures","sport","toutes","baskets de running","running"], 630:["chaussures","chic","toutes","mocassins","ville"],
+  514:["chaussures","casual","hiver","bottes","bottes"], 774:["chaussures","casual","ete","sandales","sandales"], 502:["chaussures","casual","ete","sabots"],
   836:["accessoire","poly","ete","lunettes de soleil","lunettes"], 837:["accessoire","poly","ete","lunettes de soleil","lunettes"],
   531:["accessoire","poly","toutes","montre","montre"], 464:["accessoire","poly","toutes","ceinture","ceinture"],
   824:["accessoire","poly","hiver","écharpe","echarpe"], 796:["accessoire","casual","hiver","bonnet","bonnet"],
@@ -1222,7 +1314,7 @@ function guessFromProbs(probs){
   const type=top(entries,"type");
   const same=entries.filter(e=>e.type===type); // style et saison : seulement parmi les classes du type retenu
   const best=same.reduce((x,y)=>y.p>x.p?y:x);
-  return {type, style:top(same,"style"), season:top(same,"season"), label:best.label, kind:type==="accessoire"?best.kind:undefined};
+  return {type, style:top(same,"style"), season:top(same,"season"), label:best.label, kind:type==="accessoire"?best.kind:undefined, sub:type!=="accessoire"?best.kind:undefined};
 }
 async function recognize(canvas){
   const model = await loadModel();
@@ -1240,8 +1332,65 @@ async function processImage(file){
   const max=900, r=Math.min(1,max/Math.max(img.width,img.height));
   const cv=document.createElement("canvas"); cv.width=Math.round(img.width*r); cv.height=Math.round(img.height*r);
   const g=cv.getContext("2d"); g.drawImage(img,0,0,cv.width,cv.height); URL.revokeObjectURL(img.src);
-  const blob = await new Promise(res=>cv.toBlob(res,"image/jpeg",.82));
-  const wb=estimateWB(cv), dc=detectColor(cv,false,wb); return {blob, color: dc.id, colorAlt: dc.alt, canvas: cv, wb};
+  const wb=estimateWB(cv);
+  const out=frameSubject(cv)||cv; // photo recadrée sur la pièce (ou intacte si la détection n'est pas sûre)
+  const blob = await new Promise(res=>out.toBlob(res,"image/jpeg",.82));
+  const dc=detectColor(out,false,wb); return {blob, color: dc.id, colorAlt: dc.alt, canvas: out, wb};
+}
+/* Bornes d'un masque à partir des sommes par colonne / ligne : on ignore un petit % de la masse de chaque côté,
+   pour qu'un pixel parasite (poussière, ombre, bout de drap) n'élargisse pas tout le cadre. */
+function massBounds(arr, tot, cut){
+  let a=0, acc=0; while(a<arr.length-1 && (acc+=arr[a])<tot*cut) a++;
+  let b=arr.length-1; acc=0; while(b>a && (acc+=arr[b])<tot*cut) b--;
+  return [a,b+1];
+}
+/* Recadrage d'une photo brute (sans détourage) :
+   1. le fond est estimé sur la bordure de l'image (4 teintes max, k-means en Lab) ;
+   2. un pixel est « pièce » s'il est loin de toutes ces teintes ;
+   3. on prend la boîte qui contient la pièce, on la met au centre d'un carré complété avec la couleur du fond.
+   Le carré évite que la vignette (carrée, object-fit:cover) coupe le haut d'un pantalon ou le bout d'une chaussure. */
+function frameSubject(cv){
+  const S=120, r=S/Math.max(cv.width,cv.height), w=Math.max(8,Math.round(cv.width*r)), h=Math.max(8,Math.round(cv.height*r));
+  const c=document.createElement("canvas"); c.width=w; c.height=h;
+  const g=c.getContext("2d",{willReadFrequently:true}); g.drawImage(cv,0,0,w,h);
+  const d=g.getImageData(0,0,w,h).data, lab=new Array(w*h);
+  for(let i=0;i<w*h;i++) lab[i]=rgbToLab(d[i*4],d[i*4+1],d[i*4+2]);
+  const bw=Math.max(2,Math.round(Math.min(w,h)*0.04)), border=[];
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++) if(x<bw||y<bw||x>=w-bw||y>=h-bw) border.push(lab[y*w+x]);
+  let cen=[0,1,2,3].map(k=>border[Math.floor((k+.5)*border.length/4)].slice());
+  for(let it=0;it<6;it++){
+    const acc=cen.map(()=>[0,0,0,0]);
+    for(const p of border){ let bi=0,bd=1e9; cen.forEach((q,k)=>{ const dd=labDist(p,q,.5); if(dd<bd){bd=dd;bi=k;} }); const a=acc[bi]; a[0]+=p[0];a[1]+=p[1];a[2]+=p[2];a[3]++; }
+    cen=cen.map((q,k)=>acc[k][3]?[acc[k][0]/acc[k][3],acc[k][1]/acc[k][3],acc[k][2]/acc[k][3]]:q);
+  }
+  // fond trop hétérogène (parquet, chambre en désordre) : la bordure ne décrit pas le fond, on ne touche à rien
+  let spread=0; for(const p of border) spread+=Math.min(...cen.map(q=>labDist(p,q,.5))); spread/=border.length;
+  if(spread>9) return null;
+  const col=new Array(w).fill(0), row=new Array(h).fill(0); let tot=0;
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+    const p=lab[y*w+x]; if(Math.min(...cen.map(q=>labDist(p,q,.5)))>18){ col[x]++; row[y]++; tot++; }
+  }
+  if(tot<w*h*0.03) return null;                         // presque rien détecté : pièce de la même couleur que le fond
+  const [x0,x1]=massBounds(col,tot,.015), [y0,y1]=massBounds(row,tot,.015);
+  const bW=x1-x0, bH=y1-y0;
+  if(bW<w*.12||bH<h*.12) return null;                   // trop petit pour être la pièce
+  if(bW*bH>w*h*.8 && Math.abs(bW/bH-1)<.25) return null; // déjà bien cadrée
+  // carré autour de la pièce, avec une marge de 7 %
+  const side=Math.max(bW,bH)*1.14/r, cx=(x0+x1)/2/r, cy=(y0+y1)/2/r;
+  const sx=cx-side/2, sy=cy-side/2;
+  const outS=Math.min(900,Math.round(side)), k=outS/side;
+  const o=document.createElement("canvas"); o.width=o.height=outS;
+  const og=o.getContext("2d");
+  // couleur de fond dominante pour combler ce qui dépasse de la photo
+  const bg=rgbFromLab(cen[0]); og.fillStyle=`rgb(${bg.join(",")})`; og.fillRect(0,0,outS,outS);
+  og.drawImage(cv,0,0,cv.width,cv.height,-sx*k,-sy*k,cv.width*k,cv.height*k);
+  return o;
+}
+function rgbFromLab([L,a,b]){
+  const fy=(L+16)/116, fx=fy+a/500, fz=fy-b/200, f3=t=>t*t*t>0.008856?t*t*t:(t-16/116)/7.787;
+  const X=0.95047*f3(fx), Y=f3(fy), Z=1.08883*f3(fz);
+  const lin=[3.2406*X-1.5372*Y-0.4986*Z, -0.9689*X+1.8758*Y+0.0415*Z, 0.0557*X-0.2040*Y+1.0570*Z];
+  return lin.map(v=>{ v=v<=0.0031308?12.92*v:1.055*Math.pow(v,1/2.4)-0.055; return Math.max(0,Math.min(255,Math.round(v*255))); });
 }
 /* Couleur dominante, version perceptuelle :
    1. on travaille dans l'espace Lab (distances proches de la perception humaine), pas en RGB ;
@@ -1360,7 +1509,7 @@ function detectColor(cv, whole, wb){
 
 async function saveItem(){
   const s=sheetState; if(s.busy) return;
-  const item={id:s.id,type:s.type,kind:s.type==="accessoire"?s.kind:undefined,color:s.color,color2:(s.color2&&s.color2!==s.color&&s.color!=="motif")?s.color2:null,style:s.style,season:s.season,name:(s.name||"").trim(),created:s.created,lastWorn:s.lastWorn||null,sample:s.isNew?false:!!s.sample,cut:!!s.cut};
+  const item={id:s.id,type:s.type,kind:s.type==="accessoire"?s.kind:undefined,sub:(s.sub&&SUB[s.type+":"+s.sub])?s.sub:undefined,color:s.color,color2:(s.color2&&s.color2!==s.color&&s.color!=="motif")?s.color2:null,style:s.style,season:s.season,name:(s.name||"").trim(),created:s.created,lastWorn:s.lastWorn||null,sample:s.isNew?false:!!s.sample,cut:!!s.cut};
   item.photo = s.newPhoto!==undefined ? s.newPhoto : (s.photo||null);
   item.orig = s.newPhoto!==undefined ? (s.newCut ? (s.newOrig||null) : null) : (s.orig||null); // photo avant détourage, pour pouvoir revenir en arrière
   if(s.newPhoto!==undefined) { dropURL(item.id); item.sample=false; item.cut=!!s.newCut; }
@@ -1574,7 +1723,7 @@ async function analyzeFile(f){
   try{
     const res=await processImage(f);
     const it={type:"haut", kind:"montre", color:res.color, colorAlt:res.colorAlt, color2:null, style:"casual", season:"toutes", photo:res.blob, orig:res.blob, cut:false, label:null};
-    try{ const g=await recognize(res.canvas); if(g){ for(const k of ["type","style","season","kind"]) if(g[k]) it[k]=g[k]; it.label=g.label; } }catch(e){}
+    try{ const g=await recognize(res.canvas); if(g){ for(const k of ["type","style","season","kind","sub"]) if(g[k]) it[k]=g[k]; it.label=g.label; } }catch(e){}
     if(settings.cutout){ try{ const r=await cutout(res.blob,res.wb); it.photo=r.blob; it.cut=true; it.color=r.color; it.colorAlt=r.colorAlt; if(r.color2&&r.color2!==r.color) it.color2=r.color2; markSeen("cut"); }catch(e){} }
     return it;
   }catch(e){ return {error:true}; }
@@ -1595,7 +1744,7 @@ function showBatchItem(){
     return;
   }
   if(r.error){ batch.skipped++; batch.idx++; toast(`Photo ${batch.idx} illisible, ignorée`); return showBatchItem(); }
-  sheetState={id:uid(), type:r.type, kind:r.kind, color:r.color, colorAlt:r.colorAlt, color2:r.color2, style:r.style, season:r.season, name:"", photo:null,
+  sheetState={id:uid(), type:r.type, kind:r.kind, sub:r.sub, color:r.color, colorAlt:r.colorAlt, color2:r.color2, style:r.style, season:r.season, name:"", photo:null,
     created:Date.now(), newPhoto:r.photo, newCut:r.cut, newOrig:r.orig, recoUnsure:!r.label, previewURL:URL.createObjectURL(r.photo), touched:new Set(), batch:true,
     hint: r.label ? `Reconnu : ${r.label}, couleur ${C[r.color].label.toLowerCase()}${r.color2?` et ${C[r.color2].label.toLowerCase()}`:""}. Corrige si besoin.` : `Type pas reconnu avec certitude, choisis-le. Couleur détectée : ${C[r.color].label.toLowerCase()}.`};
   renderEditor(true);
@@ -1887,7 +2036,7 @@ function addLayerLinks(o){
 function openSwap(type){
   if(!state.current?.outfit) return;
   const {cur,opts}=swapCandidates(type);
-  const L={haut:"le haut",bas:"le bas",chaussures:"les chaussures",veste:"la veste",pull:"le pull"};
+  const L={haut:"le haut",bas:"le bas",robe:"la robe",chaussures:"les chaussures",veste:"la veste",pull:"le pull"};
   openSheet(`<div class="grab"></div>
     <div class="sheet-h"><h2>${cur?`Changer ${L[type]}`:`Ajouter ${type==="veste"?"une veste":"un pull"}`}</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
     ${opts.length?`<p class="sub" style="margin:0">Classés du plus au moins assorti avec le reste de la tenue.</p>
@@ -1962,12 +2111,21 @@ document.addEventListener("click", async e=>{
     state.current=null; state.avoid.clear(); saveCtx(); render(); return;
   }
   if(b.dataset.skin){ applySkin(b.dataset.skin); b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); return; }
-  if(b.dataset.filter){ state.filter=b.dataset.filter; render(); return; }
+  if(b.dataset.filter){ state.filter=b.dataset.filter; state.sub=null; render(); return; }
+  if(b.dataset.subf!==undefined){ state.sub=b.dataset.subf||null; render(); return; }
   if(b.dataset.f && sheetState){
-    sheetState[b.dataset.f]=b.dataset.v; sheetState.touched?.add(b.dataset.f);
-    if(b.dataset.f==="color2"){ sheetState.color2=b.dataset.v||null; }
-    if(b.dataset.f==="color" && sheetState.color2===b.dataset.v) sheetState.color2=null;
-    if(["type","kind","color"].includes(b.dataset.f)){ const sc=document.querySelector(".sheet")?.scrollTop||0; renderEditor(sheetState.isNew); const sh=document.querySelector(".sheet"); if(sh) sh.scrollTop=sc; return; }
+    const s=sheetState, f=b.dataset.f, v=b.dataset.v;
+    if(f==="sub"){
+      s.sub = s.sub===v ? null : v; // re-toucher la catégorie choisie la retire
+      const d=SUB[s.type+":"+s.sub];
+      if(d && s.isNew){ if(d.style&&!s.touched?.has("style")) s.style=d.style; if(d.season&&!s.touched?.has("season")) s.season=d.season; }
+    } else s[f]=v;
+    s.touched?.add(f);
+    if(f==="type" && s.sub && !SUB[v+":"+s.sub]) s.sub=null;
+    if(f==="color2"){ s.color2=v||null; }
+    if(f==="color" && s.color2===v) s.color2=null;
+    if(s.editRow && !s.expanded){ if(f!=="type") s.editRow=null; renderEditor(s.isNew); return; } // résumé : la ligne se referme dès qu'on a choisi
+    if(["type","kind","color","sub"].includes(f)){ const sc=document.querySelector(".sheet")?.scrollTop||0; renderEditor(sheetState.isNew); const sh=document.querySelector(".sheet"); if(sh) sh.scrollTop=sc; return; }
     b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));
     if(b.dataset.f==="color"){ const p=document.querySelector(".photo-pick .ph"); if(p&&!sheetState.previewURL&&!sheetState.photo) p.outerHTML=ph(sheetState); }
     return;
@@ -2032,7 +2190,20 @@ document.addEventListener("click", async e=>{
   else if(act==="swap") openSwap(b.dataset.type);
   else if(act==="swapto") applySwap(b.dataset.type,b.dataset.id);
   else if(act==="help") openHelp();
-  else if(act==="expand"){ sheetState.expanded=true; renderEditor(sheetState.isNew); const sh=document.querySelector(".sheet"); if(sh) sh.scrollTop=0; }
+  else if(act==="reframe"){
+    const s=sheetState, src=s.newPhoto!==undefined?s.newPhoto:s.photo, isCut=s.newPhoto!==undefined?!!s.newCut:!!s.cut;
+    let out=null; try{ out=await reframeBlob(src,isCut); }catch(e){}
+    if(sheetState!==s) return;
+    s.reframed=true;
+    if(!out){ s.hint="La pièce est déjà bien cadrée (ou le fond est trop chargé pour la repérer)."; renderEditor(s.isNew); return; }
+    if(s.previewURL) URL.revokeObjectURL(s.previewURL);
+    if(s.newPhoto===undefined){ s.newCut=isCut; s.newOrig=isCut?(s.orig||null):out; }
+    else if(!isCut) s.newOrig=out;
+    s.newPhoto=out; s.previewURL=URL.createObjectURL(out);
+    s.hint="Photo recadrée. Enregistre pour garder cette version."; renderEditor(s.isNew);
+  }
+  else if(act==="editrow"){ const s=sheetState; s.editRow = s.editRow===b.dataset.k ? null : b.dataset.k; const sc=document.querySelector(".sheet")?.scrollTop||0; renderEditor(s.isNew); const sh=document.querySelector(".sheet"); if(sh) sh.scrollTop=sc; }
+  else if(act==="expand"){ sheetState.expanded=true; sheetState.editRow=null; renderEditor(sheetState.isNew); const sh=document.querySelector(".sheet"); if(sh) sh.scrollTop=0; }
   else if(act==="addtype"){ openEditor(null,{type:b.dataset.type, presetLabel:b.dataset.label}); }
   else if(act==="uncut"){ const s=sheetState; const o=s.newOrig||s.orig; if(s.previewURL) URL.revokeObjectURL(s.previewURL); s.newPhoto=o; s.newOrig=o; s.newCut=false; s.previewURL=URL.createObjectURL(o); s.hint="Photo d'origine restaurée. Enregistre pour garder cette version."; renderEditor(s.isNew); }
   else if(act==="esshide"){ try{ localStorage.setItem("penderie.essHidden","1"); }catch(e){} render(); }
