@@ -989,7 +989,7 @@ function viewTenue(){
     <div class="favs">${favs.map(({f,pieces})=>`<div class="fav"><button class="thumbs" data-act="showfav" data-id="${f.id}" aria-label="Afficher cette tenue">${pieces.map(ph).join("")}</button>
       <button class="icon-btn" data-act="unfav" data-id="${f.id}" aria-label="Retirer des favoris">${ICON.x}</button></div>`).join("")}</div>` : "";
   const val=loadValise();
-  const lookHtml=`<label class="valcard look"><span class="vi">${ICON.camera}</span><span><b>Recréer un look</b><span class="sub">Une photo Pinterest, Insta ou d'un magazine : l'app la refait avec tes vêtements</span></span><input type="file" id="lookIn" accept="image/*" hidden></label>`;
+  const lookHtml=`<label class="valcard look"><input type="file" id="lookIn" accept="image/*" hidden><span class="vi">${ICON.camera}</span><span><b>Recréer un look</b><span class="sub">Importe une photo Pinterest ou Insta, l'app la refait avec tes pièces</span></span></label>`;
   const valHtml=`<button class="valcard" data-act="valise"><span class="vi">${ICON.bag}</span><span><b>${val?`Ma valise${val.place?` · ${esc(val.place)}`:""}`:"Mode valise"}</b><span class="sub">${val?`${val.nights} jours · touche pour voir la liste`:"Le minimum de pièces pour un voyage, selon la météo sur place"}</span></span></button>`;
   return backupBanner()+ctrl+pinBar+inspBar+card+lookHtml+favHtml+valHtml;
 }
