@@ -721,17 +721,32 @@ function db(){
     const r = indexedDB.open("penderie",2);
     r.onupgradeneeded = ()=>{ const d=r.result;
       for(const [n,k] of [["items","id"],["outfits","id"],["wears","id"],["meta","key"]]) if(!d.objectStoreNames.contains(n)) d.createObjectStore(n,{keyPath:k}); };
-    r.onsuccess = ()=>res(r.result); r.onerror = ()=>rej(r.error);
+    r.onsuccess = ()=>{ const d=r.result;
+      // iPhone : quand l'app passe en arrière-plan (aller sur Pinterest, Photos…), iOS peut couper la connexion
+      // à la base. On l'oublie pour en rouvrir une neuve au prochain accès.
+      d.onclose = ()=>{ dbp=null; }; d.onversionchange = ()=>{ d.close(); dbp=null; };
+      res(d); };
+    r.onerror = ()=>{ dbp=null; rej(r.error); };
   });
   return dbp;
 }
-async function tx(store, mode, fn){
-  const d = await db();
+function txOnce(d, store, mode, fn){
   return new Promise((res,rej)=>{
-    const t = d.transaction(store,mode), s=t.objectStore(store);
+    let t; try{ t = d.transaction(store,mode); }catch(e){ rej(e); return; }
+    const s=t.objectStore(store);
     let out; const r = fn(s); if(r) r.onsuccess=()=>{out=r.result};
     t.oncomplete=()=>res(out); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error);
   });
+}
+async function tx(store, mode, fn){
+  try{ return await txOnce(await db(), store, mode, fn); }
+  catch(e){
+    if(e?.name==="QuotaExceededError") throw e;
+    // connexion morte (« Connection to Indexed Database server lost ») : on rouvre la base et on réessaie une fois
+    try{ (await dbp)?.close(); }catch(_){}
+    dbp=null;
+    return await txOnce(await db(), store, mode, fn);
+  }
 }
 const getAll = st => tx(st,"readonly",s=>s.getAll());
 const getOne = (st,k) => tx(st,"readonly",s=>s.get(k));
@@ -1634,7 +1649,9 @@ async function saveItem(){
   const pv = parseFloat(String(pt).replace(",",".").replace(/[^0-9.]/g,"")); item.price = pv>0 ? Math.round(pv*100)/100 : undefined;
   if(s.washEvery!==undefined) item.washEvery=Number(s.washEvery);
   item.since=s.since||0; item.dirty=!!s.dirty;
-  try{ await put("items",item); }catch(err){ toast("Enregistrement impossible : stockage du navigateur indisponible."); return; }
+  try{ await put("items",item); }
+  catch(err){ toast(err?.name==="QuotaExceededError" ? "Enregistrement impossible : le stockage du téléphone est plein."
+                    : "Enregistrement impossible ("+(err?.name||"erreur")+"). Ferme l'app complètement et rouvre-la, tes pièces sont conservées."); return; }
   const idx=state.items.findIndex(i=>i.id===item.id);
   if(idx>=0) state.items[idx]=item; else state.items.push(item);
   if(s.batch){ state.current=null; render(); nextBatchItem(true); return; }
