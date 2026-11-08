@@ -1,5 +1,5 @@
 // Cache réseau d'abord : l'app marche hors ligne et récupère les mises à jour dès qu'il y a du réseau.
-const CACHE = "penderie-v17";
+const CACHE = "penderie-v18";
 self.addEventListener("install", e => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then(c => c.addAll(["./", "index.html", "manifest.webmanifest", "icon-192.png"]))); });
 self.addEventListener("activate", e => e.waitUntil(self.clients.claim()));
 self.addEventListener("fetch", e => {

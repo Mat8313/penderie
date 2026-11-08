@@ -103,12 +103,11 @@ h2{font:600 25px/1.1 var(--display);margin:0;text-wrap:balance}
 
 /* Tenue */
 .outfit{background:var(--surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:20px;padding:14px;display:grid;gap:12px}
-.flatlay{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.flatlay .piece{position:relative}
-.flatlay .piece.wide{grid-column:span 2}
+.flatlay{--cols:2;display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.flatlay .piece{position:relative;flex:0 0 calc((100% - (var(--cols) - 1)*10px)/var(--cols));min-width:0}
+.flatlay.c3 .piece .cap{font-size:13px}
 .ph{border-radius:14px;overflow:hidden;background:var(--chip);display:grid;place-items:center}
 .piece .ph{aspect-ratio:1}
-.piece.wide .ph{aspect-ratio:2/1}
 .ph img{width:100%;height:100%;object-fit:cover;display:block}
 .ph svg{width:62%;height:62%}
 .piece .cap{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:14px;min-width:0}
@@ -330,6 +329,8 @@ button.sum-r:active{background:var(--chip)}
 button.piece{border:0;background:none;padding:0;text-align:left;position:relative;display:block;width:100%}
 .swap-ic{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:var(--tile);border:1px solid var(--line);display:grid;place-items:center;color:var(--accent)}
 .swap-ic svg{width:15px;height:15px}
+.flatlay.c3 .swap-ic{top:5px;right:5px;width:24px;height:24px}
+.ph.lost{display:grid;place-items:center;text-align:center;font-size:12px;color:var(--muted);padding:8px}
 .swipe-hint{margin:0;text-align:center;font-size:13px}
 .outfit{touch-action:pan-y;will-change:transform}
 .outfit[data-dir="like"]{box-shadow:0 0 0 2px var(--accent),var(--glow)}
@@ -726,7 +727,17 @@ async function tx(store, mode, fn){
 }
 const getAll = st => tx(st,"readonly",s=>s.getAll());
 const getOne = (st,k) => tx(st,"readonly",s=>s.get(k));
-const put = (st,v) => { if(st!=="meta" && !v?.sample) BK.bump(); return tx(st,"readwrite",s=>s.put(v)); };
+/* Photos rangées en ArrayBuffer et non en Blob.
+   Sur iPhone (WebKit), un Blob relu depuis IndexedDB puis réenregistré (modifier une pièce, la mettre au lavage…)
+   peut perdre son fichier sous-jacent : l'image devient illisible (« ? »). Un ArrayBuffer est copié dans
+   l'enregistrement lui-même, il ne dépend d'aucun fichier externe. */
+async function packBlob(b){ return b instanceof Blob ? {buf:await b.arrayBuffer(), type:b.type||"image/jpeg"} : b; }
+function unpackBlob(x){ return x && x.buf instanceof ArrayBuffer ? new Blob([x.buf],{type:x.type}) : x; }
+async function packItem(v){
+  if(!(v.photo instanceof Blob) && !(v.orig instanceof Blob)) return v;
+  return {...v, photo:await packBlob(v.photo), orig:await packBlob(v.orig)};
+}
+const put = async (st,v) => { if(st!=="meta" && !v?.sample) BK.bump(); if(st==="items") v=await packItem(v); return tx(st,"readwrite",s=>s.put(v)); };
 const del = (st,id) => { BK.bump(); return tx(st,"readwrite",s=>s.delete(id)); };
 const uid = ()=> Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 
@@ -924,11 +935,13 @@ function viewTenue(){
   } else {
     const o=g.outfit, isFav = state.outfits.some(f=>f.k===o.k);
     const ordered = MAIN_ORDER.map(t=>o.pieces.find(p=>p.type===t)).filter(Boolean);
-    const odd = ordered.length%2===1;
+    // toutes les vignettes ont la même taille : 3 colonnes dès 3 ou 5+ pièces (dernière rangée centrée),
+    // au lieu d'étirer la dernière pièce sur toute la largeur quand le nombre est impair
+    const cols = ordered.length===3||ordered.length>=5 ? 3 : 2;
     const acc = o.acc||[];
     const accNotes = acc.map(a=>a.note).filter(Boolean);
     card = `<article class="outfit" aria-label="Tenue proposée">
-      <div class="flatlay">${ordered.map((p,i)=>piecesTile(p, odd&&i===ordered.length-1, true)).join("")}</div>
+      <div class="flatlay ${cols===3?"c3":""}" style="--cols:${cols}">${ordered.map(p=>piecesTile(p, false, true)).join("")}</div>
       ${acc.length?`<div><div class="ctl-label">Accessoires</div><div class="accrow">${acc.map(a=>piecesTile(a.item)).join("")}</div></div>`:""}
       <div class="score-row"><div class="score">${o.colorScore}<small>/10</small></div><div style="flex:1"><div class="ctl-label" style="margin:0 0 5px">Harmonie des couleurs</div><div class="meter"><i style="width:${o.colorScore*10}%"></i></div></div></div>
       <ul class="why">${o.ok.map(t=>`<li>${esc(t)}</li>`).join("")}${accNotes.filter(n=>!n.startsWith("ceinture et")).map(t=>`<li>${esc(t)}</li>`).join("")}${o.warn.map(t=>`<li class="warn">${esc(t)}</li>`).join("")}${accNotes.filter(n=>n.startsWith("ceinture et")).map(t=>`<li class="warn">Attention : ${esc(t)}</li>`).join("")}${g.noJacket?`<li class="warn">Il fait froid et tu n'as pas encore de veste enregistrée</li>`:""}${c.rain&&c.weather!=="chaud"?`<li>Pluie prévue : la veste est incluse d'office</li>`:""}</ul>
@@ -985,7 +998,7 @@ function dressingList(){
   list.sort(sorts[state.sort||"recent"]);
   if(!list.length) return `<p class="sub">${q?"Aucune pièce ne correspond à ta recherche.":"Aucune pièce dans cette catégorie."}</p>`;
   return `<div class="grid">${list.map(i=>`<button class="tag ${isDirty(i)?"dirty":""}" data-act="edit" data-id="${i.id}">
-      <span class="hole"></span>${isDirty(i)?`<span class="badge">Au lavage</span>`:i.review?`<span class="badge">À vérifier</span>`:i.sample?`<span class="badge">Exemple</span>`:""}
+      <span class="hole"></span>${isDirty(i)?`<span class="badge">Au lavage</span>`:i.photoLost?`<span class="badge">Photo à reprendre</span>`:i.review?`<span class="badge">À vérifier</span>`:i.sample?`<span class="badge">Exemple</span>`:""}
       ${ph(i)}<div class="meta"><span class="nm">${esc(itemName(i))}</span><span class="ty">${dot(i.color,i.color2)}${esc(typeLabel(i))} · ${STYLES.find(s=>s.id===i.style).label}</span></div></button>`).join("")}</div>`;
 }
 function viewDressing(){
@@ -1092,6 +1105,7 @@ function openEditor(item, preset){
   const isNew=!item;
   sheetState = item ? {...item, newPhoto:undefined} : {id:uid(), type:"haut", kind:"montre", color:"noir", style:"casual", season:"toutes", name:"", photo:null, created:Date.now(), ...(preset||{})};
   if(!sheetState.kind) sheetState.kind="montre";
+  if(item?.photoLost && !sheetState.hint) sheetState.hint="La photo de cette pièce n'a pas pu être relue par le téléphone : reprends-la.";
   renderEditor(isNew);
   if(isNew) loadModel().catch(()=>{});
 }
@@ -2232,10 +2246,28 @@ document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==
 
 async function load(){
   state.items = await getAll("items");
+  // relit chaque photo : format ArrayBuffer → Blob ; ancien format Blob → vérifié puis converti une fois pour toutes
+  const lost=[], migrate=[];
+  for(const it of state.items){
+    it.photo=unpackBlob(it.photo); it.orig=unpackBlob(it.orig);
+    for(const f of ["photo","orig"]){
+      const b=it[f]; if(!(b instanceof Blob) || it.sample) continue;
+      try{ const buf=await b.arrayBuffer(); if(!buf.byteLength) throw 0; it[f]=new Blob([buf],{type:b.type||"image/jpeg"}); migrate.push(it); }
+      catch(e){ it[f]=null; if(f==="photo") lost.push(it); }
+    }
+    if(!it.photo && it.orig && lost.includes(it)){ it.photo=it.orig; it.orig=null; it.cut=false; lost.splice(lost.indexOf(it),1); migrate.push(it); }
+  }
+  for(const it of lost){ it.photoLost=true; it.review=true; migrate.push(it); }
+  // on emballe d'abord (async), puis on écrit : une transaction IndexedDB se ferme dès qu'on attend autre chose qu'elle
+  const packed=await Promise.all([...new Set(migrate)].map(packItem));
+  for(const v of packed){ try{ await tx("items","readwrite",s=>s.put(v)); }catch(e){} }
   state.outfits = (await getAll("outfits")).sort((a,b)=>b.created-a.created);
   state.wears = (await getAll("wears")).sort((a,b)=>b.date-a.date);
   const p = await getOne("meta","prefs"); if(p) prefs={pairs:p.pairs||{},colors:p.colors||{}};
 }
+// filet de sécurité : une image qui ne se charge pas affiche un message au lieu de l'icône « ? » du navigateur
+document.addEventListener("error",e=>{ const t=e.target; const p=t?.parentNode;
+  if(t?.tagName==="IMG" && p?.classList?.contains("ph")){ p.classList.add("lost"); p.classList.remove("cut"); t.replaceWith(Object.assign(document.createElement("span"),{textContent:"Photo illisible : reprends-la"})); } },true);
 (async()=>{
   document.getElementById("helpBtn").innerHTML=ICON.help;
   { const s=SKINS.find(x=>x.id===currentSkin()); if(s) document.querySelector('meta[name="theme-color"]').setAttribute("content",s.bg); }
