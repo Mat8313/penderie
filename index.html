@@ -250,6 +250,14 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .valcard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
 .valcard>span:last-child{display:grid;gap:2px;min-width:0}
 .valcard b{font:600 20px/1.1 var(--display)}
+label.valcard{cursor:pointer}
+.valcard.look{margin-top:14px}
+.inspbar{display:flex;align-items:flex-start;gap:10px;background:var(--tile);border:1px solid var(--accent);border-radius:14px;padding:8px;margin-bottom:12px;box-shadow:var(--glow)}
+.inspbar img{width:64px;height:86px;object-fit:cover;border-radius:10px;flex:none}
+.inspbar .ib{flex:1;min-width:0;display:grid;gap:6px;font-size:14px}
+.inspbar .ib .sub{margin:0;font-size:12.5px}
+.tdots{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:13px}
+.tdots span{display:inline-flex;align-items:center;gap:5px}
 .vi{width:44px;height:44px;border-radius:12px;background:var(--tile);display:grid;place-items:center;color:var(--accent);flex:none;border:1px solid var(--line)}
 .vi svg{width:24px;height:24px;filter:drop-shadow(0 0 4px rgba(var(--accent-rgb),.7))}
 .steps{display:grid;gap:8px}
@@ -924,6 +932,12 @@ function viewTenue(){
   const pinBar = pin ? `<div class="pinbar">${ph(pin)}<span>Tenue autour de <b>${esc(itemName(pin))}</b></span><button class="icon-btn" data-act="unpin" aria-label="Arrêter">${ICON.x}</button></div>` : "";
   if(!state.current) state.current = generate(state.items, c, state.avoid);
   const g=state.current;
+  const insp=g.insp, RL={veste:"Veste",haut:"Haut",bas:"Bas",chaussures:"Chaussures"};
+  const inspBar = insp ? `<div class="inspbar"><img src="${insp.url}" alt="Photo d'inspiration"><div class="ib">
+      <b>D'après ta photo · ${Math.round(insp.list[insp.idx].m*100)} % de ressemblance</b>
+      <div class="tdots">${["veste","haut","bas","chaussures"].filter(r=>insp.t[r]).map(r=>`<span>${dot(insp.t[r].id)}${RL[r]}</span>`).join("")}</div>
+      ${insp.notes.map(n=>`<p class="sub">${esc(n)}</p>`).join("")}</div>
+      <button class="icon-btn" data-act="closeinsp" aria-label="Revenir aux tenues du jour">${ICON.x}</button></div>` : "";
   let card;
   if(g.missing){
     const need=g.missingTypes||[], LBL={haut:["un haut","Haut"],bas:["un bas","Bas"],chaussures:["des chaussures","Chaussures"]};
@@ -946,7 +960,7 @@ function viewTenue(){
       <div class="score-row"><div class="score">${o.colorScore}<small>/10</small></div><div style="flex:1"><div class="ctl-label" style="margin:0 0 5px">Harmonie des couleurs</div><div class="meter"><i style="width:${o.colorScore*10}%"></i></div></div></div>
       <ul class="why">${o.ok.map(t=>`<li>${esc(t)}</li>`).join("")}${accNotes.filter(n=>!n.startsWith("ceinture et")).map(t=>`<li>${esc(t)}</li>`).join("")}${o.warn.map(t=>`<li class="warn">${esc(t)}</li>`).join("")}${accNotes.filter(n=>n.startsWith("ceinture et")).map(t=>`<li class="warn">Attention : ${esc(t)}</li>`).join("")}${g.noJacket?`<li class="warn">Il fait froid et tu n'as pas encore de veste enregistrée</li>`:""}${c.rain&&c.weather!=="chaud"?`<li>Pluie prévue : la veste est incluse d'office</li>`:""}</ul>
       ${addLayerLinks(o)}
-      <button class="btn primary" data-act="next">Une autre tenue</button>
+      <button class="btn primary" data-act="next">${insp?(insp.list.length>1?"Une autre version":"Revenir aux tenues du jour"):"Une autre tenue"}</button>
       <div class="acts3">
         <button class="act" data-act="dislike">${ICON.down}<span>Pas pour moi</span></button>
         <button class="act ${isFav?"on":""}" data-act="fav" aria-pressed="${isFav}">${ICON.heart(isFav)}<span>${isFav?"Adorée":"J'adore"}</span></button>
@@ -960,8 +974,9 @@ function viewTenue(){
     <div class="favs">${favs.map(({f,pieces})=>`<div class="fav"><button class="thumbs" data-act="showfav" data-id="${f.id}" aria-label="Afficher cette tenue">${pieces.map(ph).join("")}</button>
       <button class="icon-btn" data-act="unfav" data-id="${f.id}" aria-label="Retirer des favoris">${ICON.x}</button></div>`).join("")}</div>` : "";
   const val=loadValise();
+  const lookHtml=`<label class="valcard look"><span class="vi">${ICON.camera}</span><span><b>Recréer un look</b><span class="sub">Une photo Pinterest, Insta ou d'un magazine : l'app la refait avec tes vêtements</span></span><input type="file" id="lookIn" accept="image/*" hidden></label>`;
   const valHtml=`<button class="valcard" data-act="valise"><span class="vi">${ICON.bag}</span><span><b>${val?`Ma valise${val.place?` · ${esc(val.place)}`:""}`:"Mode valise"}</b><span class="sub">${val?`${val.nights} jours · touche pour voir la liste`:"Le minimum de pièces pour un voyage, selon la météo sur place"}</span></span></button>`;
-  return backupBanner()+ctrl+pinBar+card+favHtml+valHtml;
+  return backupBanner()+ctrl+pinBar+inspBar+card+lookHtml+favHtml+valHtml;
 }
 
 const ESSENTIALS = [
@@ -1364,6 +1379,14 @@ function massBounds(arr, tot, cut){
    3. on prend la boîte qui contient la pièce, on la met au centre d'un carré complété avec la couleur du fond.
    Le carré évite que la vignette (carrée, object-fit:cover) coupe le haut d'un pantalon ou le bout d'une chaussure. */
 function frameSubject(cv){
+  const sb=subjectBox(cv); if(!sb) return null;
+  const {x0,x1,y0,y1,w,h,r,cen}=sb, bW=x1-x0, bH=y1-y0;
+  if(bW<w*.12||bH<h*.12) return null;                   // trop petit pour être la pièce
+  if(bW*bH>w*h*.8 && Math.abs(bW/bH-1)<.25) return null; // déjà bien cadrée
+  return squareCrop(cv,sb);
+}
+/* Boîte de la pièce (ou de la personne) sur la photo, en coordonnées réduites (r = échelle). */
+function subjectBox(cv, cut=.015){
   const S=120, r=S/Math.max(cv.width,cv.height), w=Math.max(8,Math.round(cv.width*r)), h=Math.max(8,Math.round(cv.height*r));
   const c=document.createElement("canvas"); c.width=w; c.height=h;
   const g=c.getContext("2d",{willReadFrequently:true}); g.drawImage(cv,0,0,w,h);
@@ -1385,10 +1408,11 @@ function frameSubject(cv){
     const p=lab[y*w+x]; if(Math.min(...cen.map(q=>labDist(p,q,.5)))>18){ col[x]++; row[y]++; tot++; }
   }
   if(tot<w*h*0.03) return null;                         // presque rien détecté : pièce de la même couleur que le fond
-  const [x0,x1]=massBounds(col,tot,.015), [y0,y1]=massBounds(row,tot,.015);
+  const [x0,x1]=massBounds(col,tot,cut), [y0,y1]=massBounds(row,tot,cut);
+  return {x0,x1,y0,y1,w,h,r,cen};
+}
+function squareCrop(cv,{x0,x1,y0,y1,r,cen}){
   const bW=x1-x0, bH=y1-y0;
-  if(bW<w*.12||bH<h*.12) return null;                   // trop petit pour être la pièce
-  if(bW*bH>w*h*.8 && Math.abs(bW/bH-1)<.25) return null; // déjà bien cadrée
   // carré autour de la pièce, avec une marge de 7 %
   const side=Math.max(bW,bH)*1.14/r, cx=(x0+x1)/2/r, cy=(y0+y1)/2/r;
   const sx=cx-side/2, sy=cy-side/2;
@@ -1399,6 +1423,84 @@ function frameSubject(cv){
   const bg=rgbFromLab(cen[0]); og.fillStyle=`rgb(${bg.join(",")})`; og.fillRect(0,0,outS,outS);
   og.drawImage(cv,0,0,cv.width,cv.height,-sx*k,-sy*k,cv.width*k,cv.height*k);
   return o;
+}
+
+/* ================= Recréer un look depuis une photo (Pinterest, Instagram, magazine…) =================
+   1. on isole la personne avec l'outil de détourage (sinon on se contente de la bande centrale de l'image) ;
+   2. on découpe la silhouette en zones selon ses proportions : haut, bas, chaussures ;
+      dans la zone du haut, des bords d'une autre couleur que le centre = une veste ouverte par-dessus ;
+   3. on ignore la peau (bras, cou, jambes) pour ne garder que la couleur des vêtements ;
+   4. on cherche dans le dressing les pièces les plus proches de chaque couleur, puis on garde
+      les combinaisons qui ressemblent le plus à la photo tout en restant harmonieuses. */
+function isSkin([L,a,b]){ const ch=Math.hypot(a,b), h=Math.atan2(b,a)*180/Math.PI; return L>25&&L<92&&ch>8&&ch<48&&h>20&&h<78&&a>5; }
+function zoneColor(cv, x0,y0,x1,y1, wb){
+  const w=Math.max(1,Math.round(x1-x0)), h=Math.max(1,Math.round(y1-y0));
+  const k=Math.min(1,80/Math.max(w,h)), zw=Math.max(4,Math.round(w*k)), zh=Math.max(4,Math.round(h*k));
+  const z=document.createElement("canvas"); z.width=zw; z.height=zh;
+  const g=z.getContext("2d",{willReadFrequently:true}); g.drawImage(cv,x0,y0,w,h,0,0,zw,zh);
+  const im=g.getImageData(0,0,zw,zh), d=im.data, skin=[]; let opaque=0;
+  for(let i=0;i<d.length;i+=4){ if(d[i+3]<160) continue; opaque++; if(isSkin(rgbToLab(d[i],d[i+1],d[i+2]))) skin.push(i); }
+  if(opaque<zw*zh*.12) return null; // zone presque vide : photo coupée, pas de chaussures visibles…
+  // on retire la peau, sauf si presque tout ressemble à de la peau (vêtement beige, camel…)
+  if(opaque-skin.length>opaque*.3){ for(const i of skin) d[i+3]=0; g.putImageData(im,0,0); }
+  const dc=detectColor(z,true,wb);
+  return {id:dc.id, lab:dc.lab||rgbToLab(...hexToRgb(C[dc.id].hex||"#000000"))};
+}
+async function analyzeLook(file){
+  const res=await processImage(file);
+  let cv=res.canvas, alpha=false, box=null;
+  try{
+    const r=await cutout(res.blob,res.wb), img=await createImageBitmap(r.blob);
+    cv=document.createElement("canvas"); cv.width=img.width; cv.height=img.height; cv.getContext("2d").drawImage(img,0,0); alpha=true;
+  }catch(e){ const sb=subjectBox(cv,.003); /* tolérance faible : les chaussures pèsent peu dans la masse */ if(sb&&(sb.x1-sb.x0)<sb.w*.9) box={x0:sb.x0/sb.r,x1:sb.x1/sb.r,y0:sb.y0/sb.r,y1:sb.y1/sb.r}; }
+  // repère : la silhouette détourée, sinon la boîte détectée sur le fond, sinon la bande centrale de l'image
+  const W=cv.width, H=cv.height;
+  const x0=alpha?0:box?box.x0:W*.25, bw=alpha?W:box?box.x1-box.x0:W*.5, y0=box&&!alpha?box.y0:0, bh=box&&!alpha?box.y1-box.y0:H;
+  const X=f=>x0+bw*f, Y=f=>y0+bh*f, ratio=bh/bw;
+  // en pied (silhouette haute et fine) / coupée aux genoux / buste seul
+  const Z = ratio>=2 ? {haut:[.17,.45], bas:[.52,.86], chaussures:[.91,1]}
+          : ratio>=1.3 ? {haut:[.2,.55], bas:[.62,1]} : {haut:[.25,.95]};
+  const t={};
+  const [h0,h1]=Z.haut;
+  const center=zoneColor(cv,X(.36),Y(h0),X(.64),Y(h1),res.wb);
+  // bords du torse : plus près du centre sans détourage, pour ne pas prendre le fond de la photo
+  const [s0,s1]=alpha||box?[.06,.3]:[.14,.32];
+  const side=zoneColor(cv,X(s0),Y(h0),X(s1),Y(h1),res.wb) || zoneColor(cv,X(1-s1),Y(h0),X(1-s0),Y(h1),res.wb);
+  t.haut=center||side;
+  if(center&&side&&side.id!==center.id&&labDist(center.lab,side.lab,.6)>22) t.veste=side;
+  if(Z.bas) t.bas=zoneColor(cv,X(.2),Y(Z.bas[0]),X(.8),Y(Z.bas[1]),res.wb);
+  // sans détourage, des chaussures claires sur fond clair sortent du cadre détecté : on regarde aussi juste en dessous
+  if(Z.chaussures) t.chaussures=zoneColor(cv,X(.05),Y(alpha?Z.chaussures[0]:.95),X(.95),Math.min(H,Y(alpha?1:1.07)),res.wb);
+  return {blob:res.blob, t};
+}
+function lookMatch(t, items, ctx){
+  const dmaps={}; for(const r in t) if(t[r]) dmaps[r]=Object.fromEntries(nearestColors(t[r].lab));
+  const sim=(role,i)=>{ const d=dmaps[role]; if(!d) return null; if(i.color==="motif") return .2;
+    const f=c=>c&&d[c]!=null?Math.max(0,1-d[c]/40):0; return Math.max(f(i.color),.8*f(i.color2)); };
+  const top=(type,role,n)=>items.filter(i=>i.type===type&&!isDirty(i)).map(i=>({i,s:sim(role,i)??.5})).sort((a,b)=>b.s-a.s).slice(0,n);
+  const H=top("haut","haut",4), B=top("bas","bas",4), S=top("chaussures","chaussures",4), V=t.veste?top("veste","veste",3):[];
+  // une robe ne colle que si le haut et le bas de la photo sont de la même couleur
+  const sameHB=t.haut&&t.bas&&labDist(t.haut.lab,t.bas.lab,.6)<15;
+  const Rb=sameHB?items.filter(i=>i.type==="robe"&&!isDirty(i)).map(i=>({i,s:(sim("haut",i)+sim("bas",i))/2})).sort((a,b)=>b.s-a.s).slice(0,3):[];
+  const W={haut:3,bas:3,chaussures:t.chaussures?1.5:.3,veste:2};
+  const bodies=[]; for(const h of H) for(const b of B) bodies.push({p:[h.i,b.i], m:h.s*W.haut+b.s*W.bas}); for(const r of Rb) bodies.push({p:[r.i], m:r.s*(W.haut+W.bas)});
+  if(!bodies.length||!S.length) return null;
+  const out=[];
+  for(const bd of bodies) for(const sh of S) for(const v of (V.length?V:[null])){
+    const pieces=[v?.i,...bd.p,sh.i].filter(Boolean);
+    const m=(bd.m+sh.s*W.chaussures+(v?v.s*W.veste:0))/(W.haut+W.bas+W.chaussures+(t.veste?W.veste:0));
+    const sc=scoreOutfit(pieces,ctx);
+    out.push({pieces, m, sc, tot:m*.8+sc.colorScore/10*.2, k:pieces.map(x=>x.id).sort().join(",")});
+  }
+  out.sort((a,b)=>b.tot-a.tot);
+  // ce qui manque au dressing pour coller vraiment à la photo
+  const notes=[], LB={haut:"haut",bas:"bas",chaussures:"chaussures",veste:"veste"}, G={chaussures:"fp",veste:"f"};
+  for(const [r,list] of [["haut",H],["bas",B],["chaussures",S],["veste",V]]){
+    if(!t[r]) continue;
+    const best=Math.max(0,...list.map(x=>x.s), ...(r!=="chaussures"&&r!=="veste"&&sameHB?Rb.map(x=>x.s):[]));
+    if(best<.45) notes.push(`Pas de ${LB[r]} ${colorWord(t[r].id,G[r]||"")} dans ton dressing : on a pris le plus proche`);
+  }
+  return {list:out.slice(0,8), notes};
 }
 function rgbFromLab([L,a,b]){
   const fy=(L+16)/116, fx=fy+a/500, fz=fy-b/200, f3=t=>t*t*t>0.008856?t*t*t:(t-16/116)/7.787;
@@ -2162,6 +2264,11 @@ document.addEventListener("click", async e=>{
   }
   else if(act==="pin"){ closeSheet(); state.ctx.pin=b.dataset.id; state.tab="tenue"; state.current=null; state.avoid.clear(); render(); scrollTo(0,0); }
   else if(act==="unpin"){ state.ctx.pin=null; state.current=null; render(); }
+  else if(act==="next" && state.current?.insp){ const g=state.current, ins=g.insp;
+    if(ins.list.length<2){ closeLook(); render(); return; }
+    ins.idx=(ins.idx+1)%ins.list.length; const x=ins.list[ins.idx];
+    state.current={...g, outfit:{pieces:x.pieces, acc:[], k:x.k, ...x.sc}}; render(); }
+  else if(act==="closeinsp"){ closeLook(); render(); }
   else if(act==="next"){ if(cur) state.avoid.add(cur.k); state.current=generate(state.items,state.ctx,state.avoid); render(); }
   else if(act==="dislike"){ if(!cur) return; await learn(cur.pieces,-1); state.avoid.add(cur.k); state.current=generate(state.items,state.ctx,state.avoid); render(); toast("Noté, l'app évitera ce genre de tenue."); }
   else if(act==="fav"){
@@ -2240,6 +2347,21 @@ document.addEventListener("click", async e=>{
   else if(act==="import") document.getElementById("importFile").click();
 });
 document.getElementById("addBtn").addEventListener("click",()=>openEditor(null));
+function closeLook(){ const i=state.current?.insp; if(i) URL.revokeObjectURL(i.url); state.current=null; }
+document.addEventListener("change",async e=>{
+  if(e.target.id!=="lookIn") return;
+  const f=e.target.files[0]; e.target.value=""; if(!f) return;
+  openSheet(`<div class="sheet-h"><h2>Recréer un look</h2></div><div class="photo-big"><div class="ph"><img src="${URL.createObjectURL(f)}" alt=""></div><div class="busy"><span class="spin"></span>${seen("cut")?"On analyse la tenue…":"On analyse la tenue… Première fois : téléchargement de l'outil (~40 Mo, une seule fois)."}</div></div>`);
+  let a=null; try{ a=await analyzeLook(f); markSeen("cut"); }catch(err){}
+  closeSheet();
+  if(!a||!a.t.haut&&!a.t.bas){ toast("Impossible de repérer la tenue sur cette photo. Essaie une photo où la personne est bien visible."); return; }
+  const m=lookMatch(a.t, state.items, state.ctx);
+  if(!m||!m.list.length){ toast("Ajoute au moins un haut, un bas et des chaussures pour recréer un look."); return; }
+  closeLook();
+  const x=m.list[0];
+  state.current={outfit:{pieces:x.pieces, acc:[], k:x.k, ...x.sc}, insp:{url:URL.createObjectURL(a.blob), t:a.t, list:m.list, idx:0, notes:m.notes}};
+  state.tab="tenue"; render(); scrollTo({top:0,behavior:"smooth"});
+});
 document.getElementById("importFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(f) importData(f); e.target.value=""; });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(batch) finishBatch(); else if(!ob) closeSheet(); } });
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") refreshWeather(); });
