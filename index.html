@@ -204,6 +204,7 @@ nav.tabs button.t[aria-current="page"] svg{filter:drop-shadow(0 0 4px rgba(var(-
 .pinbar .ph{width:44px;height:44px;border-radius:10px;flex:none}
 .pinbar span{flex:1;min-width:0;font-size:14px}
 .accrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.accrow .swap-ic{top:5px;right:5px;width:22px;height:22px}.accrow .swap-ic svg{width:12px;height:12px}
 .ph.cut img{object-fit:contain;padding:5%}
 .btn.sq{padding:12px}
 .btn.sm{padding:8px 12px;font-size:13px}
@@ -930,6 +931,7 @@ function weatherLine(){
 
 function piecesTile(p, wide, swappable){
   const inner=`${ph(p)}<div class="cap">${dot(p.color,p.color2)}<span>${esc(itemName(p))}</span></div>`;
+  if(swappable==="acc") return `<button class="piece" data-act="accmenu" data-id="${p.id}" aria-label="Retirer ou garder : ${esc(itemName(p))}">${inner}<span class="swap-ic">${ICON.x}</span></button>`;
   return swappable ? `<button class="piece ${wide?"wide":""}" data-act="swap" data-type="${p.type}" aria-label="Changer : ${esc(itemName(p))}">${inner}<span class="swap-ic">${ICON.swap}</span></button>`
                    : `<div class="piece ${wide?"wide":""}">${inner}</div>`;
 }
@@ -971,7 +973,7 @@ function viewTenue(){
     const accNotes = acc.map(a=>a.note).filter(Boolean);
     card = `<article class="outfit" aria-label="Tenue proposée">
       <div class="flatlay ${cols===3?"c3":""}" style="--cols:${cols}">${ordered.map(p=>piecesTile(p, false, true)).join("")}</div>
-      ${acc.length?`<div><div class="ctl-label">Accessoires</div><div class="accrow">${acc.map(a=>piecesTile(a.item)).join("")}</div></div>`:""}
+      ${acc.length?`<div><div class="ctl-label">Accessoires</div><div class="accrow">${acc.map(a=>piecesTile(a.item,false,"acc")).join("")}</div></div>`:""}
       <div class="score-row"><div class="score">${o.colorScore}<small>/10</small></div><div style="flex:1"><div class="ctl-label" style="margin:0 0 5px">Harmonie des couleurs</div><div class="meter"><i style="width:${o.colorScore*10}%"></i></div></div></div>
       <ul class="why">${o.ok.map(t=>`<li>${esc(t)}</li>`).join("")}${accNotes.filter(n=>!n.startsWith("ceinture et")).map(t=>`<li>${esc(t)}</li>`).join("")}${o.warn.map(t=>`<li class="warn">${esc(t)}</li>`).join("")}${accNotes.filter(n=>n.startsWith("ceinture et")).map(t=>`<li class="warn">Attention : ${esc(t)}</li>`).join("")}${g.noJacket?`<li class="warn">Il fait froid et tu n'as pas encore de veste enregistrée</li>`:""}${c.rain&&c.weather!=="chaud"?`<li>Pluie prévue : la veste est incluse d'office</li>`:""}</ul>
       ${addLayerLinks(o)}
@@ -981,7 +983,7 @@ function viewTenue(){
         <button class="act ${isFav?"on":""}" data-act="fav" aria-pressed="${isFav}">${ICON.heart(isFav)}<span>${isFav?"Adorée":"J'adore"}</span></button>
         <button class="act" data-act="wear">${ICON.check}<span>Je la mets aujourd'hui</span></button>
       </div>
-      ${swipeHintSeen()?"":`<p class="sub swipe-hint">Astuce : touche une pièce pour la changer, glisse la tenue ← pour une autre, → pour l'adorer.</p>`}
+      ${swipeHintSeen()?"":`<p class="sub swipe-hint">Astuce : touche une pièce pour la changer ou la retirer, glisse la tenue ← pour une autre, → pour l'adorer.</p>`}
     </article>`;
   }
   const favs = state.outfits.map(f=>({f, pieces:f.ids.map(id=>state.items.find(i=>i.id===id)).filter(Boolean)})).filter(x=>x.pieces.length===x.f.ids.length);
@@ -2153,14 +2155,18 @@ function swapCandidates(type){
   const order=p=>MAIN_ORDER.indexOf(p.type);
   const opts=state.items.filter(i=>i.type===type && i.id!==cur?.id && !isDirty(i) && OCC[ctx.occ][i.style]!==null && SEA[ctx.weather][i.season]!==null)
     .map(i=>{ const pieces=[...base,i].sort((a,b)=>order(a)-order(b)); return {item:i, pieces, sc:scoreOutfit(pieces,ctx)}; });
-  if(cur && (type==="veste"||type==="pull")) opts.push({item:null, pieces:base, sc:scoreOutfit(base,ctx)});
   return {cur, opts:opts.sort((a,b)=>b.sc.s-a.sc.s)};
 }
+const ADD_L={veste:"une veste",pull:"un pull",haut:"un haut",bas:"un bas",robe:"une robe",chaussures:"des chaussures"};
 function addLayerLinks(o){
-  if(state.ctx.weather==="chaud") return "";
-  const links=[];
-  for(const [t,l] of [["veste","une veste"],["pull","un pull"]]){
-    if(o.pieces.some(p=>p.type===t)) continue;
+  const links=[], has=t=>o.pieces.some(p=>p.type===t);
+  // pièces de base retirées à la main : on propose de les remettre
+  for(const t of ["haut","bas","chaussures"]){
+    if(has(t) || (t!=="chaussures" && has("robe"))) continue;
+    if(state.items.some(i=>i.type===t && !isDirty(i))) links.push(`<button class="link" data-act="swap" data-type="${t}">+ Ajouter ${ADD_L[t]}</button>`);
+  }
+  for(const [t,l] of (state.ctx.weather==="chaud"?[]:[["veste","une veste"],["pull","un pull"]])){
+    if(has(t)) continue;
     if(t==="pull" && !settings.layering) continue;
     if(state.items.some(i=>i.type===t && !isDirty(i))) links.push(`<button class="link" data-act="swap" data-type="${t}">+ Ajouter ${l}</button>`);
   }
@@ -2171,10 +2177,27 @@ function openSwap(type){
   const {cur,opts}=swapCandidates(type);
   const L={haut:"le haut",bas:"le bas",robe:"la robe",chaussures:"les chaussures",veste:"la veste",pull:"le pull"};
   openSheet(`<div class="grab"></div>
-    <div class="sheet-h"><h2>${cur?`Changer ${L[type]}`:`Ajouter ${type==="veste"?"une veste":"un pull"}`}</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
+    <div class="sheet-h"><h2>${cur?`Changer ${L[type]}`:`Ajouter ${ADD_L[type]}`}</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
+    ${cur && state.current.outfit.pieces.length>1 ? `<button class="btn ghost" data-act="removepiece" data-type="${type}">${ICON.x} Retirer ${L[type]} de la tenue</button>` : ""}
     ${opts.length?`<p class="sub" style="margin:0">Classés du plus au moins assorti avec le reste de la tenue.</p>
     <div class="rank">${opts.map(x=>`<button class="rk pick" data-act="swapto" data-type="${type}" data-id="${x.item?x.item.id:"none"}">${x.item?ph(x.item):`<div class="ph">${ICON.x}</div>`}<div class="rk-b"><div class="rk-n"><span>${x.item?esc(itemName(x.item)):`Sans ${type==="veste"?"veste":"pull"}`}</span><b>${x.sc.colorScore}/10</b></div><span class="sub">${esc(x.sc.warn[0]||x.sc.ok[0]||"")}</span></div></button>`).join("")}</div>`
     :`<p class="sub">Aucune autre pièce de ce type ne convient à cette météo et cette occasion${state.items.some(i=>i.type===type&&isDirty(i))?" (certaines sont au lavage)":""}.</p>`}`);
+}
+/* Retire une pièce (ou un accessoire) de la tenue affichée ; l'harmonie est recalculée sur ce qui reste. */
+function removeFromOutfit(type, accId){
+  const o=state.current?.outfit; if(!o) return;
+  const pieces = accId ? o.pieces : o.pieces.filter(p=>p.type!==type);
+  if(!pieces.length) return;
+  const acc = (o.acc||[]).filter(a=>a.item.id!==accId);
+  state.current={...state.current, outfit:{...scoreOutfit(pieces,state.ctx), pieces, acc, k:pieces.map(p=>p.id).sort().join(",")}};
+  closeSheet(); render();
+}
+function openAccMenu(id){
+  const a=(state.current?.outfit?.acc||[]).find(x=>x.item.id===id); if(!a) return;
+  openSheet(`<div class="grab"></div>
+    <div class="sheet-h"><h2>${esc(itemName(a.item))}</h2><button class="icon-btn" data-act="close" aria-label="Fermer">${ICON.x}</button></div>
+    <div class="photo-pick">${ph(a.item)}<p class="sub" style="margin:0">${esc(a.note||"Accessoire choisi pour aller avec cette tenue.")}</p></div>
+    <button class="btn ghost" data-act="removeacc" data-id="${id}">${ICON.x} Retirer de la tenue</button>`);
 }
 function applySwap(type,id){
   const o=state.current.outfit, x=swapCandidates(type).opts.find(z=>(z.item?z.item.id:"none")===id);
@@ -2326,6 +2349,9 @@ document.addEventListener("click", async e=>{
   else if(act==="toggledirty"){ sheetState.dirty=!sheetState.dirty; if(!sheetState.dirty) sheetState.since=0; renderEditor(sheetState.isNew); }
   else if(act==="toggleset"){ const k=b.dataset.k; settings[k]=!settings[k]; saveSettings(); b.setAttribute("aria-pressed",settings[k]); state.current=null; }
   else if(act==="swap") openSwap(b.dataset.type);
+  else if(act==="removepiece") removeFromOutfit(b.dataset.type);
+  else if(act==="accmenu") openAccMenu(b.dataset.id);
+  else if(act==="removeacc") removeFromOutfit(null, b.dataset.id);
   else if(act==="swapto") applySwap(b.dataset.type,b.dataset.id);
   else if(act==="help") openHelp();
   else if(act==="reframe"){
